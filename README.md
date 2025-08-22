@@ -59,6 +59,7 @@ import subprocess
 
 def save_run(cmd):
     if len(cmd) > 30: return "Command too long"
+    if any([i for i in ['builtins', 'os', 'exec'] if i in cmd]): return "WAF!"
     exec(cmd, {'__builtins__': None})
 
 save_run(input("Enter command: "))
@@ -71,6 +72,7 @@ save_run(input("Enter command: "))
 
 - 限制长度为30
 - 在exec的命名空间里禁止没有__builtins__
+- 禁止使用builtins, os, exec字符
 
 **Step2. 将waf导入Typhon**
 
@@ -97,7 +99,9 @@ save_run(input("Enter command: "))
 import Typhon
 
 def save_run(cmd):
-    Typhon.bypassRCE('cat /f*', local_scope={'__builtins__': None}, banned_chr=[], banned_ast=[], banned_audithook=[], max_length=30, log_level='info')
+    Typhon.bypassRCE('cat /f*', local_scope={'__builtins__': None},
+    banned_chr=['builtins', 'os', 'exec'],
+    max_length=30)
 
 save_run()
 ```
