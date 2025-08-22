@@ -106,10 +106,11 @@ def parse_payload_list(
     :param cmd: the final RCE command to execute, default None
     :return: list of payloads
     """
+    from Typhon import generated_path
     output = []
-    allowed_letters = [i for i in ascii_letters + '_' if i not in char_blacklist]
+    allowed_letters = [i for i in ascii_letters + '_' if i not in char_blacklist and i not in local_scope]
     allowed_digits = [i for i in digits if i not in char_blacklist]
-    payload_tag = ['RANDOMVARNAME', 'RANDOMSTRING', 'BUILTINOBJ']
+    payload_tag = ['RANDOMVARNAME', 'RANDOMSTRING', 'BUILTINOBJ', 'GENERATOR']
     builtin_obj = ['[]', '()', '{}'] # list, tuple, dict
     # builtin_obj.extend(allowed_digits)  # This line is only here to tell you that
     # digits do not work in some cases (like 1.__class__)
@@ -140,6 +141,11 @@ def parse_payload_list(
             if allow_unicode_bypass:
                 output.append(path.replace('OBJ', '"'+generate_unicode_char()+'"'))
             continue
+        if 'GENERATOR' in path:
+            if 'GENERATOR' in generated_path:
+                output.append(path.replace('GENERATOR', generated_path['GENERATOR']))
+            else:
+                continue
         output.append(path)
     # if cmd != None: # Then we need to fill in the blanks with the RCE command
     #         CMD = "'" + cmd + "'"
@@ -164,6 +170,7 @@ def filter_path_list(path_list: list, tagged_scope: dict) -> list:
         :param scope: the scope to check in
         :return: the payload if the need is met, None otherwise
         """
+        
         if need in sys.modules: # need is a module
             pass # TODO: check if module is already imported, if not, check if we can import modules
         elif need in dir(builtins): # need is a builtin
@@ -237,7 +244,7 @@ def try_bypasses(pathlist,
     :return: list of successful payloads
     """
     successful_payloads = []
-    pathlist = parse_payload_list(pathlist, banned_chars, allow_unicode_bypass, cmd)
+    pathlist = parse_payload_list(pathlist, banned_chars, allow_unicode_bypass, local_scope, cmd)
     Total = len(pathlist)
     for i, path in enumerate(pathlist):
         progress_bar(i+1, Total)
@@ -268,7 +275,7 @@ def progress_bar(current, total, bar_length=80):
     sys.stdout.write(f"\rBypassing ({current}/{total}): [{arrow + spaces}] {percent:.1f}%")
     sys.stdout.flush()
 
-def bypasses_output(bypassed_payload: str):
+def bypasses_output(bypassed_payload: str = ''):
     """
     Print a fancy output of the bypassed payload
     
@@ -283,8 +290,8 @@ def bypasses_output(bypassed_payload: str):
         payload_len = achivements[i][1]
         if payload_len > 1:
             print('\033[34m' +  i + '(' + str(payload_len) + ' payloads found): \033[0m' + achivements[i][0])
-        else: # only one payload
-            print('\033[34m' +  i + '(1 payload found): \033[0m' + achivements[i][0])
+        else: # only one payload or no payload found
+            print('\033[34m' +  i + '(' + str(payload_len) + ' payload found): \033[0m' + achivements[i][0])
     print('\n')
     print('-----------Progress-----------')
     if bypassed_payload:
