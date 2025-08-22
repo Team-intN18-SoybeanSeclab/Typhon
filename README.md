@@ -66,6 +66,7 @@ save_run(input("Enter command: "))
 ```
 
 **Step1. 分析waf**
+
 首先，我们需要分析一下pyjail waf的功能（这可能是唯一需要大脑的地方）。
 
 可以看出，上述题目的waf如下：
