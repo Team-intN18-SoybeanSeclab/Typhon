@@ -30,7 +30,7 @@ pip install TyphonBreaker
 
 ```python
 import Typhon
-Typhon.bypass(cmd: str,
+Typhon.bypassRCE(cmd: str,
     local_scope: Dict[str, Any] = 
     banned_chr: list,
     banned_ast: list[ast.AST],
@@ -41,13 +41,14 @@ Typhon.bypass(cmd: str,
 
 参数解析：
 
-`local_scope`: 沙箱内的全局变量空间
-`banned_chr`: 禁止的字符
-`banned_ast`: 禁止的AST节点
-`banned_audithook`: 禁止的审计事件
-`max_length`: payload的最大长度
-`depth`: 最大递归深度（最多到10，再多估计也没用了）
-`log_level`: 输出级别（只支持`info`和`debug`，不建议更改）
+`cmd`: RCE所使用的bash command
+`local_scope`: 沙箱内的全局变量空间  
+`banned_chr`: 禁止的字符  
+`banned_ast`: 禁止的AST节点  
+`banned_audithook`: 禁止的审计事件  
+`max_length`: payload的最大长度  
+`depth`: 最大递归深度（最多到10，再多估计也没用了）  
+`log_level`: 输出级别（只支持`info`和`debug`，不建议更改）  
 
 **Command Line Interface**
 

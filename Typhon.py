@@ -31,7 +31,7 @@ BANNER = r'''
         _/ /` _\_   |))
 '''
 
-def bypass(cmd: str,
+def bypassRCE(cmd: str,
            local_scope: Dict[str, Any] = 
            {i: getattr(__builtins__, i) for i in dir(__builtins__)},
            banned_chr: list = [], banned_ast: list[ast.AST] = [],
