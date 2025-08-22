@@ -267,7 +267,7 @@ def progress_bar(current, total, bar_length=80):
     
     Only avaliable in info mode.
     """
-    if log_level_ != 'info': return
+    if log_level_ != 'INFO': return
     percent = float(current) * 100 / total
     arrow = '=' * int(percent / 100 * bar_length - 1) + '>'
     spaces = ' ' * (bar_length - len(arrow))
