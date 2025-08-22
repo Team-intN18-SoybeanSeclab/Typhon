@@ -24,8 +24,6 @@ pip install TyphonBreaker
 
 ### Interface
 
-为了更加灵活，Typhon提供两套接口：
-
 **in Code**
 
 ```python
@@ -39,8 +37,6 @@ Typhon.bypassRCE(cmd: str,
     log_level: str) 
 ```
 
-参数解析：
-
 `cmd`: RCE所使用的bash command  
 `local_scope`: 沙箱内的全局变量空间  
 `banned_chr`: 禁止的字符  
@@ -52,12 +48,64 @@ Typhon.bypassRCE(cmd: str,
 
 **Command Line Interface**
 
-```bash
-python3 -m Typhon 
+这部分不是本工具的重点，但是PR welcome. 
+
+## Step by Step Tutorial
+
+假设有如下题目：
+
+```python
+import subprocess
+
+def save_run(cmd):
+    if len(cmd) > 30: return "Command too long"
+    exec(cmd, {'__builtins__': None})
+
+save_run(input("Enter command: "))
 ```
 
-### Step by Step Tutorial
+**Step1. 分析waf**
+首先，我们需要分析一下pyjail waf的功能（这可能是唯一需要大脑的地方）。
+
+可以看出，上述题目的waf如下：
+
+- 限制长度为30
+- 在exec的命名空间里禁止没有__builtins__
+
+**Step2. 将waf导入Typhon**
+
+首先我们需要导入Typhon包：
+
+```python
+import Typhon
+```
+
+接下来，我们将exec行删除：
+
+```python
+import subprocess
+
+def save_run(cmd):
+    if len(cmd) > 30: return "Command too long"
+
+save_run(input("Enter command: "))
+```
+
+最后，我们将Typhon.bypassRCE函数作为save_run的替代：
+
+```python
+import Typhon
+
+def save_run(cmd):
+    Typhon.bypassRCE('cat /f*', local_scope={'__builtins__': None}, banned_chr=[], banned_ast=[], banned_audithook=[], max_length=30, log_level='info')
+
+save_run()
+```
+
+**Step3. 运行**
+
+运行你的题目程序，等待**Jail broken**的信息出现即可。
 
 
-### Quick Example
+## Best Practice
 
