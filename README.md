@@ -10,7 +10,7 @@
 
 - 不需要大脑就能完成pyjail题目，爱护您的脑细胞和眼球
 - 拥有上千条gadgets和几乎所有主流的bypass方法
-- 整个工具只有一个函数封装出去，上手极其简单（再次爱护您的脑细胞和眼球）
+- 支持多种函数以达成不同功能，如RCE用`bypassRCE()`, 读文件用`bypassRead()`, 写文件用`bypassWrite()`等等
 
 ## How to Use
 
@@ -76,29 +76,21 @@ save_run(input("Enter command: "))
 
 **Step2. 将waf导入Typhon**
 
-首先我们需要导入Typhon包：
+首先我们将exec行删除：
 
 ```python
-import Typhon
-```
-
-接下来，我们将exec行删除：
-
-```python
-import subprocess
-
 def save_run(cmd):
     if len(cmd) > 30: return "Command too long"
 
 save_run(input("Enter command: "))
 ```
 
-最后，我们将Typhon.bypassRCE函数作为save_run的替代：
+然后，我们以Typhon对应的bypass函数替代exec行, **并在该行上方`import Typhon`**：
 
 ```python
-import Typhon
 
 def save_run(cmd):
+    import Typhon
     Typhon.bypassRCE('cat /f*', local_scope={'__builtins__': None},
     banned_chr=['builtins', 'os', 'exec'],
     max_length=30)
