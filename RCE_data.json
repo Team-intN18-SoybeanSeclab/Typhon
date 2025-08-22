@@ -6,10 +6,10 @@
         ["exec(input())", "exec,input"],
         ["eval(input())", "eval,input"],
         ["compile(input(), '<string>', 'exec')", "compile,input"],
-        ["from os import system as __getattr__; from __main__ import sh", ""],
-        ["from os import popen as __getattr__; from __main__ import sh", ""],
-        ["from uuid import _get_command_stdout as __getattr__; from __main__ import sh", ""],
-        ["import pdb; pdb.set_trace()", ""]
+        ["from os import system as __getattr__; from __main__ import sh", "BUILTINS_SET_CHANGED"],
+        ["from os import popen as __getattr__; from __main__ import sh", "BUILTINS_SET_CHANGED"],
+        ["from uuid import _get_command_stdout as __getattr__; from __main__ import sh", "BUILTINS_SET_CHANGED"],
+        ["import pdb; pdb.set_trace()", "BUILTINS_SET_CHANGED"]
     ],
     "restore_builtins_in_current_ns":[
         ["__builtins__", "BUILTINS_SET_CHANGED"],

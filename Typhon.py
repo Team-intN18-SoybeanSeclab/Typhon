@@ -115,7 +115,7 @@ Try to bypass blacklist with them. Please be paitent.', len(generator_path))
             tags.append('GENERATOR')
             generated_path['GENERATOR'] = _[0]
             frame_class = (a for a in ()).gi_frame.__class__
-            if eval(i+'.__class__') == frame_class:
+            if eval(i+'.__class__', original_scope) == frame_class:
                 tagged_scope[i] = [eval(i), 'GENERATOR']
             else:
                 achivements['directly input bypass'] = ['None', 0]
@@ -150,7 +150,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                 is_builtin_dict_found, is_builtin_module_found = False, False
                 for i in _:
                     try:
-                        if (eval(i) == __builtins__ 
+                        if (eval(i, original_scope) == __builtins__ 
                             and not is_builtin_dict_found 
                             and type(eval(i, original_scope)) == dict):
                             logger.info('[*] Using %s as the restored builtins dict.', i)
@@ -159,7 +159,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                             tags.append('BUILTINS_SET')
                             generated_path['BUILTINS_SET'] = _[0]
                             is_builtin_dict_found = True
-                        elif (eval(i) == builtins 
+                        elif (eval(i, original_scope) == builtins 
                               and not is_builtin_module_found
                               and type(eval(i, original_scope)) == ModuleType):
                             logger.info('[*] Using %s as the restored builtins module.', i)
@@ -197,7 +197,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                 is_builtin_dict_found, is_builtin_module_found = False, False
                 for i in _:
                     try:
-                        if (eval(i) == __builtins__ 
+                        if (eval(i, original_scope) == __builtins__ 
                             and not is_builtin_dict_found 
                             and type(eval(i, original_scope)) == dict):
                             logger.info('[*] Using %s as the restored builtins dict.', i)
@@ -206,7 +206,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                             tags.append('BUILTINS_SET')
                             generated_path['BUILTINS_SET'] = _[0]
                             is_builtin_dict_found = True
-                        elif (eval(i) == builtins 
+                        elif (eval(i, original_scope) == builtins 
                               and not is_builtin_module_found
                               and type(eval(i, original_scope)) == ModuleType):
                             logger.info('[*] Using %s as the restored builtins module.', i)

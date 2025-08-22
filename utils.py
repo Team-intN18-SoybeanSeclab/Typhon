@@ -3,7 +3,6 @@ import inspect
 import builtins
 
 from bypasser import *
-from Typhon import log_level_
 from string import ascii_letters, digits
 from types import FunctionType, ModuleType
 
@@ -265,9 +264,10 @@ def progress_bar(current, total, bar_length=80):
     Note: sometime this may cause gliches in your console (somehow, idk).
     That's bad, but I don't want to rely on `tqdm` just for this simple feature.
     
-    Only avaliable in info mode.
+    Not avaliable in debug mode
     """
-    if log_level_ != 'INFO': return
+    from Typhon import log_level_
+    if log_level_ == 'DEBUG': return
     percent = float(current) * 100 / total
     arrow = '=' * int(percent / 100 * bar_length - 1) + '>'
     spaces = ' ' * (bar_length - len(arrow))
