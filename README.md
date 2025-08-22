@@ -41,7 +41,7 @@ Typhon.bypassRCE(cmd: str,
 
 参数解析：
 
-`cmd`: RCE所使用的bash command
+`cmd`: RCE所使用的bash command  
 `local_scope`: 沙箱内的全局变量空间  
 `banned_chr`: 禁止的字符  
 `banned_ast`: 禁止的AST节点  
