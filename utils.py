@@ -242,9 +242,11 @@ def try_bypasses(pathlist,
     :param cmd: command to RCE (in the final step, otherwise None)
     :return: list of successful payloads
     """
+    from Typhon import log_level_
     successful_payloads = []
     pathlist = parse_payload_list(pathlist, banned_chars, allow_unicode_bypass, local_scope, cmd)
-    Total = len(pathlist)
+    if log_level_ == 'DEBUG': Total = 0
+    else: Total = len(pathlist)
     for i, path in enumerate(pathlist):
         progress_bar(i+1, Total)
         # if not is_blacklisted(path, blacklist):
@@ -264,10 +266,9 @@ def progress_bar(current, total, bar_length=80):
     Note: sometime this may cause gliches in your console (somehow, idk).
     That's bad, but I don't want to rely on `tqdm` just for this simple feature.
     
-    Not avaliable in debug mode
+    Not avaliable in debug mode. In debug mode, `total` is force to 0
     """
-    from Typhon import log_level_
-    if log_level_ == 'DEBUG': return
+    if total == 0: return
     percent = float(current) * 100 / total
     arrow = '=' * int(percent / 100 * bar_length - 1) + '>'
     spaces = ' ' * (bar_length - len(arrow))
