@@ -58,7 +58,7 @@ Typhon.bypassRCE(cmd: str,
 def safe_run(cmd):
     if len(cmd) > 30: return "Command too long"
     if any([i for i in ['builtins', 'os', 'exec'] if i in cmd]): return "WAF!"
-    exec(cmd, {'__builtins__': None})
+    exec(cmd, {'help': None, 'breakpoint': None, 'input': None})
 
 safe_run(input("Enter command: "))
 ```
@@ -70,8 +70,8 @@ safe_run(input("Enter command: "))
 可以看出，上述题目的waf如下：
 
 - 限制长度为30
-- 在exec的命名空间里禁止没有__builtins__
-- 禁止使用builtins, os, exec字符
+- 在exec的命名空间里没有`help()`, `breakpoint()`和`input()`函数
+- 禁止使用`builtins`, `os`, `exec`字符
 
 **Step2. 将waf导入Typhon**
 
@@ -90,11 +90,11 @@ safe_run(input("Enter command: "))
 
 def safe_run(cmd):
     import Typhon
-    Typhon.bypassRCE('cat /f*', local_scope={'__builtins__': None},
+    Typhon.bypassRCE(cmd, local_scope={'help': None, 'breakpoint': None, 'input': None},
     banned_chr=['builtins', 'os', 'exec'],
     max_length=30)
 
-safe_run()
+safe_run('cat /f*')
 ```
 
 **Step3. 运行**
@@ -121,11 +121,11 @@ safe_run(input("Enter command: "))
 ```python
 
 def safe_run(cmd):
-    __import__('Typhon').bypassRCE('cat /f*',
+    __import__('Typhon').bypassRCE(cmd,
     banned_chr=['builtins', 'os', 'exec'],
     max_length=30)
 
-safe_run()
+safe_run('cat /f*')
 ```
 
 这样Typhon才能通过获取调用时上一帧的栈帧来获取local_scope。
