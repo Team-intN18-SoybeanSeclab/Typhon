@@ -56,8 +56,10 @@ Typhon.bypassRCE(cmd: str,
 
 ```python
 def safe_run(cmd):
-    if len(cmd) > 30: return "Command too long"
-    if any([i for i in ['builtins', 'os', 'exec'] if i in cmd]): return "WAF!"
+    if len(cmd) > 30:
+        return "Command too long"
+    if any([i for i in ['builtins', 'os', 'exec'] if i in cmd]):
+        return "WAF!"
     exec(cmd, {'help': None, 'breakpoint': None, 'input': None})
 
 safe_run(input("Enter command: "))
@@ -79,7 +81,10 @@ safe_run(input("Enter command: "))
 
 ```python
 def safe_run(cmd):
-    if len(cmd) > 30: return "Command too long"
+    if len(cmd) > 30:
+        return "Command too long"
+    if any([i for i in ['builtins', 'os', 'exec'] if i in cmd]):
+        return "WAF!"
 
 safe_run(input("Enter command: "))
 ```
@@ -90,7 +95,8 @@ safe_run(input("Enter command: "))
 
 def safe_run(cmd):
     import Typhon
-    Typhon.bypassRCE(cmd, local_scope={'help': None, 'breakpoint': None, 'input': None},
+    Typhon.bypassRCE(cmd,
+    local_scope={'help': None, 'breakpoint': None, 'input': None},
     banned_chr=['builtins', 'os', 'exec'],
     max_length=30)
 
@@ -109,8 +115,10 @@ safe_run('cat /f*')
 
 ```python
 def safe_run(cmd):
-    if len(cmd) > 30: return "Command too long"
-    if any([i for i in ['builtins', 'os', 'exec'] if i in cmd]): return "WAF!"
+    if len(cmd) > 30:
+        return "Command too long"
+    if any([i for i in ['builtins', 'os', 'exec'] if i in cmd]):
+        return "WAF!"
     exec(cmd, {'__builtins__': None})
 
 safe_run(input("Enter command: "))
