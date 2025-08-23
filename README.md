@@ -29,7 +29,7 @@ pip install TyphonBreaker
 ```python
 import Typhon
 Typhon.bypassRCE(cmd: str,
-    local_scope: Dict[str, Any] = 
+    local_scope: Dict[str, Any],
     banned_chr: list,
     banned_ast: list[ast.AST],
     banned_audithook: list[str],
@@ -55,14 +55,12 @@ Typhon.bypassRCE(cmd: str,
 假设有如下题目：
 
 ```python
-import subprocess
-
-def save_run(cmd):
+def safe_run(cmd):
     if len(cmd) > 30: return "Command too long"
     if any([i for i in ['builtins', 'os', 'exec'] if i in cmd]): return "WAF!"
     exec(cmd, {'__builtins__': None})
 
-save_run(input("Enter command: "))
+safe_run(input("Enter command: "))
 ```
 
 **Step1. 分析waf**
@@ -80,28 +78,44 @@ save_run(input("Enter command: "))
 首先我们将exec行删除：
 
 ```python
-def save_run(cmd):
+def safe_run(cmd):
     if len(cmd) > 30: return "Command too long"
 
-save_run(input("Enter command: "))
+safe_run(input("Enter command: "))
 ```
 
 然后，我们以Typhon对应的bypass函数替代exec行, **并在该行上方`import Typhon`**：
 
 ```python
 
-def save_run(cmd):
+def safe_run(cmd):
     import Typhon
     Typhon.bypassRCE('cat /f*', local_scope={'__builtins__': None},
     banned_chr=['builtins', 'os', 'exec'],
     max_length=30)
 
-save_run()
+safe_run()
 ```
 
 **Step3. 运行**
 
 运行你的题目程序，等待**Jail broken**的信息出现即可。
+
+## Import Note
+
+- 当题目没有指定local_scope时，请不要填写local_scope参数，**并使用动态加载来调用bypass函数**。
+
+```python
+
+def safe_run(cmd):
+    __import__('Typhon').bypassRCE('cat /f*', local_scope={'__builtins__': None},
+    banned_chr=['builtins', 'os', 'exec'],
+    max_length=30)
+
+safe_run()
+```
+
+这样Typhon才能通过获取调用时上一帧的栈帧来获取local_scope。
 
 
 ## Best Practice

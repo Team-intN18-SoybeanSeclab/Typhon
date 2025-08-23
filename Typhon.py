@@ -10,6 +10,7 @@
 import json
 import logging
 
+from inspect import currentframe
 from typing import Any, Dict
 
 # need to be set before other imports
@@ -32,8 +33,7 @@ BANNER = r'''
 '''
 
 def bypassRCE(cmd: str,
-           local_scope: Dict[str, Any] = 
-           {i: getattr(__builtins__, i) for i in dir(__builtins__)},
+           local_scope: Dict[str, Any] = {},
            banned_chr: list = [], banned_ast: list[ast.AST] = [],
            banned_audithook: list[str] = [],
            max_length: int = None,
@@ -55,6 +55,11 @@ def bypassRCE(cmd: str,
     '''
     print(BANNER)
     global achivements, log_level_, generated_path
+    if local_scope == {}:
+        # If the local scope is not specified, raise a warning.
+        logger.warning('[*] local scope not specified, please make sure you use dynamic import to load Typhon.')
+        local_scope = currentframe().f_back.f_globals
+        local_scope['__builtins__'] = __builtins__;print(local_scope);exit(0)
     log_level_ = log_level.upper()
     logger.setLevel(log_level_)
     achivements = {} # The progress we've gone so far. Being output in the end
@@ -62,10 +67,6 @@ def bypassRCE(cmd: str,
     original_scope = deepcopy(local_scope)
     # changes in local scope comparing to standard builtins
     change_in_builtins = [i for i in local_scope if i in dir(builtins)]
-    if local_scope == {}:
-        # If the local scope is not specified, raise a warning.
-        logger.warning('[*] local scope not specified, use default local scope.')
-
     # Step1: Analyze and tag the local scope
     if '__builtins__' not in local_scope:
         local_scope['__builtins__'] = __builtins__
