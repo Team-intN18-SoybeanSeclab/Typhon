@@ -25,6 +25,10 @@ def tag_variables(variables, change_in_builtins) -> list:
     builtins_set = set(dir(builtins))
     
     for name, obj in variables.items():
+        # Check if it's an exception
+        if isinstance(obj, BaseException):
+            tagged[name] = 'EXCEPTION'
+            continue
         # Check if it's a builtin object
         if name in builtins_set:
             tagged[name] = 'BUILTINS'
@@ -51,7 +55,7 @@ def tag_variables(variables, change_in_builtins) -> list:
             continue
         # Check if it's a class
         if inspect.isclass(obj):
-            tagged[name] = 'USER_DEFINED_CLASS_{}'.format(obj.__name__.upper())
+            tagged[name] = 'USER_DEFINED_CLASS'
             continue
         # Check for user-defined variables
         try:
@@ -110,7 +114,7 @@ def parse_payload_list(
     allowed_letters = [i for i in ascii_letters + '_' if i not in char_blacklist and i not in local_scope]
     allowed_digits = [i for i in digits if i not in char_blacklist]
     payload_tag = ['RANDOMVARNAME', 'RANDOMSTRING', 'BUILTINOBJ', 'GENERATOR']
-    builtin_obj = ['[]', '()', '{}'] # list, tuple, dict
+    builtin_obj = ['[]', '()', '{}', "''"] # list, tuple, dict, string
     # builtin_obj.extend(allowed_digits)  # This line is only here to tell you that
     # digits do not work in some cases (like 1.__class__)
     builtin_obj.extend(["'" + i + "'" for i in allowed_letters])
@@ -169,7 +173,6 @@ def filter_path_list(path_list: list, tagged_scope: dict) -> list:
         :param scope: the scope to check in
         :return: the payload if the need is met, None otherwise
         """
-        
         if need in sys.modules: # need is a module
             pass # TODO: check if module is already imported, if not, check if we can import modules
         elif need in dir(builtins): # need is a builtin
@@ -194,11 +197,22 @@ def filter_path_list(path_list: list, tagged_scope: dict) -> list:
     for path in path_list:
         path, need = path[0], path[1]
         if need: # we need something in this path
-            need = need.split(',')
-            for i in need:
-                path = check_need(path, tagged_scope, i)
-            if path:
-                filtered_list.append(path)
+            if ',' in need: # we need multiple things in this path
+                need = need.split(',')
+                for i in need:
+                    path = check_need(path, tagged_scope, i)
+                    if path is None: break
+                if path:
+                    filtered_list.append(path)
+            elif '|' in need: # we need one of the things in this path
+                need = need.split('|')
+                for i in need:
+                    path_ = check_need(path, tagged_scope, i)
+                    if path_: filtered_list.append(path_); break
+            else: # we need one thing in this path
+                path = check_need(path, tagged_scope, need)
+                if path:
+                    filtered_list.append(path)
         else: # we don't need anything in this path
             filtered_list.append(path)
     return filtered_list

@@ -6,10 +6,10 @@
         ["exec(input())", "exec,input"],
         ["eval(input())", "eval,input"],
         ["compile(input(), '<string>', 'exec')", "compile,input"],
-        ["from os import system as __getattr__; from __main__ import sh", "BUILTINS_SET_CHANGED"],
-        ["from os import popen as __getattr__; from __main__ import sh", "BUILTINS_SET_CHANGED"],
-        ["from uuid import _get_command_stdout as __getattr__; from __main__ import sh", "BUILTINS_SET_CHANGED"],
-        ["import pdb; pdb.set_trace()", "BUILTINS_SET_CHANGED"]
+        ["from os import system as __getattr__; from __main__ import sh", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
+        ["from os import popen as __getattr__; from __main__ import sh", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
+        ["from uuid import _get_command_stdout as __getattr__; from __main__ import sh", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
+        ["import pdb; pdb.set_trace()", "BUILTINS_SET_CHANGED|BUILTINS_SET"]
     ],
     "restore_builtins_in_current_ns":[
         ["__builtins__", "BUILTINS_SET_CHANGED"],
@@ -73,10 +73,14 @@
         ["GENERATOR.f_globals['__builtins__']", ""]
     ],
     "generator": [
-        ["(RANDOMVARNAME for RANDOMVARNAME in ()).gi_frame", ""],
-        ["(await RANDOMVARNAME for RANDOMVARNAME in ()).ag_frame", ""],
-        ["try: 1/0\nexcept Exception as e: e.__traceback__.tb_frame", "Exception"],
-        ["async def a():pass\na().cr_frame", ""]
+        ["(RANDOMVARNAME for RANDOMVARNAME in ()).gi_frame", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
+        ["(await RANDOMVARNAME for RANDOMVARNAME in ()).ag_frame", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
+        ["try: 1/0\nexcept Exception as e: e.__traceback__.tb_frame", "EXCEPTION"],
+        ["async def a():pass\na().cr_frame", "BUILTINS_SET_CHANGED|BUILTINS_SET"]
+    ],
+    "type": [
+        ["OBJ.__class__.__class__", ""],
+        ["type(USER_DEFINED_CLASS).__class__", "type,USER_DEFINED_CLASS"]
     ],
     "restore_builtins_in_other_ns":[
         ["OBJ.__class__.__class__.__subclasses__(OBJ.__class__.__class__)[0].register.__globals__['__builtins__']", ""],
