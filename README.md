@@ -103,12 +103,25 @@ safe_run()
 
 ## Import Note
 
-- 当题目没有指定local_scope时，请不要填写local_scope参数，**并使用动态加载来调用bypass函数**。
+- 当题目没有指定local_scope时，请不要填写local_scope参数，**并使用动态加载来调用bypass函数。**
+
+假设题目为：
+
+```python
+def safe_run(cmd):
+    if len(cmd) > 30: return "Command too long"
+    if any([i for i in ['builtins', 'os', 'exec'] if i in cmd]): return "WAF!"
+    exec(cmd, {'__builtins__': None})
+
+safe_run(input("Enter command: "))
+```
+
+我们一定要这样做：
 
 ```python
 
 def safe_run(cmd):
-    __import__('Typhon').bypassRCE('cat /f*', local_scope={'__builtins__': None},
+    __import__('Typhon').bypassRCE('cat /f*',
     banned_chr=['builtins', 'os', 'exec'],
     max_length=30)
 
