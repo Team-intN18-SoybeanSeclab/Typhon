@@ -70,7 +70,13 @@
         ["USER_DEFINED_LAMBDA.__builtins__", "USER_DEFINED_LAMBDA"],
         ["USER_DEFINED_LAMBDA.__globals__['__builtins__']", "USER_DEFINED_LAMBDA"],
         ["GENERATOR.f_builtins", "OBJATTR"],
-        ["GENERATOR.f_globals['__builtins__']", ""]
+        ["GENERATOR.f_back.f_builtins", "OBJATTR"],
+        ["GENERATOR.f_globals['__builtins__']", ""],
+        ["GENERATOR.f_back.f_globals['__builtins__']", ""]
+    ],
+    "import": [
+        ["GENERATOR.['__builtins__'].__import__", []],
+        ["GENERATOR.['__loader__'].load_module", []]
     ],
     "generator": [
         ["(RANDOMVARNAME for RANDOMVARNAME in ()).gi_frame", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
@@ -79,15 +85,21 @@
         ["async def a():pass\na().cr_frame", "BUILTINS_SET_CHANGED|BUILTINS_SET"]
     ],
     "type": [
-        ["OBJ.__class__.__class__", ""],
+        ["BUILTINOBJ.__class__.__class__", ""],
         ["type(USER_DEFINED_CLASS).__class__", "type,USER_DEFINED_CLASS"]
     ],
     "restore_builtins_in_other_ns":[
-        ["OBJ.__class__.__class__.__subclasses__(OBJ.__class__.__class__)[0].register.__globals__['__builtins__']", ""],
-        ["OBJ.__reduce_ex__(3)[0].__globals__['__builtins__']", ""]
+        ["TYPE.__subclasses__(TYPE)[0].register.__globals__['__builtins__']", "TYPE"],
+        ["OBJ.__reduce_ex__(3)[0].__globals__['__builtins__']", "OBJ"],
+        ["{}.__class__.__subclasses__()[2].copy.__globals__['__builtins__']", ""],
+        ["dict.__subclasses__()[2].copy.__globals__['__builtins__']", "dict"],
+        ["{}.__class__.__subclasses__()[2].update.__globals__['__builtins__']", ""],
+        ["dict.__subclasses__()[2].update.__globals__['__builtins__']", "dict"]
     ],
     "get_object":[
-
+        ["BUILTINOBJ.__class__.__bases__[0]", ""],
+        ["BUILTINOBJ.__class__.__mro__[-1]", ""],
+        ["BUILTINOBJ.__class__.__mro__[1]", ""]
     ],
     "import_payloads":[
         ["__import__(MOUDLE)", "__import__"],

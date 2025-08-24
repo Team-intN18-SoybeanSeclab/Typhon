@@ -113,7 +113,7 @@ def parse_payload_list(
     output = []
     allowed_letters = [i for i in ascii_letters + '_' if i not in char_blacklist and i not in local_scope]
     allowed_digits = [i for i in digits if i not in char_blacklist]
-    payload_tag = ['RANDOMVARNAME', 'RANDOMSTRING', 'BUILTINOBJ', 'GENERATOR']
+    payload_tag = ['RANDOMVARNAME', 'RANDOMSTRING', 'BUILTINOBJ', 'GENERATOR', 'TYPE', 'OBJ']
     builtin_obj = ['[]', '()', '{}', "''"] # list, tuple, dict, string
     # builtin_obj.extend(allowed_digits)  # This line is only here to tell you that
     # digits do not work in some cases (like 1.__class__)
@@ -133,20 +133,28 @@ def parse_payload_list(
             if allow_unicode_bypass:
                 output.append(path.replace('RANDOMSTRING', '"'+generate_unicode_char()+'"'))
             continue
-        if 'OBJ' in path: #TODO
-            # if allowed_digits:
-            #     output.append(path.replace('BUILTINOBJ', choice(allowed_digits)))
+        if 'BUILTINOBJ' in path: #TODO
             # note: we assume that OBJ tag is in the beginning of the payload
             obj = path.split('.')[0] + '.' + path.split('.')[1]
             if allowed_letters:
-                output.append(path.replace('OBJ', '"'+choice(allowed_letters)+'"'))
+                output.append(path.replace('BUILTINOBJ', '"'+choice(allowed_letters)+'"'))
             # unicode bypass
             if allow_unicode_bypass:
-                output.append(path.replace('OBJ', '"'+generate_unicode_char()+'"'))
+                output.append(path.replace('BUILTINOBJ', '"'+generate_unicode_char()+'"'))
             continue
         if 'GENERATOR' in path:
             if 'GENERATOR' in generated_path:
                 output.append(path.replace('GENERATOR', generated_path['GENERATOR']))
+            else:
+                continue
+        if 'TYPE' in path:
+            if 'TYPE' in generated_path:
+                output.append(path.replace('TYPE', generated_path['TYPE']))
+            else:
+                continue
+        if 'OBJ' in path:
+            if 'OBJ' in generated_path:
+                output.append(path.replace('OBJ', generated_path['OBJ']))
             else:
                 continue
         output.append(path)

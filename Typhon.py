@@ -116,7 +116,7 @@ Try to bypass blacklist with them. Please be paitent.', len(generator_path))
                 achivements['obtain generator'] = ['None', 0]
                 logger.info('[-] no way to bypass blacklist to obtain gernerators.')
             logger.info('[+] Success. %d payload(s) in total.', len(_))
-            logger.debug('[*] payloads to generate: ')
+            logger.debug('[*] payloads: ')
             logger.debug(_)
             achivements['obtain generator'] = [_[0], len(_)]
             tags.append('GENERATOR')
@@ -132,7 +132,7 @@ Try to bypass blacklist with them. Please be paitent.', len(generator_path))
     if generator_path:
         logger.info('[*] %d paths found to obtain type. \
 Try to bypass blacklist with them. Please be paitent.', len(generator_path))
-        logger.debug('[*] generator paths: %s', str(generator_path))
+        logger.debug('[*] type paths: %s', str(generator_path))
         _ = try_bypasses(generator_path, banned_chr, banned_ast, max_length, allow_unicode_bypass, all_objects)
         if _:
             if eval(i+'.__class__', original_scope) == type:
@@ -141,7 +141,7 @@ Try to bypass blacklist with them. Please be paitent.', len(generator_path))
                 achivements['obtain type'] = ['None', 0]
                 logger.info('[-] no way to bypass blacklist to obtain type.')
             logger.info('[+] Success. %d payload(s) in total.', len(_))
-            logger.debug('[*] payloads to generate: ')
+            logger.debug('[*] payloads: ')
             logger.debug(_)
             achivements['obtain type'] = [_[0], len(_)]
             tags.append('TYPE')
@@ -153,6 +153,29 @@ Try to bypass blacklist with them. Please be paitent.', len(generator_path))
         logger.info('[-] no paths found to obtain type.')
 
     # Step4: Try to restore object
+    generator_path = filter_path_list(RCE_data['get_object'], tagged_scope)
+    if generator_path:
+        logger.info('[*] %d paths found to obtain object. \
+Try to bypass blacklist with them. Please be paitent.', len(generator_path))
+        logger.debug('[*] object paths: %s', str(generator_path))
+        _ = try_bypasses(generator_path, banned_chr, banned_ast, max_length, allow_unicode_bypass, all_objects)
+        if _:
+            if eval(i, original_scope) == object:
+                tagged_scope[i] = [eval(i), 'OBJECT']
+            else:
+                achivements['obtain object'] = ['None', 0]
+                logger.info('[-] no way to bypass blacklist to obtain object.')
+            logger.info('[+] Success. %d payload(s) in total.', len(_))
+            logger.debug('[*] payloads: ')
+            logger.debug(_)
+            achivements['obtain object'] = [_[0], len(_)]
+            tags.append('OBJECT')
+            generated_path['OBJECT'] = _[0]
+        else:
+            achivements['obtain object'] = ['None', 0]
+            logger.info('[-] no way to bypass blacklist to obtain object.')
+    else:
+        logger.info('[-] no paths found to obtain object.')
 
     # Step5: Restore builtins (if possible)
     if 'BUILTINS_SET' in tags: # full lovely builtins set ;)
