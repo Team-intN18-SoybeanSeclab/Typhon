@@ -141,3 +141,12 @@ safe_run('cat /f*')
 
 ## Best Practice
 
+## Maintainer
+
+@ [LamentXU (Weilin Du)](https://github.com/LamentXU123)
+
+## License
+
+这个项目在[Apache 2.0](https://github.com/LamentXU123/Typhon/blob/main/LICENSE)协议下发布.
+
+Copyright (c) 2025 Weilin Du.
