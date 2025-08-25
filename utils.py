@@ -6,6 +6,32 @@ from bypasser import *
 from string import ascii_letters, digits
 from types import FunctionType, ModuleType
 
+def exec_with_returns(code: str, scope: dict):
+    """
+    Execute a code string with a given scope and return the returned value.
+    :param code: The code to execute
+    :param scope: The scope to use for execution
+    :return: The returned value of the code
+    """
+    scope['__return__'] = None
+    lines = code.split('\n')
+    if not lines:
+        return None
+    last_line = lines[-1]
+    if ';' in last_line:
+        statements = last_line.split(';')
+        last_statement = statements[-1].strip()
+        statements[-1] = f'__return__ = {last_statement}'
+        lines[-1] = ';'.join(statements)
+    else:
+        lines[-1] = f'__return__ = {last_line}'
+    modified_code = '\n'.join(lines)
+    try:
+        exec(modified_code, scope)
+        return scope.get('__return__')
+    except Exception as e:
+        logger.debug(f'Error executing code when testing payloads: {e}')
+
 def merge_dicts(dict1: dict, dict2: dict) -> dict:
     if type(dict1)!= dict:
         return dict2
@@ -145,18 +171,15 @@ def parse_payload_list(
         if 'GENERATOR' in path:
             if 'GENERATOR' in generated_path:
                 output.append(path.replace('GENERATOR', generated_path['GENERATOR']))
-            else:
-                continue
+            continue
         if 'TYPE' in path:
             if 'TYPE' in generated_path:
                 output.append(path.replace('TYPE', generated_path['TYPE']))
-            else:
-                continue
+            continue
         if 'OBJ' in path:
             if 'OBJ' in generated_path:
                 output.append(path.replace('OBJ', generated_path['OBJ']))
-            else:
-                continue
+            continue
         output.append(path)
     # if cmd != None: # Then we need to fill in the blanks with the RCE command
     #         CMD = "'" + cmd + "'"

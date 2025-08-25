@@ -115,22 +115,26 @@ Try to bypass blacklist with them. Please be paitent.', len(simple_path))
 Try to bypass blacklist with them. Please be paitent.', len(generator_path))
         logger.debug('[*] generator paths: %s', str(generator_path))
         _ = try_bypasses(generator_path, banned_chr, banned_ast, max_length, allow_unicode_bypass, all_objects)
+        frame_class = (a for a in ()).gi_frame.__class__
         if _:
-            frame_class = (a for a in ()).gi_frame.__class__
-            if eval(i+'.__class__', original_scope) == frame_class:
-                tagged_scope[i] = [eval(i), 'GENERATOR'] 
+            success = False
+            for i in _:
+                if exec_with_returns(i, original_scope).__class__ == frame_class:
+                    success = True
+                    tagged_scope[i] = [exec_with_returns(i, original_scope), 'GENERATOR']
+                    achivements['obtain generator'] = [i, len(_)]
+                    tags.append('GENERATOR')
+                    generated_path['GENERATOR'] = i
+                    break
+            if success:
+                logger.info('[+] Success. %d payload(s) in total.', len(_))
+                logger.debug(f'[*] payloads: {_}')
             else:
                 achivements['obtain generator'] = ['None', 0]
-                logger.info('[-] no way to bypass blacklist to obtain gernerators.')
-            logger.info('[+] Success. %d payload(s) in total.', len(_))
-            logger.debug('[*] payloads: ')
-            logger.debug(_)
-            achivements['obtain generator'] = [_[0], len(_)]
-            tags.append('GENERATOR')
-            generated_path['GENERATOR'] = _[0]
+                logger.info('[-] no way to bypass blacklist to obtain generator.')
         else:
             achivements['obtain generator'] = ['None', 0]
-            logger.info('[-] no way to bypass blacklist to obtain gernerators.')
+            logger.info('[-] no way to bypass blacklist to obtain generator.')
     else:
         logger.info('[-] no paths found to obtain gernerators.')
 
@@ -142,17 +146,21 @@ Try to bypass blacklist with them. Please be paitent.', len(generator_path))
         logger.debug('[*] type paths: %s', str(generator_path))
         _ = try_bypasses(generator_path, banned_chr, banned_ast, max_length, allow_unicode_bypass, all_objects)
         if _:
-            if eval(i+'.__class__', original_scope) == type:
-                tagged_scope[i] = [eval(i), 'TYPE']
+            success = False
+            for i in _:
+                if exec_with_returns(i, original_scope) == type:
+                    success = True
+                    tagged_scope[i] = [exec_with_returns(i, original_scope), 'TYPE']
+                    achivements['obtain type'] = [i, len(_)]
+                    tags.append('TYPE')
+                    generated_path['TYPE'] = i
+                    break
+            if success:
+                logger.info('[+] Success. %d payload(s) in total.', len(_))
+                logger.debug(f'[*] payloads: {_}')
             else:
                 achivements['obtain type'] = ['None', 0]
                 logger.info('[-] no way to bypass blacklist to obtain type.')
-            logger.info('[+] Success. %d payload(s) in total.', len(_))
-            logger.debug('[*] payloads: ')
-            logger.debug(_)
-            achivements['obtain type'] = [_[0], len(_)]
-            tags.append('TYPE')
-            generated_path['TYPE'] = _[0]
         else:
             achivements['obtain type'] = ['None', 0]
             logger.info('[-] no way to bypass blacklist to obtain type.')
@@ -167,17 +175,21 @@ Try to bypass blacklist with them. Please be paitent.', len(generator_path))
         logger.debug('[*] object paths: %s', str(generator_path))
         _ = try_bypasses(generator_path, banned_chr, banned_ast, max_length, allow_unicode_bypass, all_objects)
         if _:
-            if eval(i, original_scope) == object:
-                tagged_scope[i] = [eval(i), 'OBJECT']
+            success = False
+            for i in _:
+                if exec_with_returns(i, original_scope) == object:
+                    success = True
+                    tagged_scope[i] = [exec_with_returns(i, original_scope), 'OBJECT']
+                    achivements['obtain object'] = [i, len(_)]
+                    tags.append('OBJECT')
+                    generated_path['OBJECT'] = i
+                    break
+            if success:
+                logger.info('[+] Success. %d payload(s) in total.', len(_))
+                logger.debug(f'[*] payloads: {_}')
             else:
                 achivements['obtain object'] = ['None', 0]
                 logger.info('[-] no way to bypass blacklist to obtain object.')
-            logger.info('[+] Success. %d payload(s) in total.', len(_))
-            logger.debug('[*] payloads: ')
-            logger.debug(_)
-            achivements['obtain object'] = [_[0], len(_)]
-            tags.append('OBJECT')
-            generated_path['OBJECT'] = _[0]
         else:
             achivements['obtain object'] = ['None', 0]
             logger.info('[-] no way to bypass blacklist to obtain object.')
@@ -203,26 +215,28 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                 logger.debug(_)
                 is_builtin_dict_found, is_builtin_module_found = False, False
                 for i in _:
-                    try:
-                        if (eval(i, original_scope) == __builtins__ 
-                            and not is_builtin_dict_found 
-                            and type(eval(i, original_scope)) == dict):
-                            logger.info('[*] Using %s as the restored builtins dict.', i)
-                            tagged_scope[i] = [eval(i), 'BUILTINS_SET']
-                            achivements['builtins set'] = [_[0], len(_)]
-                            tags.append('BUILTINS_SET')
-                            generated_path['BUILTINS_SET'] = _[0]
-                            is_builtin_dict_found = True
-                        elif (eval(i, original_scope) == builtins 
-                              and not is_builtin_module_found
-                              and type(eval(i, original_scope)) == ModuleType):
-                            logger.info('[*] Using %s as the restored builtins module.', i)
-                            tagged_scope[i] = [eval(i), 'MOUDLE_BUILTINS']
-                            achivements['builtins module'] = [_[0], len(_)]
-                            tags.append('MOUDLE_BUILTINS')
-                            generated_path['MOUDLE_BUILTINS'] = _[0]
-                            is_builtin_module_found = True
-                    except: pass
+                    check_result = exec_with_returns(i, original_scope)
+                    if (check_result == __builtins__ 
+                        and not is_builtin_dict_found
+                        and type(check_result) == dict):
+                        logger.info('[*] Using %s as the restored builtins dict.', i)
+                        tagged_scope[i] = [exec_with_returns(i, original_scope), 'BUILTINS_SET']
+                        achivements['builtins set'] = [_[0], len(_)]
+                        tags.append('BUILTINS_SET')
+                        generated_path['BUILTINS_SET'] = _[0]
+                        is_builtin_dict_found = True
+                    elif (check_result == builtins 
+                            and not is_builtin_module_found
+                            and type(check_result) == ModuleType):
+                        logger.info('[*] Using %s as the restored builtins module.', i)
+                        tagged_scope[i] = [exec_with_returns(i, original_scope), 'MOUDLE_BUILTINS']
+                        achivements['builtins module'] = [_[0], len(_)]
+                        tags.append('MOUDLE_BUILTINS')
+                        generated_path['MOUDLE_BUILTINS'] = _[0]
+                        is_builtin_module_found = True
+                    else:
+                        if (not check_result == builtins and not check_result == __builtins__):
+                            logger.debug('[!] %s is not the restored builtins.', i)
                 if not is_builtin_dict_found and not is_builtin_module_found:
                     achivements['directly input bypass'] = ['None', 0]
                     logger.info('[-] no way to find a bypass method to restore builtins.')
@@ -250,26 +264,28 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                 logger.debug(_)
                 is_builtin_dict_found, is_builtin_module_found = False, False
                 for i in _:
-                    try:
-                        if (eval(i, original_scope) == __builtins__ 
-                            and not is_builtin_dict_found 
-                            and type(eval(i, original_scope)) == dict):
-                            logger.info('[*] Using %s as the restored builtins dict.', i)
-                            tagged_scope[i] = [eval(i), 'BUILTINS_SET']
-                            achivements['builtins set'] = [_[0], len(_)]
-                            tags.append('BUILTINS_SET')
-                            generated_path['BUILTINS_SET'] = _[0]
-                            is_builtin_dict_found = True
-                        elif (eval(i, original_scope) == builtins 
-                              and not is_builtin_module_found
-                              and type(eval(i, original_scope)) == ModuleType):
-                            logger.info('[*] Using %s as the restored builtins module.', i)
-                            tagged_scope[i] = [eval(i), 'MOUDLE_BUILTINS']
-                            achivements['builtins module'] = [_[0], len(_)]
-                            tags.append('MOUDLE_BUILTINS')
-                            generated_path['MOUDLE_BUILTINS'] = _[0]
-                            is_builtin_module_found = True
-                    except: pass
+                    check_result = exec_with_returns(i, original_scope)
+                    if (check_result == __builtins__ 
+                        and not is_builtin_dict_found
+                        and type(check_result) == dict):
+                        logger.info('[*] Using %s as the restored builtins dict.', i)
+                        tagged_scope[i] = [exec_with_returns(i, original_scope), 'BUILTINS_SET']
+                        achivements['builtins set'] = [_[0], len(_)]
+                        tags.append('BUILTINS_SET')
+                        generated_path['BUILTINS_SET'] = _[0]
+                        is_builtin_dict_found = True
+                    elif (check_result == builtins 
+                            and not is_builtin_module_found
+                            and type(check_result) == ModuleType):
+                        logger.info('[*] Using %s as the restored builtins module.', i)
+                        tagged_scope[i] = [exec_with_returns(i, original_scope), 'MOUDLE_BUILTINS']
+                        achivements['builtins module'] = [_[0], len(_)]
+                        tags.append('MOUDLE_BUILTINS')
+                        generated_path['MOUDLE_BUILTINS'] = _[0]
+                        is_builtin_module_found = True
+                    else:
+                        if (not check_result == builtins and not check_result == __builtins__):
+                            logger.debug('[!] %s is not the restored builtins.', i)
                 if not is_builtin_dict_found and not is_builtin_module_found:
                     achivements['directly input bypass'] = ['None', 0]
                     logger.info('[-] no way to find a bypass method to restore builtins.')
