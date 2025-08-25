@@ -71,7 +71,7 @@ safe_run(input("Enter command: "))
 
 可以看出，上述题目的waf如下：
 
-- 限制长度为30
+- 限制长度最大值为30
 - 在exec的命名空间里没有`help()`, `breakpoint()`和`input()`函数
 - 禁止使用`builtins`, `os`, `exec`字符
 
@@ -109,34 +109,28 @@ safe_run('cat /f*')
 
 ## Import Note
 
-- 当题目没有指定local_scope时，请不要填写local_scope参数，**并使用动态加载来调用bypass函数。**
+- 一定要将行`import Typhon`放在`Typhon`内置绕过函数的上一行。否则，`Typhon`将无法通过栈帧获取当前的全局变量空间。
 
-假设题目为：
-
+**Do:**
 ```python
 def safe_run(cmd):
-    if len(cmd) > 30:
-        return "Command too long"
-    if any([i for i in ['builtins', 'os', 'exec'] if i in cmd]):
-        return "WAF!"
-    exec(cmd, {'__builtins__': None})
-
-safe_run(input("Enter command: "))
-```
-
-我们一定要这样做：
-
-```python
-
-def safe_run(cmd):
-    __import__('Typhon').bypassRCE(cmd,
-    banned_chr=['builtins', 'os', 'exec'],
-    max_length=30)
+    import Typhon
+    Typhon.bypassRCE(cmd,
+    banned_chr=['builtins', 'os', 'exec', 'import'], log_level='INFO')
 
 safe_run('cat /f*')
 ```
 
-这样Typhon才能通过获取调用时上一帧的栈帧来获取local_scope。
+**Don't:**
+```python
+import Typhon
+
+def safe_run(cmd):
+    Typhon.bypassRCE(cmd,
+    banned_chr=['builtins', 'os', 'exec', 'import'], log_level='INFO')
+
+safe_run('cat /f*')
+```
 
 
 ## Best Practice
@@ -147,6 +141,6 @@ safe_run('cat /f*')
 
 ## License
 
-这个项目在[Apache 2.0](https://github.com/LamentXU123/Typhon/blob/main/LICENSE)协议下发布.
+这个项目在[Apache 2.0](https://github.com/LamentXU123/Typhon/blob/main/LICENSE)协议下发布。
 
 Copyright (c) 2025 Weilin Du.

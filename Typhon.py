@@ -18,6 +18,10 @@ log_level_ = 'INFO'
 logging.basicConfig(level=log_level_, format='%(levelname)s %(message)s') # changable in bypass()
 logger = logging.getLogger(__name__)
 
+# get current global scope
+current_global_scope = currentframe().f_back.f_back.f_back.f_back.f_back.f_back.f_globals
+logger.info('[*] current global scope gotten.')
+
 from utils import *
 
 # The RCE data including RCE functions and their parameters.
@@ -57,9 +61,9 @@ def bypassRCE(cmd: str,
     global achivements, log_level_, generated_path
     if local_scope == {}:
         # If the local scope is not specified, raise a warning.
-        logger.warning('[*] local scope not specified, please make sure you use dynamic import to load Typhon.')
-        local_scope = currentframe().f_back.f_globals
-        local_scope['__builtins__'] = __builtins__;print(local_scope);exit(0)
+        logger.info('[*] local scope not specified, using the global scope.')
+        local_scope = current_global_scope
+        local_scope['__builtins__'] = __builtins__
     log_level_ = log_level.upper()
     logger.setLevel(log_level_)
     achivements = {} # The progress we've gone so far. Being output in the end
