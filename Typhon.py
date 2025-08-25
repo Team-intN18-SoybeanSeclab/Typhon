@@ -10,17 +10,19 @@
 import json
 import logging
 
-from inspect import currentframe
 from typing import Any, Dict
+from inspect import currentframe
 
 # need to be set before other imports
-log_level_ = 'INFO'
-logging.basicConfig(level=log_level_, format='%(levelname)s %(message)s') # changable in bypass()
+log_level_ = 'INFO' # changable in bypass()
+search_depth = 10 # changable in bypass()
+logging.basicConfig(level=log_level_, format='%(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
 
 # get current global scope
 current_global_scope = currentframe().f_back.f_back.f_back.f_back.f_back.f_back.f_globals
 logger.info('[*] current global scope gotten.')
+logger.debug('[*] current global scope: %s', current_global_scope)
 
 from utils import *
 
@@ -58,7 +60,8 @@ def bypassRCE(cmd: str,
     DEBUG for more details.
     '''
     print(BANNER)
-    global achivements, log_level_, generated_path
+    global achivements, log_level_, generated_path, search_depth
+    search_depth = depth # The maximum search depth for combined bypassing
     if local_scope == {}:
         # If the local scope is not specified, raise a warning.
         logger.info('[*] local scope not specified, using the global scope.')

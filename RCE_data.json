@@ -76,10 +76,8 @@
         ["USER_DEFINED_LAMBDA.__globals__.__builtins__", "USER_DEFINED_LAMBDA"],
         ["USER_DEFINED_LAMBDA.__builtins__", "USER_DEFINED_LAMBDA"],
         ["USER_DEFINED_LAMBDA.__globals__['__builtins__']", "USER_DEFINED_LAMBDA"],
-        ["GENERATOR.f_builtins", "OBJATTR"],
-        ["GENERATOR.f_back.f_builtins", "OBJATTR"],
-        ["GENERATOR.f_globals['__builtins__']", ""],
-        ["GENERATOR.f_back.f_globals['__builtins__']", ""]
+        ["GENERATOR.f_builtins", ""],
+        ["GENERATOR.f_globals['__builtins__']", ""]
     ],
     "import": [
         ["GENERATOR.['__builtins__'].__import__", []],
@@ -88,7 +86,7 @@
     "generator": [
         ["(RANDOMVARNAME for RANDOMVARNAME in ()).gi_frame", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
         ["(await RANDOMVARNAME for RANDOMVARNAME in ()).ag_frame", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
-        ["try: 1/0\nexcept Exception as e: e.__traceback__.tb_frame", "EXCEPTION"],
+        ["try:1/0\nexcept Exception as e:e.__traceback__.tb_frame", "EXCEPTION"],
         ["async def a():pass\na().cr_frame", "BUILTINS_SET_CHANGED|BUILTINS_SET"]
     ],
     "type": [
@@ -101,7 +99,9 @@
         ["{}.__class__.__subclasses__()[2].copy.__globals__['__builtins__']", ""],
         ["dict.__subclasses__()[2].copy.__globals__['__builtins__']", "dict"],
         ["{}.__class__.__subclasses__()[2].update.__globals__['__builtins__']", ""],
-        ["dict.__subclasses__()[2].update.__globals__['__builtins__']", "dict"]
+        ["dict.__subclasses__()[2].update.__globals__['__builtins__']", "dict"],
+        ["GENERATOR.f_back.f_builtins", ""],
+        ["GENERATOR.f_back.f_globals['__builtins__']", ""]
     ],
     "get_object":[
         ["BUILTINOBJ.__class__.__bases__[0]", ""],

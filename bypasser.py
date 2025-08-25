@@ -2,9 +2,9 @@ import ast
 
 from typing import Union
 from copy import deepcopy
-from Typhon import logger
 from functools import wraps
 from random import randint, choice
+from Typhon import logger
 
 def remove_duplicate(List) -> list:
     """
@@ -93,13 +93,14 @@ class BypassGenerator:
         # for method in self.bypass_methods:
         #     bypassed.append(method([self.payload, []]))
         
+        from Typhon import search_depth # The maximum search depth for combined bypassing
         # Generate combinations of multiple bypasses
-        combined = self.combine_bypasses([self.payload, []], self.payload)
+        combined = self.combine_bypasses([self.payload, []], self.payload, search_depth)
         bypassed.extend(combined)
         
         return remove_duplicate(bypassed)  # Remove duplicates
     
-    def combine_bypasses(self, payload: list[str, list], initial_payload: str, depth: int = 5):
+    def combine_bypasses(self, payload: list[str, list], initial_payload: str, depth: int):
         """
         Recursively combine multiple bypass methods for deeper obfuscation.
         
