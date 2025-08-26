@@ -117,6 +117,7 @@ Try to bypass blacklist with them. Please be paitent.', len(path), data_name)
                 achivements[data_name] = ['None', 0]
                 logger.info('[-] no way to bypass blacklist to obtain %s.', data_name)
         else:
+            achivements[data_name] = ['None', 0]
             logger.info('[-] no paths found to obtain %s.', data_name)
 
     # Step1: Analyze and tag the local scope
@@ -151,6 +152,7 @@ Try to bypass blacklist with them. Please be paitent.', len(simple_path))
             achivements['directly input bypass'] = ['None', 0]
             logger.info('[-] no way to bypass blacklist to directly getshell.')
     else:
+        achivements['directly input bypass'] = ['None', 0]
         logger.info('[-] no paths found to directly getshell.')
 
     # Step3: Try to find generators
