@@ -213,35 +213,36 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                 logger.info('[+] builtins restored. %d payload(s) in total.', len(_))
                 logger.debug('[*] payloads to restore builtins: ')
                 logger.debug(_)
-                is_builtin_dict_found, is_builtin_module_found = False, False
+                builtin_dict_found_count, builtin_module_found_count = 0, 0
+                builtin_dict_payload, builtin_module_payload = None, None
                 for i in _:
                     check_result = exec_with_returns(i, original_scope)
                     if (check_result == __builtins__ 
-                        and not is_builtin_dict_found
                         and type(check_result) == dict):
-                        logger.info('[*] Using %s as the restored builtins dict.', i)
-                        tagged_scope[i] = [exec_with_returns(i, original_scope), 'BUILTINS_SET']
-                        achivements['builtins set'] = [_[0], len(_)]
-                        tags.append('BUILTINS_SET')
-                        generated_path['BUILTINS_SET'] = _[0]
-                        is_builtin_dict_found = True
+                        if not builtin_dict_found_count:
+                            logger.info('[*] Using %s as the restored builtins dict.', i)
+                            tagged_scope[i] = [check_result, 'BUILTINS_SET']
+                            builtin_dict_payload = i
+                            tags.append('BUILTINS_SET')
+                            generated_path['BUILTINS_SET'] = i
+                        builtin_dict_found_count += 1
                     elif (check_result == builtins 
-                            and not is_builtin_module_found
                             and type(check_result) == ModuleType):
-                        logger.info('[*] Using %s as the restored builtins module.', i)
-                        tagged_scope[i] = [exec_with_returns(i, original_scope), 'MOUDLE_BUILTINS']
-                        achivements['builtins module'] = [_[0], len(_)]
-                        tags.append('MOUDLE_BUILTINS')
-                        generated_path['MOUDLE_BUILTINS'] = _[0]
-                        is_builtin_module_found = True
+                        if builtin_module_found_count:
+                            logger.info('[*] Using %s as the restored builtins module.', i)
+                            tagged_scope[i] = [check_result, 'MOUDLE_BUILTINS']
+                            builtin_module_payload = i
+                            tags.append('MOUDLE_BUILTINS')
+                            generated_path['MOUDLE_BUILTINS'] = i
+                        builtin_module_found_count += 1
                     else:
                         if (not check_result == builtins and not check_result == __builtins__):
                             logger.debug('[!] %s is not the restored builtins.', i)
-                if not is_builtin_dict_found and not is_builtin_module_found:
-                    achivements['directly input bypass'] = ['None', 0]
+                achivements['builtins set'] = [builtin_dict_payload, builtin_dict_found_count]
+                achivements['builtins moudle'] = [builtin_module_payload, builtin_module_found_count]
+                if not builtin_dict_payload and not builtin_module_payload:
                     logger.info('[-] no way to find a bypass method to restore builtins.')
             else:
-                achivements['directly input bypass'] = ['None', 0]
                 logger.info('[-] no way to find a bypass method to restore builtins.')
         else:
             logger.info('[-] no paths found to restore builtins.')
@@ -259,36 +260,38 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
             logger.debug('[*] restore paths: %s', str(builtin_path))
             _ = try_bypasses(builtin_path, banned_chr, banned_ast, max_length, allow_unicode_bypass, all_objects)
             if _:
-                logger.info('[+] builtins restored in other namespaces. %d payload(s) in total.', len(_))
-                logger.debug('[*] payloads to restore builtins in other namespaces: ')
+                logger.info('[+] builtins restored. %d payload(s) in total.', len(_))
+                logger.debug('[*] payloads to restore builtins: ')
                 logger.debug(_)
-                is_builtin_dict_found, is_builtin_module_found = False, False
+                builtin_dict_found_count, builtin_module_found_count = 0, 0
+                builtin_dict_payload, builtin_module_payload = None, None
                 for i in _:
                     check_result = exec_with_returns(i, original_scope)
                     if (check_result == __builtins__ 
-                        and not is_builtin_dict_found
                         and type(check_result) == dict):
-                        logger.info('[*] Using %s as the restored builtins dict.', i)
-                        tagged_scope[i] = [exec_with_returns(i, original_scope), 'BUILTINS_SET']
-                        achivements['builtins set'] = [_[0], len(_)]
-                        tags.append('BUILTINS_SET')
-                        generated_path['BUILTINS_SET'] = _[0]
-                        is_builtin_dict_found = True
+                        if not builtin_dict_found_count:
+                            logger.info('[*] Using %s as the restored builtins dict.', i)
+                            tagged_scope[i] = [check_result, 'BUILTINS_SET']
+                            builtin_dict_payload = i
+                            tags.append('BUILTINS_SET')
+                            generated_path['BUILTINS_SET'] = i
+                        builtin_dict_found_count += 1
                     elif (check_result == builtins 
-                            and not is_builtin_module_found
                             and type(check_result) == ModuleType):
-                        logger.info('[*] Using %s as the restored builtins module.', i)
-                        tagged_scope[i] = [exec_with_returns(i, original_scope), 'MOUDLE_BUILTINS']
-                        achivements['builtins module'] = [_[0], len(_)]
-                        tags.append('MOUDLE_BUILTINS')
-                        generated_path['MOUDLE_BUILTINS'] = _[0]
-                        is_builtin_module_found = True
+                        if builtin_module_found_count:
+                            logger.info('[*] Using %s as the restored builtins module.', i)
+                            tagged_scope[i] = [check_result, 'MOUDLE_BUILTINS']
+                            builtin_module_payload = i
+                            tags.append('MOUDLE_BUILTINS')
+                            generated_path['MOUDLE_BUILTINS'] = i
+                        builtin_module_found_count += 1
                     else:
                         if (not check_result == builtins and not check_result == __builtins__):
                             logger.debug('[!] %s is not the restored builtins.', i)
-                if not is_builtin_dict_found and not is_builtin_module_found:
-                    achivements['directly input bypass'] = ['None', 0]
-                    logger.info('[-] no way to find a bypass method to restore builtins.')
+                achivements['builtins set'] = [builtin_dict_payload, builtin_dict_found_count]
+                achivements['builtins moudle'] = [builtin_module_payload, builtin_module_found_count]
+                if not builtin_module_payload and not builtin_module_payload:
+                    logger.info('[-] no way to find a bypass method to restore builtins in other namespaces.')
             else:
                 logger.info('[-] no way to find a bypass method to restore builtins in other namespaces.')
         else:
