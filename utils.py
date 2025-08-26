@@ -335,9 +335,14 @@ def bypasses_output(bypassed_payload: str = ''):
     for i in achivements:
         payload_len = achivements[i][1]
         if payload_len > 1:
-            print('\033[34m' +  i + '(' + str(payload_len) + ' payloads found): \033[0m' + achivements[i][0])
+            print('\033[34m' +  i + '(' + str(payload_len) + ' payloads found): \033[0m', end='')
         else: # only one payload or no payload found
-            print('\033[34m' +  i + '(' + str(payload_len) + ' payload found): \033[0m' + achivements[i][0])
+            print('\033[34m' +  i + '(' + str(payload_len) + ' payload found): \033[0m', end='')
+        best_payload = str(achivements[i][0])
+        if '\n' in best_payload:
+            print('\n' + best_payload)
+        else:
+            print(best_payload)
     print('\n')
     print('-----------Progress-----------')
     if bypassed_payload:

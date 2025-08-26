@@ -123,15 +123,15 @@ class BypassGenerator:
             try:
                 new_payload = method(payload)
             except SyntaxError: # from AST parsing
-                new_payload = payload[0]
                 logger.debug(f'Bypasser {method.__name__} failed to parse payload: {payload[0]}')
+                continue
             if (new_payload == payload[0] 
                 or new_payload is None 
                 or new_payload in variants
                 or new_payload == initial_payload): continue
             _ = deepcopy(payload)
             _[1].append(method)
-            variants.append(payload[0])
+            variants.append(new_payload)
             variants.extend(self.combine_bypasses([new_payload, _[1]], initial_payload, depth-1))
         return variants
     
@@ -366,22 +366,12 @@ class BypassGenerator:
         new_tree = Transformer().visit(tree)
         return ast.unparse(new_tree)
 
-    # @general_bypasser
-    # def replace_semicolon_to_newline(self, payload):
-    #     """
-    #     Replace semicolons with newlines in a code string.
-    #     """
-    #     result = []
-    #     try:
-    #         tokens = tokenize.generate_tokens(StringIO(payload).readline)
-    #         for token in tokens:
-    #             token_type, token_string, start, end, line = token
-    #             if token_type == tokenize.OP and token_string == ';':
-    #                 result.append('\n')
-    #             elif token_type == tokenize.STRING:
-    #                 result.append(token_string)
-    #             else:
-    #                 result.append(token_string)
-    #     except tokenize.TokenError:
-    #         return payload.replace(';', '\n')
-    #     return ''.join(result)
+    @general_bypasser
+    def replace_semicolon_newlines(self, payload: str) -> str:
+        """
+        Replace semicolons with newlines.
+        
+        Note: Might cause bug when replacing ; inside strings (or whatever).
+        If yes, please report it and I'll try to fix it (I'm lazyyyyy now).
+        """
+        return payload.replace(';', '\n')

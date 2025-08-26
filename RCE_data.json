@@ -6,10 +6,10 @@
         ["exec(input())", "exec,input"],
         ["eval(input())", "eval,input"],
         ["compile(input(), '<string>', 'exec')", "compile,input"],
-        ["from os import system as __getattr__; from __main__ import sh", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
-        ["from os import popen as __getattr__; from __main__ import sh", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
-        ["from uuid import _get_command_stdout as __getattr__; from __main__ import sh", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
-        ["import pdb; pdb.set_trace()", "BUILTINS_SET_CHANGED|BUILTINS_SET"]
+        ["from os import system as __getattr__;from __main__ import sh", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
+        ["from os import popen as __getattr__;from __main__ import sh", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
+        ["from uuid import _get_command_stdout as __getattr__;from __main__ import sh", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
+        ["import pdb;pdb.set_trace()", "BUILTINS_SET_CHANGED|BUILTINS_SET"]
     ],
     "get_user_defined_function":[
         ["def RANDOMVARNAME():RANDOMSTRING", ""]
