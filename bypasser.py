@@ -1,7 +1,6 @@
 import ast
 import tokenize
 
-from io import StringIO
 from typing import Union
 from Typhon import logger
 from copy import deepcopy

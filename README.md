@@ -34,7 +34,8 @@ Typhon.bypassRCE(cmd: str,
     banned_ast: list[ast.AST],
     banned_audithook: list[str],
     max_length: int,
-    log_level: str) 
+    depth: int = 10,
+    log_level: str = 'INFO') 
 ```
 
 `cmd`: RCE所使用的bash command  
@@ -43,8 +44,8 @@ Typhon.bypassRCE(cmd: str,
 `banned_ast`: 禁止的AST节点  
 `banned_audithook`: 禁止的审计事件  
 `max_length`: payload的最大长度  
-`depth`: 最大递归深度（最多到10，再多估计也没用了）  
-`log_level`: 输出级别（只支持`info`和`debug`，不建议更改）  
+`depth`: 最大递归深度（建议使用默认值）  
+`log_level`: 输出级别（只有`info`和`debug`有意义，不建议更改）  
 
 **Command Line Interface**
 
@@ -107,7 +108,7 @@ safe_run('cat /f*')
 
 运行你的题目程序，等待**Jail broken**的信息出现即可。
 
-## Import Note
+## Important Note
 
 - 一定要将行`import Typhon`放在`Typhon`内置绕过函数的上一行。否则，`Typhon`将无法通过栈帧获取当前的全局变量空间。
 
