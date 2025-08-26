@@ -228,7 +228,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                         builtin_dict_found_count += 1
                     elif (check_result == builtins 
                             and type(check_result) == ModuleType):
-                        if builtin_module_found_count:
+                        if not builtin_module_found_count:
                             logger.info('[*] Using %s as the restored builtins module.', i)
                             tagged_scope[i] = [check_result, 'MOUDLE_BUILTINS']
                             builtin_module_payload = i
@@ -278,7 +278,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                         builtin_dict_found_count += 1
                     elif (check_result == builtins 
                             and type(check_result) == ModuleType):
-                        if builtin_module_found_count:
+                        if not builtin_module_found_count:
                             logger.info('[*] Using %s as the restored builtins module.', i)
                             tagged_scope[i] = [check_result, 'MOUDLE_BUILTINS']
                             builtin_module_payload = i

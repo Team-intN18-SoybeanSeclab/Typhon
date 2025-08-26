@@ -1,10 +1,12 @@
 import ast
+import tokenize
 
+from io import StringIO
 from typing import Union
+from Typhon import logger
 from copy import deepcopy
 from functools import wraps
 from random import randint, choice
-from Typhon import logger
 
 def remove_duplicate(List) -> list:
     """
@@ -165,7 +167,7 @@ class BypassGenerator:
                     hex_str = ''.join('\\' + f'x{ord(c):02x}' for c in node.value)
                     return ast.Constant(value=hex_str)
                 return node
-        
+
         tree = ast.parse(payload, mode='eval')
         new_tree = Transformer().visit(tree)
         return unescape_double_backslash(ast.unparse(new_tree))
@@ -310,7 +312,7 @@ class BypassGenerator:
                     )
                 except IndexError:
                     return node
-        
+
         tree = ast.parse(payload, mode='eval')
         new_tree = Transformer().visit(tree)
         return ast.unparse(new_tree)
@@ -334,7 +336,7 @@ class BypassGenerator:
                         )
                     return new_node
                 return node
-        
+
         tree = ast.parse(payload, mode='eval')
         new_tree = Transformer().visit(tree)
         return ast.unparse(new_tree)
@@ -359,7 +361,27 @@ class BypassGenerator:
                     )
                     return slice_node
                 return node
-        
+
         tree = ast.parse(payload, mode='eval')
         new_tree = Transformer().visit(tree)
         return ast.unparse(new_tree)
+
+    # @general_bypasser
+    # def replace_semicolon_to_newline(self, payload):
+    #     """
+    #     Replace semicolons with newlines in a code string.
+    #     """
+    #     result = []
+    #     try:
+    #         tokens = tokenize.generate_tokens(StringIO(payload).readline)
+    #         for token in tokens:
+    #             token_type, token_string, start, end, line = token
+    #             if token_type == tokenize.OP and token_string == ';':
+    #                 result.append('\n')
+    #             elif token_type == tokenize.STRING:
+    #                 result.append(token_string)
+    #             else:
+    #                 result.append(token_string)
+    #     except tokenize.TokenError:
+    #         return payload.replace(';', '\n')
+    #     return ''.join(result)
