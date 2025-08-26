@@ -372,5 +372,6 @@ class BypassGenerator:
         
         Note: Might cause bug when replacing ; inside strings (or whatever).
         If yes, please report it and I'll try to fix it (I'm lazyyyyy now).
+        PR welcome.
         """
         return payload.replace(';', '\n')

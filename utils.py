@@ -139,7 +139,8 @@ def parse_payload_list(
     output = []
     allowed_letters = [i for i in ascii_letters + '_' if i not in char_blacklist and i not in local_scope]
     allowed_digits = [i for i in digits if i not in char_blacklist]
-    payload_tag = ['RANDOMVARNAME', 'RANDOMSTRING', 'BUILTINOBJ', 'GENERATOR', 'TYPE', 'OBJ']
+    payload_tag = ['RANDOMVARNAME', 'RANDOMSTRING', 'BUILTINOBJ', 'GENERATOR', 
+                   'TYPE', 'OBJ', 'BUILTINS_SET', 'MODULE_BUILTINS']
     builtin_obj = ['[]', '()', '{}', "''"] # list, tuple, dict, string
     # builtin_obj.extend(allowed_digits)  # This line is only here to tell you that
     # digits do not work in some cases (like 1.__class__)
@@ -180,6 +181,14 @@ def parse_payload_list(
             if 'OBJ' in generated_path:
                 output.append(path.replace('OBJ', generated_path['OBJ']))
             continue
+        if 'BUILTINS_SET' in path:
+            if 'BUILTINS_SET' in generated_path:
+                output.append(path.replace('BUILTINS_SET', generated_path['BUILTINS_SET']))
+            continue
+        if 'MODULE_BUILTINS' in path:
+            if 'MODULE_BUILTINS' in generated_path:
+                output.append(path.replace('MODULE_BUILTINS', generated_path['MODULE_BUILTINS']))
+            continue
         output.append(path)
     # if cmd != None: # Then we need to fill in the blanks with the RCE command
     #         CMD = "'" + cmd + "'"
@@ -211,12 +220,6 @@ def filter_path_list(path_list: list, tagged_scope: dict) -> list:
             for i in tagged_scope:
                 if tagged_scope[i][0] == need:
                     return path
-                elif 'BUILTINS_SET' in tagged_scope[i][1] and i != '__builtins__':
-                    # If we successfully restore the builtins set, use it
-                    return path.replace(need, i + '[' + need + ']')
-                elif 'MOUDLE_BUILTINS' in tagged_scope[i][1]:
-                        # If we successfully restore the builtins moudle, use it
-                    return path.replace(need, i + '.' + need)
         elif is_tag(need): # need is a tag
             for i in tagged_scope:
                 if tagged_scope[i][1] == need:

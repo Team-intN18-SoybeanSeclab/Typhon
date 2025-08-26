@@ -255,7 +255,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                             logger.debug('[!] %s is not the restored builtins.', i)
                 achivements['builtins set'] = [builtin_dict_payload, builtin_dict_found_count]
                 achivements['builtins moudle'] = [builtin_module_payload, builtin_module_found_count]
-                if not builtin_module_payload and not builtin_module_payload:
+                if not builtin_dict_payload and not builtin_module_payload:
                     logger.info('[-] no way to find a bypass method to restore builtins in other namespaces.')
             else:
                 logger.info('[-] no way to find a bypass method to restore builtins in other namespaces.')
@@ -264,6 +264,8 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
 
     # Step8: Try to restore __import__
 
+    try_to_restore('import', __import__.__class__)
+
     # Final Step: (Oh my lord, finally...) Try to RCE
-    
+
     bypasses_output()
