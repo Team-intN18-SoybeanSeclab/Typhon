@@ -56,12 +56,15 @@ Typhon.bypassRCE(cmd: str,
 假设有如下题目：
 
 ```python
+import re
 def safe_run(cmd):
-    if len(cmd) > 30:
+    if len(cmd) > 100:
         return "Command too long"
-    if any([i for i in ['builtins', 'os', 'exec'] if i in cmd]):
+    if any([i for i in ['import', '__builtins__'] if i in cmd]):
         return "WAF!"
-    exec(cmd, {'help': None, 'breakpoint': None, 'input': None})
+    if re.match(r'.*import.*', cmd):
+        return "WAF!"
+    exec(cmd, {'__builtins__': {}})
 
 safe_run(input("Enter command: "))
 ```
@@ -72,41 +75,48 @@ safe_run(input("Enter command: "))
 
 可以看出，上述题目的waf如下：
 
-- 限制长度最大值为30
-- 在exec的命名空间里没有`help()`, `breakpoint()`和`input()`函数
-- 禁止使用`builtins`, `os`, `exec`字符
+- 限制长度最大值为100
+- 在exec的命名空间里没有`__builtins__`
+- 禁止使用`builtins`字符
+- 设置了正则表达式`'.*import.*'`限制条件
 
 **Step2. 将waf导入Typhon**
 
 首先我们将exec行删除：
 
 ```python
+import re
 def safe_run(cmd):
-    if len(cmd) > 30:
+    if len(cmd) > 100:
         return "Command too long"
-    if any([i for i in ['builtins', 'os', 'exec'] if i in cmd]):
+    if any([i for i in ['import', '__builtins__'] if i in cmd]):
+        return "WAF!"
+    if re.match(r'.*import.*', cmd):
         return "WAF!"
 
 safe_run(input("Enter command: "))
 ```
 
-然后，我们以Typhon对应的bypass函数替代exec行, **并在该行上方`import Typhon`**：
+然后，我们以Typhon对应的bypass函数替代exec行，在对应位置导入WAF, **并在该行上方`import Typhon`**：
 
 ```python
-
+import re
 def safe_run(cmd):
     import Typhon
-    Typhon.bypassRCE(cmd,
-    local_scope={'help': None, 'breakpoint': None, 'input': None},
-    banned_chr=['builtins', 'os', 'exec'],
-    max_length=30)
+    Typhon.bypassMAIN(
+    banned_chr=['__builtins__'],
+    banned_re='.*import.*',
+    local_scope={'__builtins__': None},
+    max_length=100)
 
-safe_run('cat /f*')
+safe_run('whatever')
 ```
 
 **Step3. 运行**
 
 运行你的题目程序，等待**Jail broken**的信息出现即可。
+
+![image](./image/step-by-step-tutorial.png)
 
 ## Important Note
 

