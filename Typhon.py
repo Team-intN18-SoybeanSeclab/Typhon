@@ -42,10 +42,10 @@ BANNER = r'''
     .-')          _                 
    (`_^ (    .----`/                Typhon: a pyjail bypassing tool
     ` )  \_/`   __/     __,    
-    __{   |`  __/      /_/     [Version]: v0.1
-   / _{    \__/ '--.  //       [Github]: https://github.com/LamentXU123/Typhon
-   \_> \_\  >__/    \((        [Slogan]: No jail is safe
-        _/ /` _\_   |))
+    __{   |`  __/      /_/     [Typhon Version]: v0.1
+   / _{    \__/ '--.  //       [Python Version]: v'''+sys.version.split()[0]+r'''
+   \_> \_\  >__/    \((        [Github]: https://github.com/LamentXU123/Typhon
+        _/ /` _\_   |))        
 '''
 
 print(BANNER)

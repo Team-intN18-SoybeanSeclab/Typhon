@@ -319,7 +319,8 @@ def try_bypasses(pathlist,
         for _ in BypassGenerator(path, allow_unicode_bypass=allow_unicode_bypass).generate_bypasses():
             if not is_blacklisted(_, banned_chars, banned_AST, banned_re, max_length): successful_payloads.append(_)
             continue
-    sys.stdout.write('\n')
+    if pathlist and log_level_ != 'DEBUG':
+        sys.stdout.write('\n')
     successful_payloads.sort(key=len)
     return successful_payloads
 
