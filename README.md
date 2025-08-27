@@ -30,11 +30,11 @@ pip install TyphonBreaker
 import Typhon
 Typhon.bypassRCE(cmd: str,
     local_scope: Dict[str, Any],
-    banned_chr: list,
-    banned_ast: list[ast.AST],
-    banned_audithook: list[str],
-    max_length: int,
-    depth: int = 10,
+    banned_chr: list = [],
+    banned_ast: list[ast.AST] = [],
+    banned_audithook: list[str] = [],
+    max_length: int = None,
+    depth: int = 20,
     log_level: str = 'INFO') 
 ```
 

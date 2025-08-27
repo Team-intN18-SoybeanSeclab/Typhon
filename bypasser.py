@@ -3,7 +3,7 @@ import tokenize
 
 from typing import Union
 from Typhon import logger
-from copy import deepcopy
+from copy import copy
 from functools import wraps
 from random import randint, choice
 
@@ -128,7 +128,7 @@ class BypassGenerator:
                 or new_payload is None 
                 or new_payload in variants
                 or new_payload == initial_payload): continue
-            _ = deepcopy(payload)
+            _ = copy(payload)
             _[1].append(method)
             variants.append(new_payload)
             variants.extend(self.combine_bypasses([new_payload, _[1]], initial_payload, depth-1))
