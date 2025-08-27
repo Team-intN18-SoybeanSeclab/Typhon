@@ -51,8 +51,8 @@ BANNER = r'''
 print(BANNER)
 
 def bypassMAIN(local_scope: Dict[str, Any] = {},
-           banned_chr: list = [], banned_ast: list[ast.AST] = [],
-           banned_re: Union[str, list[str]] = [],
+           banned_chr: list = [], banned_ast: List[ast.AST] = [],
+           banned_re: Union[str, List[str]] = [],
            max_length: int = None,
            allow_unicode_bypass: bool = False,
            depth: int = 20,

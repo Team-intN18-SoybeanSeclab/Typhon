@@ -1,10 +1,10 @@
 import ast
 import tokenize
 
-from typing import Union
-from Typhon import logger
 from copy import copy
+from Typhon import logger
 from functools import wraps
+from typing import Union, List
 from random import randint, choice
 
 def remove_duplicate(List) -> list:
@@ -46,7 +46,7 @@ def general_bypasser(func):
         return func(self, payload[0])
     return check
 
-def bypasser_not_work_with(bypasser_list: list[str]):
+def bypasser_not_work_with(bypasser_list: List[str]):
     """
     Decorator for bypassers which do not work with any other bypasser in the list.
     """
@@ -101,7 +101,7 @@ class BypassGenerator:
         
         return remove_duplicate(bypassed)  # Remove duplicates
     
-    def combine_bypasses(self, payload: list[str, list], initial_payload: str, depth: int):
+    def combine_bypasses(self, payload: List[str, list], initial_payload: str, depth: int):
         """
         Recursively combine multiple bypass methods for deeper obfuscation.
         
