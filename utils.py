@@ -340,11 +340,15 @@ def progress_bar(current, total, bar_length=80):
     sys.stdout.write(f"\rBypassing ({current}/{total}): [{arrow + spaces}] {percent:.1f}%")
     sys.stdout.flush()
 
-def bypasses_output(bypassed_payload: str = ''):
+def bypasses_output(bypassed_payload: str = '', generated_path = list):
     """
     Print a fancy output of the bypassed payload
+    if bypassed_payload is set, it means we RCE successfully, the program ends.
+    if generated_path is set, it means we have some progress but not RCE, 
+    the program ends with the those progress.
     
     :param bypassed_payload: the bypassed payload
+    :param generated_path: the generated path
     :return: None
     """
     from Typhon import achivements
@@ -371,4 +375,6 @@ def bypasses_output(bypassed_payload: str = ''):
         print(bypassed_payload)
         print('\n')
         print('\033[36m+++++++++++Jail broken+++++++++++\033[0m')
-    exit(0)
+        exit(0)
+    if generated_path:
+        return generated_path

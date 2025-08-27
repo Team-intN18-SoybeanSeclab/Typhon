@@ -32,13 +32,12 @@ caz I'm lazzzzy.
 (PR welcome)
 '''
 current_global_scope = currentframe().f_back.f_back.f_back.f_back.f_back.f_back.f_globals
-logger.info('[*] current global scope gotten.')
-logger.debug('[*] current global scope: %s', current_global_scope)
 
 from utils import *
 
 # The RCE data including RCE functions and their parameters.
-RCE_data = json.load(open('RCE_data.json', 'r'))
+with open('RCE_data.json', 'r') as f:
+    RCE_data = json.load(f)
 BANNER = r'''
     .-')          _                 
    (`_^ (    .----`/                Typhon: a pyjail bypassing tool
@@ -78,6 +77,7 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
     if local_scope == {}:
         # If the local scope is not specified, raise a warning.
         logger.info('[*] local scope not specified, using the global scope.')
+        logger.debug('[*] current global scope: %s', current_global_scope)
         local_scope = current_global_scope
         local_scope['__builtins__'] = __builtins__
     log_level_ = log_level.upper()
@@ -290,9 +290,8 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
         
 
     # Step9: Try to restore __import__
-
     try_to_restore('import', __import__.__class__)
 
     # Final Step: (Oh my lord, finally...) Try to RCE
 
-    bypasses_output()
+    return bypasses_output(generated_path=generated_path)

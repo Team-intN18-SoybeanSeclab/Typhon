@@ -43,6 +43,7 @@ Typhon.bypassRCE(cmd: str,
     banned_chr: list = [],
     banned_ast: list[ast.AST] = [],
     banned_re: Union[str, list[str]] = [],
+    allow_unicode_bypass = False,
     max_length: int = None,
     depth: int = 20,
     log_level: str = 'INFO') 
@@ -54,6 +55,7 @@ Typhon.bypassRCE(cmd: str,
 `banned_ast`: 禁止的AST节点  
 `banned_re`: 禁止的正则表达式（列表或字符串）  
 `max_length`: payload的最大长度  
+`allow_unicode_bypass`: 是否允许unicode绕过  
 `depth`: 最大递归深度（建议使用默认值）  
 `log_level`: 输出级别（只有`info`和`debug`有意义，不建议更改）  
 
