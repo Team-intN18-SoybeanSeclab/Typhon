@@ -126,8 +126,8 @@ def is_tag(string: str) -> bool:
     return (string.startswith(prefix) or string in fixed_tag)
 
 def parse_payload_list(
-    payload: list[str],
-    char_blacklist: list[str],
+    payload: List[str],
+    char_blacklist: List[str],
     allow_unicode_bypass: bool,
     local_scope: dict,
     cmd = Union[str, None]) ->  list:
