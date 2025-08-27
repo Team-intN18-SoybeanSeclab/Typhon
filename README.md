@@ -42,7 +42,7 @@ Typhon.bypassRCE(cmd: str,
 `local_scope`: 沙箱内的全局变量空间  
 `banned_chr`: 禁止的字符  
 `banned_ast`: 禁止的AST节点  
-`banned_re`: 禁止的正则表达式（列表或字符串）
+`banned_re`: 禁止的正则表达式（列表或字符串）  
 `max_length`: payload的最大长度  
 `depth`: 最大递归深度（建议使用默认值）  
 `log_level`: 输出级别（只有`info`和`debug`有意义，不建议更改）  
