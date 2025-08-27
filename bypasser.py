@@ -101,7 +101,7 @@ class BypassGenerator:
         
         return remove_duplicate(bypassed)  # Remove duplicates
     
-    def combine_bypasses(self, payload: List[str, list], initial_payload: str, depth: int):
+    def combine_bypasses(self, payload: List[Union[str, list]], initial_payload: str, depth: int):
         """
         Recursively combine multiple bypass methods for deeper obfuscation.
         
