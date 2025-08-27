@@ -1,3 +1,4 @@
+import re
 import sys
 import inspect
 import builtins
@@ -8,7 +9,9 @@ from types import FunctionType, ModuleType
 
 def exec_with_returns(code: str, scope: dict):
     """
-    Execute a code string with a given scope and return the returned value.
+    Execute a code string with a given scope and return the value of
+    the last expression.
+
     :param code: The code to execute
     :param scope: The scope to use for execution
     :return: The returned value of the code
@@ -33,6 +36,9 @@ def exec_with_returns(code: str, scope: dict):
         logger.debug(f'Error executing code when testing payloads: {e}')
 
 def merge_dicts(dict1: dict, dict2: dict) -> dict:
+    """
+    Merge dicts. Not using | for backwards compatibility.
+    """
     if type(dict1)!= dict:
         return dict2
     if type(dict2)!= dict:
@@ -95,7 +101,7 @@ def tag_variables(variables, change_in_builtins) -> list:
             obj_name = ''.join(c if c.isalnum() else '_' for c in obj_name).upper()
             tagged[name] = 'USER_DEFINED_{}'.format(obj_name)
         except:
-            tagged[name] = 'UNKNOWN'
+            tagged[name] = 'UNKNOWN' # If we can't tag it, it's unknown
     return tagged
 
 def tag_scope(scope: dict, change_in_builtins: int) -> dict:
@@ -251,29 +257,38 @@ def filter_path_list(path_list: list, tagged_scope: dict) -> list:
             filtered_list.append(path)
     return filtered_list
 
-def is_blacklisted(payload, banned_char, banned_AST, max_length) -> bool:
+def is_blacklisted(payload, banned_char, banned_AST, banned_re, max_length) -> bool:
     """
     Check if a payload is blacklisted
     
     :param banned_chars: list of banned chars
     :param banned_AST: list of banned AST
+    :param banned_re: banned regex
     :param max_length: max length of the payload
     :return: True if the payload is blacklisted, False otherwise
     """
     ast_banned = False
+    re_banned = False
     if max_length == None: length_check = False; max_length = 0
     else: length_check = True
     for bAST in banned_AST:
         if any(isinstance(node, bAST) for node in ast.walk(ast.parse(payload))):
             ast_banned = True
             break
+    if banned_re:
+        for b_re in banned_re:
+            if re.search(b_re, payload):
+                re_banned = True
+                break
     return (any(i in payload for i in banned_char) # banned character check
             or ast_banned # AST check
+            or re_banned # regex check
             or (len(payload) > max_length and length_check)) # max length check
 
 def try_bypasses(pathlist,
                  banned_chars,
                  banned_AST,
+                 banned_re,
                  max_length,
                  allow_unicode_bypass,
                  local_scope,
@@ -284,6 +299,7 @@ def try_bypasses(pathlist,
     :param pathlist: list of payloads to try to bypass
     :param banned_chars: list of banned chars
     :param banned_AST: list of banned AST
+    :param banned_re: banned regex
     :param max_length: max length of the payload
     :param allow_unicode_bypass: if unicode bypasses are allowed.
     :param local_scope: the local scope to use for tag analysis
@@ -301,7 +317,7 @@ def try_bypasses(pathlist,
         #     successful_payloads.append(path)
         #     continue
         for _ in BypassGenerator(path, allow_unicode_bypass=allow_unicode_bypass).generate_bypasses():
-            if not is_blacklisted(_, banned_chars, banned_AST, max_length): successful_payloads.append(_)
+            if not is_blacklisted(_, banned_chars, banned_AST, banned_re, max_length): successful_payloads.append(_)
             continue
     sys.stdout.write('\n')
     successful_payloads.sort(key=len)
