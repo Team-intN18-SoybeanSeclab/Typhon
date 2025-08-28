@@ -115,7 +115,7 @@ safe_run(input("Enter command: "))
 import re
 def safe_run(cmd):
     import Typhon
-    Typhon.bypassMAIN(
+    Typhon.bypassRCE(
     banned_chr=['__builtins__'],
     banned_re='.*import.*',
     local_scope={'__builtins__': None},

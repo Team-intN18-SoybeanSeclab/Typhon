@@ -292,6 +292,38 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
     # Step9: Try to restore __import__
     try_to_restore('import', __import__.__class__)
 
-    # Final Step: (Oh my lord, finally...) Try to RCE
-
     return bypasses_output(generated_path=generated_path)
+
+def bypassRCE(
+    local_scope:dict={},
+    banned_chr:list=[],
+    banned_ast:list=[],
+    banned_re:list=[],
+    max_length:int=1000,
+    allow_unicode_bypass:bool=False,
+    depth:int=20,
+    log_level:str='INFO'
+):
+    """
+    The main function to try to RCE in sandbox.
+    
+    :param local_scope: is a list of local variables in the sandbox environment.
+    :param banned_chr: is a list of blacklisted characters.
+    :param banned_ast: is a list of banned AST.
+    :param banned_re: is a banned regex.
+    :param max_length: is the maximum length of the payload.
+    :param allow_unicode_bypass: if unicode bypasses are allowed.
+    :param depth: is the depth that combined bypassing being generarted
+    :param log_level: is the logging level, default is INFO, change it to
+    DEBUG for more details.
+    """
+
+    generated = bypassMAIN(local_scope,
+                           banned_chr=banned_chr,
+                           banned_ast=banned_ast,
+                           banned_re=banned_re,
+                           max_length=max_length,
+                           allow_unicode_bypass=allow_unicode_bypass,
+                           depth=depth,
+                           log_level=log_level)
+    return generated
