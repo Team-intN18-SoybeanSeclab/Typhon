@@ -320,8 +320,8 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
             generated_path[tag] = payload
             achivements[k] = [payload, payload_len]
             logger.info(f'[+] Found coherent chain: {payload} -> {k}')
-            logger.info("moudles we have found:")
-            logger.info(get_moudle_from_tagged_scope(tagged_scope))
+        logger.info("moudles we have found:")
+        logger.info(get_moudle_from_tagged_scope(tagged_scope))
     else:
         logger.info('[*] No object found, skip coherent chains.')
 
@@ -336,6 +336,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
     return bypasses_output(generated_path=generated_path)
 
 def bypassRCE(
+    cmd,
     local_scope:dict={},
     banned_chr:list=[],
     banned_ast:list=[],
@@ -348,6 +349,7 @@ def bypassRCE(
     """
     The main function to try to RCE in sandbox.
     
+    :param cmd: is the command to execute.
     :param local_scope: is a list of local variables in the sandbox environment.
     :param banned_chr: is a list of blacklisted characters.
     :param banned_ast: is a list of banned AST.

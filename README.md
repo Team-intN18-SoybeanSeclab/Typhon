@@ -117,13 +117,13 @@ safe_run(input("Enter command: "))
 import re
 def safe_run(cmd):
     import Typhon
-    Typhon.bypassRCE(
+    Typhon.bypassRCE(cmd,
     banned_chr=['__builtins__'],
     banned_re='.*import.*',
     local_scope={'__builtins__': None},
     max_length=100)
 
-safe_run('whatever')
+safe_run(input("Enter command: "))
 ```
 
 **Step3. 运行**
@@ -163,7 +163,7 @@ Pyjail中存在一些通过索引寻找对应object的gadgets（如继承链）�
 
 **无法保证？**
 
-是的，大多数题目都不会给出对应的python版本。因此，**Typhon会在涉及版本的gadgets时做出提示，并给出相应的提示**。  
+是的，大多数题目都不会给出对应的python版本。因此，**Typhon会在涉及版本的gadgets时做出提示**。  
 
 这种情况下往往需要CTF选手自己去找题目环境中该gadgets需要的索引值。  
 
@@ -199,7 +199,7 @@ safe_run('cat /f*')
 
 ## Remaining Work
 
-- [] 支持低于python3.7的版本
+- [ ] 支持低于python3.7的版本
 
 ## Maintainer
 
