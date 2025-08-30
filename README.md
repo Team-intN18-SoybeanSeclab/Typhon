@@ -6,6 +6,8 @@
 
 所以这就是Typhon，一个致力于让你不需要脑子也能做pyjail的一把梭工具。
 
+**请务必看完本readme后再使用Typhon工具。**
+
 ```
     .-')          _           
    (`_^ (    .----`/          
@@ -139,7 +141,7 @@ safe_run('whatever')
 def safe_run(cmd):
     import Typhon
     Typhon.bypassRCE(cmd,
-    banned_chr=['builtins', 'os', 'exec', 'import'], log_level='INFO')
+    banned_chr=['builtins', 'os', 'exec', 'import'])
 
 safe_run('cat /f*')
 ```
@@ -150,10 +152,20 @@ import Typhon
 
 def safe_run(cmd):
     Typhon.bypassRCE(cmd,
-    banned_chr=['builtins', 'os', 'exec', 'import'], log_level='INFO')
+    banned_chr=['builtins', 'os', 'exec', 'import'])
 
 safe_run('cat /f*')
 ```
+
+- 使用与题目相同的python版本
+
+Pyjail中存在一些通过索引寻找对应object的gadgets（如继承链）。继承链的利用随着索引变化很大。因此，请务必确保Typhon的运行环境与题目相同。
+
+**无法保证？**
+
+是的，大多数题目都不会给出对应的python版本。因此，**Typhon会在涉及版本的gadgets时做出提示，并给出相应的提示**。  
+
+这种情况下往往需要CTF选手自己去找题目环境中该gadgets需要的索引值。  
 
 
 ## Best Practice

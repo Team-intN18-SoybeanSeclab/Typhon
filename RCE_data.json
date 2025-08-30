@@ -114,7 +114,9 @@
         ["BUILTINS_SET['__import__']", "BUILTINS_SET"],
         ["BUILTINS_SET['__loader__'].load_module", "BUILTINS_SET"],
         ["MODULE_BUILTINS.__import__", "MODULE_BUILTINS"],
-        ["MODULE_BUILTINS.__loader__.load_module", "MODULE_BUILTINS"]
+        ["MODULE_BUILTINS.__loader__.load_module", "MODULE_BUILTINS"],
+        ["importlib.import_module", "importlib"],
+        ["importlib.__import__", "importlib"]
     ],
     "generator": [
         ["(RANDOMVARNAME for RANDOMVARNAME in ()).gi_frame", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
@@ -175,7 +177,15 @@
         ["exec(CMD)", "exec"],
         ["profile.run(CMD)", "exec"],
         ["timeit.main(['-r', '1', '-n', '1', CMD]", "exec"],
-        ["timeit.timeit(CMD)", "exec"]
+        ["timeit.timeit(CMD)", "exec"],
+        ["warnings.catch_warnings"],
+        ["WarningMessage"],
+        ["codecs.IncrementalEncoder"],
+        ["codecs.IncrementalDecoder"],
+        ["codecs.StreamReaderWriter"],
+        ["os._wrap_close"],
+        ["reprlib.Repr"],
+        ["weakref.finalize"]
     ],
     "python2": {
         "RCE_system_functions":[

