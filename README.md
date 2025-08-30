@@ -167,8 +167,39 @@ Pyjail中存在一些通过索引寻找对应object的gadgets（如继承链）�
 
 这种情况下往往需要CTF选手自己去找题目环境中该gadgets需要的索引值。  
 
+- 不要在同一次`import`中使用两次`Typhon`的绕过函数。如有需求，请删除`Typhon`的导入语句，并在需要时再导入。
+
+**Do:**
+```python
+def safe_run(cmd):
+    import Typhon
+    Typhon.bypassRCE(cmd,
+    banned_chr=['builtins', 'os', 'exec', 'import'])
+    del Typhon
+    import Typhon
+    Typhon.bypassRCE(cmd,
+    local_scope={'__builtins__': None})
+
+safe_run('cat /f*')
+```
+
+**Don't:**
+```python
+def safe_run(cmd):
+    import Typhon
+    Typhon.bypassRCE(cmd,
+    banned_chr=['builtins', 'os', 'exec', 'import'])
+    Typhon.bypassRCE(cmd,
+    local_scope={'__builtins__': None})
+
+safe_run('cat /f*')
+```
 
 ## Best Practice
+
+## Remaining Work
+
+- [] 支持低于python3.7的版本
 
 ## Maintainer
 

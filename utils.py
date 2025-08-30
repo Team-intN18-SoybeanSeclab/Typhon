@@ -379,3 +379,18 @@ def bypasses_output(bypassed_payload: str = '', generated_path = list):
         exit(0)
     if generated_path:
         return generated_path
+
+def get_moudle_from_tagged_scope(tagged_scope: dict) -> dict:
+    """
+    Get the module from the tagged scope
+    
+    :param tagged_scope: the tagged scope
+    :return: the module from the tagged scope
+    e.g.: {'os': <module 'os' (built-in)>}
+    """
+    module_dict = {}
+    for i in tagged_scope:
+        if 'MODULE_' in tagged_scope[i][1]:
+            module_name = tagged_scope[i][1].split('_')[1]
+            module_dict[module_name] = tagged_scope[i][0]
+    return module_dict
