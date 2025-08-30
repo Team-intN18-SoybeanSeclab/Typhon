@@ -320,7 +320,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
             generated_path[tag] = payload
             achivements[k] = [payload, payload_len]
             logger.info(f'[+] Found coherent chain: {payload} -> {k}')
-        logger.info("moudles we have found:")
+        logger.info("[*] moudles we have found:")
         logger.info(get_moudle_from_tagged_scope(tagged_scope))
     else:
         logger.info('[*] No object found, skip coherent chains.')
