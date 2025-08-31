@@ -1,6 +1,6 @@
 # Typhon: Lets solve pyjail without brain
 
-**大概得等到明年中旬完成，等发布时会新建一个仓库公开。本仓库将作为我个人的git仓库，发布在团队账号上供参考。**
+**本工具目前处于PoC阶段，尚不具备实战能力，也没有再任何平台发布版本（pip，github，etc.）。然而由于基本功能已经实现，我们欢迎各位尝试使用并提供反馈。目前，你可以尝试使用`bypassMAIN`函数来体验本工具的功能。当前阶段，你可以通过阅读[Proof of Concept](#proof-of-concept)部分来了解本工具的核心思路。**
 
 听着，我已经受够那些愚蠢的CTF pyjail题目了——每次我都要浪费时间在又臭又长的黑名单和各种pyjail总结之间找哪个链子没被过滤，或者在命名空间里一个一个运行`dir()`去找能用的东西。这简直就是一种折磨。
 
@@ -22,7 +22,7 @@
 
 - 不需要大脑就能完成pyjail题目，爱护您的脑细胞和眼球
 - 拥有上千条gadgets和几乎所有主流的bypass方法
-- 支持多种函数以达成不同功能，如RCE用`bypassRCE()`, 读文件用`bypassRead()`, 写文件用`bypassWrite()`等等
+- 支持多种函数以达成不同功能，如RCE用`bypassRCE()`, 读文件用`bypassRead()`等等
 
 ## How to Use
 
@@ -163,7 +163,7 @@ Pyjail中存在一些通过索引寻找对应object的gadgets（如继承链）�
 
 **无法保证？**
 
-是的，大多数题目都不会给出对应的python版本。因此，**Typhon会在涉及版本的gadgets时做出提示**。  
+是的，大多数题目都不会给出对应的python版本。因此，**Typhon会在使用涉及版本的gadgets时做出提示**。  
 
 这种情况下往往需要CTF选手自己去找题目环境中该gadgets需要的索引值。  
 
@@ -195,11 +195,68 @@ def safe_run(cmd):
 safe_run('cat /f*')
 ```
 
-## Best Practice
+## Proof of Concept
 
-## Remaining Work
+所以，这就是Typhon的工作原理：
+
+### bypass by path & technique
+
+我们定义两种bypass方式：
+
+- path: 通过不同的载荷进行绕过（例如`os.system('calc')`和`subprocess.Popen('calc')`）  
+- technique: 使用不同技术对相同的有效载荷进行处理从而绕过（例如，`os.system('c'+'a'+'l'+'c')` 和 `os.system('clac'[::-1])`)  
+
+Typhon内置了上百种path。每次我们要绕过获取某个东西时，我们先通过local_scope找到所有可以用的`path`，接下来，通过`bypasser.py`中的绕过方式生成每个`path`对应的不同变体，并尝试绕过黑名单。
+
+### gadgets chain
+
+本思路受到[pyjailbreaker](https://github.com/jailctf/pyjailbreaker)工具的启发。
+
+pyjailbreaker不直接通过gadgets一步到位实现RCE，而是一步一步寻找RCE链条中需要的项。如假设存在下列黑名单：
+
+- 本地命名空间无`__builtins__`
+- 禁止使用`builtins`字符
+
+对于这个WAF，Typhon是这样处理的：
+
+- 首先，我们通过`'J'.__class__.__class__`获取`type`
+- 随后，我们找到获取type后可能可以获取builtins的RCE链子`TYPE.__subclasses__(TYPE)[0].register.__globals__['__builtins__']`
+- 已知题目黑名单过滤了`__builtins__`字符，则我们将此path投入bypasser产生数十种变体。选择其中最短的变体：`TYPE.__subclasses__(TYPE)[0].register.__globals__['__snitliub__'[::-1]]`
+- 随后，我们找到获取``__builtins__``后的RCE链子`BUILTINS_SET['breakpoint']()`
+- 最后，我们将代表builtins字典的占位符`BUILTINS_SET`替换为上步中获取的`__builtins__`路径，以此类推，将`TYPE`占位符替换为真实的路径，就得到了最终的payload。
+
+```
+'J'.__class__.__class__.__subclasses__('J'.__class__.__class__)[0].register.__globals__['__snitliub__'[::-1]]['breakpoint']()
+```
+
+### Step by Step
+
+Typhon的workflow顺序如下：
+
+- 每一个终点函数（`bypassRCE`, `bypassREAD`，etc.）都会调用主函数`bypassMAIN`，主函数会尽可能搜集所有的可用gadgets（如上例中的`type`）并将收集到的内容传递给对应的下级函数。
+- `bypassMAIN`函数在简单分析完当前的变量空间后，会：
+  - 尝试直接RCE（如`help()`, `breakporint()`）
+  - 尝试获取生成器
+  - 尝试获取type
+  - 尝试获取object
+  - 如当前空间中的__builtins__未被删除，但被修改，尝试恢复（如`id.__self__`）
+  - 如当前空间中的__builtins__被删除，尝试从其他命名空间恢复
+  - 承上，尝试继承链绕过
+  - 尝试获取import包的能力
+  - 尝试直接通过可能恢复的__builtins__ RCE
+  - 将结果传递给下级函数
+- 下级函数拿到`bypassMAIN`的结果后，会根据该函数所实现的需求，选择对应的gadgets进行处理（如`bypassRCE`专注于RCE，`bypassREAD`专注于文件读取，`bypassENV`专注于读取环境变量）。其过程与上述相似。
+
+## Remaining Work to the first release
+
+- [ ] 完善bypass*的终点函数（`bypassRCE`, `bypassREAD`, etc.）
+- [ ] 更多的gadgets
+- [ ] 更多绕过方法
+
+## Future Work
 
 - [ ] 支持低于python3.7的版本
+- [ ] 支持audit hook绕过
 
 ## Maintainer
 

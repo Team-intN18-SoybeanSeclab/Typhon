@@ -111,7 +111,7 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
             logger.info('[*] %d paths found to obtain %s. \
 Try to bypass blacklist with them. Please be paitent.', len(path), data_name)
             logger.debug('[*] %s paths: %s', data_name, str(path))
-            _ = try_bypasses(path, banned_chr, banned_ast, banned_re, max_length, allow_unicode_bypass, all_objects)
+            _ = try_bypasses(path, banned_chr, banned_ast, banned_re, max_length, allow_unicode_bypass, local_scope)
             if _:
                 success = False
                 for i in _:
@@ -159,7 +159,7 @@ Try to bypass blacklist with them. Please be paitent.', len(path), data_name)
         logger.info('[*] %d paths found to directly getshell. \
 Try to bypass blacklist with them. Please be paitent.', len(simple_path))
         logger.debug('[*] simple paths: %s', str(simple_path))
-        _ = try_bypasses(simple_path, banned_chr, banned_ast, banned_re, max_length, allow_unicode_bypass, all_objects)
+        _ = try_bypasses(simple_path, banned_chr, banned_ast, banned_re, max_length, allow_unicode_bypass, local_scope)
         if _:
             logger.info('[+] directly getshell success. %d payload(s) in total.', len(_))
             logger.debug('[*] payloads to directly getshell: ')
@@ -195,7 +195,7 @@ in the namespace, try to restore them.',
             logger.info('[*] %d paths found to restore builtins. \
 Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
             logger.debug('[*] restore paths: %s', str(builtin_path))
-            _ = try_bypasses(builtin_path, banned_chr, banned_ast, banned_re, max_length, allow_unicode_bypass, all_objects)
+            _ = try_bypasses(builtin_path, banned_chr, banned_ast, banned_re, max_length, allow_unicode_bypass, local_scope)
             if _:
                 logger.info('[+] builtins restored. %d payload(s) in total.', len(_))
                 logger.debug('[*] payloads to restore builtins: ')
@@ -246,7 +246,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
             logger.info('[*] %d paths found to restore builtins in other namespaces. \
 Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
             logger.debug('[*] restore paths: %s', str(builtin_path))
-            _ = try_bypasses(builtin_path, banned_chr, banned_ast, banned_re, max_length, allow_unicode_bypass, all_objects)
+            _ = try_bypasses(builtin_path, banned_chr, banned_ast, banned_re, max_length, allow_unicode_bypass, local_scope)
             if _:
                 logger.info('[+] builtins restored. %d payload(s) in total.', len(_))
                 logger.debug('[*] payloads to restore builtins: ')
@@ -287,7 +287,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
 
     # Step8: Try coherence chain
     if 'OBJECT' in tags:
-        logger.info('[*] Trying to find coherent chains.')
+        logger.info('[*] Trying to find coherence chains.')
         search = ['os', 'subprocess', 'uuid', 'pydoc', '_posixsubprocess',
                 'multiprocessing', '__builtins__', 'codecs', 'warnings',
                 'importlib', 'weakref', 'reprlib', 'sys']
@@ -319,11 +319,11 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
             tags.append(tag)
             generated_path[tag] = payload
             achivements[k] = [payload, payload_len]
-            logger.info(f'[+] Found coherent chain: {payload} -> {k}')
+            logger.info(f'[+] Found coherence chain: {payload} -> {k}')
         logger.info("[*] moudles we have found:")
         logger.info(get_moudle_from_tagged_scope(tagged_scope))
     else:
-        logger.info('[*] No object found, skip coherent chains.')
+        logger.info('[*] No object found, skip coherence chains.')
 
     # Step9: Try to restore __import__
     try_to_restore('import', __import__.__class__)

@@ -122,7 +122,8 @@ def is_tag(string: str) -> bool:
     :return: True if the string is a valid tag, False otherwise
     """
     prefix = ('USER_DEFINED_', 'MODULE_')
-    fixed_tag = ['BUILTINS_SET', 'BUILTINS_SET_CHANGED', 'BUILTINS', 'UNKNOWN']
+    fixed_tag = ['BUILTINS_SET', 'BUILTINS_SET_CHANGED', 'BUILTINS', 'UNKNOWN', 
+                 'TYPE', 'OBJ', 'GENERATOR']
     return (string.startswith(prefix) or string in fixed_tag)
 
 def parse_payload_list(
