@@ -244,12 +244,12 @@ The order of workflow for Typhon is as follows:
 - Each endpoint function (`bypassRCE`, `bypassREAD`, etc.) will call the main function`bypassMAIN`, the main function will collect all available gadgets as much as possible (as in the above example`type`) and pass the collected content to the corresponding subordinate function.
 - `bypassMAIN`After the function simply analyzes the current variable space, it will:
   - Try to RCE directly (e.g.`help()`, `breakporint()`）
-  - Try to get the generator
+  - Try to get generator
   - Try to get type
   - Try to get object
   - If the __builtins__ in the current space has not been deleted, but has been modified, try to restore (such as`id.__self__`）
   - If the __builtins__ in the current space is deleted, try to restore it from other namespaces
-  - Inheriting, try to inherit the chain bypass
+  - Try coherence chain bypasses
   - Ability to try to get import packages
   - Try to directly recover through the __builtins__ RCE
   - Pass the result to the lower function
@@ -263,7 +263,7 @@ The order of workflow for Typhon is as follows:
 
 ## Future Work
 
-- [] Supports versions below python3.7
+- [ ] Supports versions below python3.7
 - [ ] Support audit hook bypass
 
 ## Contributors
