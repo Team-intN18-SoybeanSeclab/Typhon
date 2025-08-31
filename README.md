@@ -136,7 +136,7 @@ safe_run(input("Enter command: "))
 
 ## Important Note
 
-### 一定要将行`import Typhon`放在`Typhon`内置绕过函数的上一行。否则，`Typhon`将无法通过栈帧获取当前的全局变量空间。
+- 一定要将行`import Typhon`放在`Typhon`内置绕过函数的上一行。否则，`Typhon`将无法通过栈帧获取当前的全局变量空间。
 
 **Do:**
 ```python
@@ -159,7 +159,7 @@ def safe_run(cmd):
 safe_run('cat /f*')
 ```
 
-### 使用与题目相同的python版本
+- 使用与题目相同的python版本
 
 Pyjail中存在一些通过索引寻找对应object的gadgets（如继承链）。继承链的利用随着索引变化很大。因此，请务必确保Typhon的运行环境与题目相同。
 
@@ -197,7 +197,7 @@ def safe_run(cmd):
 safe_run('cat /f*')
 ```
 
-### 这个payload我用不了能不能换一个
+- 这个payload我用不了能不能换一个
 
 你可以在参数中加上`print_all_payload=True`，Typhon就会打印其生成的所有payload。
 
