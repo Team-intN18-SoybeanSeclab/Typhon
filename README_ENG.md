@@ -2,11 +2,11 @@
 
 [Simplified Chinese](./README.md) | English
 
-**This tool is currently in the PoC stage and does not have practical capabilities yet, nor has it been released on any platform (pip, github, etc.). However, since the basic functions have been implemented, we welcome everyone to try and provide feedback. Currently, you can try`bypassMAIN`Functions to experience the functions of this tool. At present, you can read[Proof of Concept](#proof-of-concept)Partly understand the core ideas of this tool.**
+**This tool is currently in the PoC stage and does not have practical capabilities yet, nor has it been released on any platform (pip, github, etc.). However, since the basic functions have been implemented, we welcome everyone to try and provide feedback. Currently, you can try`bypassMAIN`Functions to experience the functions of this tool. At present, you can read [Proof of Concept](#proof-of-concept) Partly understand the core ideas of this tool.**
 
-Listen, I've had enough of those stupid dumb dumb CTF pyjail topics - every time I'm wasting time finding which chain is not filtered between a stinky blacklist and various pyjail summary, or running one by one in the namespace`dir()`Find something that can be used. This is simply torture.
+Listen, I've had enough of those stupid dumb dumb CTF pyjail challenges - every time I'm wasting time finding which chain is not filtered between a stinky blacklist and various pyjail summary, or running `dir()` one by one in the namespace Find something that can be used. This is simply torture.
 
-So this is Typhon, a shuttle tool dedicated to making pyjail without having to a brain.
+So this is Typhon, a tool dedicated to solve pyjails without having to a brain.
 
 **Please be sure to finish reading this readme before using the Typhon tool.**
 
@@ -22,9 +22,9 @@ So this is Typhon, a shuttle tool dedicated to making pyjail without having to a
 
 ## Highlights
 
-- You can complete pyjail questions without a brain, take care of your brain cells and eyeballs
+- You can complete pyjail challenges without a brain, take care of your brain cells and eyeballs
 - Have thousands of gadgets and almost all mainstream bypass methods
-- Supports multiple functions to achieve different functions, such as RCE`bypassRCE()`, for reading files`bypassRead()`etc.
+- Supports multiple functions to achieve different functions, such as RCE `bypassRCE()`, for reading files `bypassRead()` etc.
 
 ## How to Use
 
@@ -63,7 +63,7 @@ Typhon.bypassRCE(cmd: str,
 `allow_unicode_bypass`: Whether to allow unicode to bypass
 `print_all_payload`: Whether to print all payloads
 `depth`: Maximum recursion depth (the default value is recommended)
-`log_level`: Output level (only`info`and`debug`Meaningful, no change is recommended)
+`log_level`: Output level (only `info` and `debug` are meaningful, no change is recommended)
 
 **Command Line Interface**
 
@@ -94,9 +94,9 @@ First, we need to analyze the functionality of pyjail waf (which is probably the
 It can be seen that the waf of the above question is as follows:
 
 - The maximum limit length is 100
-- There is no exec namespace`__builtins__`
-- No use`builtins`character
-- Set regular expressions`'.*import.*'`Limitation conditions
+- There is no exec namespace `__builtins__`
+- No use `builtins` character
+- Set regular expressions `'.*import.*'` limitation conditions
 
 **Step2. Import waf into Typhon**
 
@@ -115,7 +115,7 @@ def safe_run(cmd):
 safe_run(input("Enter command: "))
 ```
 
-Then, we replace the exec line with the bypass function corresponding to Typhon, import WAF at the corresponding position, ** and above the line`import Typhon`**：
+Then, we replace the exec line with the bypass function corresponding to Typhon, import WAF at the corresponding position, **and above the line `import Typhon`**：
 
 ```python
 import re
@@ -138,7 +138,7 @@ Run your question program and wait for the **Jail broken** message to appear.
 
 ## Important Note
 
-- Must make it`import Typhon`Put`Typhon`Built-in bypass the previous line of the function. otherwise,`Typhon`The current global variable space will not be available through the stack frame.
+- Must make `import Typhon` the very previous line of the function. otherwise,The current global variable space will not be available through the stack frame.
 
 **Do:**
 ```python
