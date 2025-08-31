@@ -25,10 +25,10 @@ logging.basicConfig(level=log_level_, format='%(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
 
 # get current global scope
-current_global_scope = currentframe()
-while current_global_scope.f_globals['__name__'] != '__main__':
-    current_global_scope = current_global_scope.f_back
-current_global_scope = current_global_scope.f_globals
+current_frame = currentframe()
+while current_frame.f_globals['__name__'] != '__main__':
+    current_frame = current_frame.f_back
+current_global_scope = current_frame.f_globals
 
 from utils import *
 
