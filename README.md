@@ -1,6 +1,6 @@
 # Typhon: Lets solve pyjail without brain
 
-**本工具目前处于PoC阶段，尚不具备实战能力，也没有再任何平台发布版本（pip，github，etc.）。然而由于基本功能已经实现，我们欢迎各位尝试使用并提供反馈。目前，你可以尝试使用`bypassMAIN`函数来体验本工具的功能。当前阶段，你可以通过阅读[Proof of Concept](#proof-of-concept)部分来了解本工具的核心思路。**
+**本工具目前处于PoC阶段，尚不具备实战能力，也没有在任何平台发布版本（pip，github，etc.）。然而由于基本功能已经实现，我们欢迎各位尝试使用并提供反馈。目前，你可以尝试使用`bypassMAIN`函数来体验本工具的功能。当前阶段，你可以通过阅读[Proof of Concept](#proof-of-concept)部分来了解本工具的核心思路。**
 
 听着，我已经受够那些愚蠢的CTF pyjail题目了——每次我都要浪费时间在又臭又长的黑名单和各种pyjail总结之间找哪个链子没被过滤，或者在命名空间里一个一个运行`dir()`去找能用的东西。这简直就是一种折磨。
 
@@ -48,6 +48,7 @@ Typhon.bypassRCE(cmd: str,
     allow_unicode_bypass = False,
     max_length: int = None,
     depth: int = 20,
+    print_all_payload: bool = False,
     log_level: str = 'INFO') 
 ```
 
@@ -58,6 +59,7 @@ Typhon.bypassRCE(cmd: str,
 `banned_re`: 禁止的正则表达式（列表或字符串）  
 `max_length`: payload的最大长度  
 `allow_unicode_bypass`: 是否允许unicode绕过  
+`print_all_payload`: 是否打印所有payload  
 `depth`: 最大递归深度（建议使用默认值）  
 `log_level`: 输出级别（只有`info`和`debug`有意义，不建议更改）  
 
@@ -134,7 +136,7 @@ safe_run(input("Enter command: "))
 
 ## Important Note
 
-- 一定要将行`import Typhon`放在`Typhon`内置绕过函数的上一行。否则，`Typhon`将无法通过栈帧获取当前的全局变量空间。
+### 一定要将行`import Typhon`放在`Typhon`内置绕过函数的上一行。否则，`Typhon`将无法通过栈帧获取当前的全局变量空间。
 
 **Do:**
 ```python
@@ -157,7 +159,7 @@ def safe_run(cmd):
 safe_run('cat /f*')
 ```
 
-- 使用与题目相同的python版本
+### 使用与题目相同的python版本
 
 Pyjail中存在一些通过索引寻找对应object的gadgets（如继承链）。继承链的利用随着索引变化很大。因此，请务必确保Typhon的运行环境与题目相同。
 
@@ -195,9 +197,13 @@ def safe_run(cmd):
 safe_run('cat /f*')
 ```
 
+### 这个payload我用不了能不能换一个
+
+你可以在参数中加上`print_all_payload=True`，Typhon就会打印其生成的所有payload。
+
 ## Proof of Concept
 
-所以，这就是Typhon的工作原理：
+这就是Typhon的工作原理：
 
 ### bypass by path & technique
 
