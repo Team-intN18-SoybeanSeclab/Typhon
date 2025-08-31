@@ -167,11 +167,11 @@ There are some gadgets (such as inheritance chains) that search for correspondin
 
 **Not guaranteed?**
 
-Yes, most questions won't give the corresponding python version. Therefore, **Typhon will prompt when using gadgets involving versions**.
+Yes, most questions won't give the corresponding python version. Therefore, **Typhon will prompt when using gadgets involving versions.**
 
 In this case, CTF players often need to find the index value required by the gadgets in the question environment.
 
-- Don't be in the same time`import`Used twice`Typhon`bypass function. If you have any requirements, please delete the existing ones`Typhon`modules and import them when needed.
+- Don't be in the same time `import` Used twice `Typhon` bypass function. If you have any requirements, please delete the existing ones `Typhon` modules and import them when needed.
 
 **Do:**
 ```python
@@ -201,7 +201,7 @@ safe_run('cat /f*')
 
 - I can't use this payload, can I change it?
 
-You can add the parameters`print_all_payload=True`, Typhon will print all the payloads it generates.
+You can add the parameters `print_all_payload=True` , Typhon will print all the payloads it generates.
 
 ## Proof of Concept
 
@@ -214,7 +214,7 @@ We define two ways of bypass:
 - path: Bypassed by different loads (e.g.`os.system('calc')`and`subprocess.Popen('calc')`）  
 - technique: Use different techniques to process the same payload to bypass (e.g.`os.system('c'+'a'+'l'+'c')`and`os.system('clac'[::-1])`)  
 
-Typhon has hundreds of built-in paths. Every time we want to bypass getting something, we first find all available through local_scope.`path`, Next, by`bypasser.py`Bypass method in generates each`path`Corresponding to different variants and try to bypass the blacklist.
+Typhon has hundreds of built-in paths. Every time we want to bypass getting something, we first find all available through local_scope.`path`, Next, by `bypasser.py` Bypass method in generates each `path` Corresponding to different variants and try to bypass the blacklist.
 
 ### gadgets chain
 
@@ -222,15 +222,15 @@ This idea is[pyjailbreaker](https://github.com/jailctf/pyjailbreaker)Inspiration
 
 pyjailbreaker does not directly implement RCE through gadgets in one step, but instead searches for the items needed in the RCE chain step by step. If the following blacklist exists:
 
-- Local namespace no`__builtins__`
-- No use`builtins`character
+- Local namespace no `__builtins__`
+- No use `builtins` character
 
 For this WAF, Typhon handles it like this:
 
 - First, we pass`'J'.__class__.__class__`Get`type`
 - Then we find the RCE chain that may be able to obtain builtins after obtaining the type`TYPE.__subclasses__(TYPE)[0].register.__globals__['__builtins__']`
 - The blacklist of known topics has been filtered`__builtins__`Characters, then we put this path into bypasser to produce dozens of variants. Choose the shortest variant:`TYPE.__subclasses__(TYPE)[0].register.__globals__['__snitliub__'[::-1]]`
-- Then we find the get``__builtins__``后的RCE链子`BUILTINS_SET['breakpoint']()`
+- Then we find the chain used when we already got ``__builtins__``: `BUILTINS_SET['breakpoint']()`
 - Finally, we will represent the placeholder for the builtins dictionary`BUILTINS_SET`Replace with the one obtained in the previous step`__builtins__`path, and so on`TYPE`Replace the placeholder with the real path and get the final payload.
 
 ```
