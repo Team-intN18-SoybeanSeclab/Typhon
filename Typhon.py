@@ -25,13 +25,10 @@ logging.basicConfig(level=log_level_, format='%(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
 
 # get current global scope
-'''
-Note: I'm using 6 f_back to get the exact frame before Typhon is imported.
-There must be some cute way to implement this. But I'm not finding it,
-caz I'm lazzzzy.
-(PR welcome)
-'''
-current_global_scope = currentframe().f_back.f_back.f_back.f_back.f_back.f_back.f_globals
+current_global_scope = currentframe()
+while current_global_scope.f_globals['__name__'] != '__main__':
+    current_global_scope = current_global_scope.f_back
+current_global_scope = current_global_scope.f_globals
 
 from utils import *
 
