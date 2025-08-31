@@ -356,9 +356,6 @@ def bypasses_output(bypassed_payload: Union[str, list] = '', generated_path = li
     """
     from Typhon import achivements, reminder
     print('\n')
-    for reminds in reminder:
-        print('\033[33m' + reminder[reminds] + '\033[0m')
-    print('\n')
     print('-----------Progress-----------')
     print('\n')
     for i in achivements:
@@ -374,9 +371,16 @@ def bypasses_output(bypassed_payload: Union[str, list] = '', generated_path = li
             print(best_payload)
     print('\n')
     print('-----------Progress-----------')
+    print('\n')
     if bypassed_payload:
         if isinstance(bypassed_payload, str):
             bypassed_payload = [bypassed_payload]
+        printed_reminder = []
+        for i in bypassed_payload:
+            for j in reminder:
+                if j in i and j not in printed_reminder:
+                    printed_reminder.append(j)
+                    print('\033[33m' + reminder[j] + '\033[0m')
         print('\n')
         print('\033[36m+++++++++++Jail broken+++++++++++\033[0m')
         print('\n')
