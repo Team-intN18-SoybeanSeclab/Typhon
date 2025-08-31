@@ -1,14 +1,14 @@
 # Typhon: Lets solve pyjail without brain
 
-Simplified Chinese |[English](./README_ENG.md)
+[Simplified Chinese](./README.md) | English
 
-**This tool is currently in the PoC stage and does not have practical capabilities yet, nor has it been released on any platform (pip, github, etc.). However, since the basic functions have been implemented, we welcome everyone to try and provide feedback. Currently, you can try`bypassMAIN`Functions to experience the functions of this tool. At present, you can read[Proof of Concept](#proof-of-concept)Partly understand the core ideas of this tool. **
+**This tool is currently in the PoC stage and does not have practical capabilities yet, nor has it been released on any platform (pip, github, etc.). However, since the basic functions have been implemented, we welcome everyone to try and provide feedback. Currently, you can try`bypassMAIN`Functions to experience the functions of this tool. At present, you can read[Proof of Concept](#proof-of-concept)Partly understand the core ideas of this tool.**
 
 Listen, I've had enough of those stupid dumb dumb CTF pyjail topics - every time I'm wasting time finding which chain is not filtered between a stinky blacklist and various pyjail summary, or running one by one in the namespace`dir()`Find something that can be used. This is simply torture.
 
 So this is Typhon, a shuttle tool dedicated to making pyjail without having to a brain.
 
-**Please be sure to finish reading this readme before using the Typhon tool. **
+**Please be sure to finish reading this readme before using the Typhon tool.**
 
 ```
     .-')          _           
@@ -165,7 +165,7 @@ safe_run('cat /f*')
 
 There are some gadgets (such as inheritance chains) that search for corresponding object through indexes. The utilization of inheritance chains varies greatly with the index. Therefore, be sure to make sure that the running environment of Typhon is the same as the question.
 
-**Not guaranteed? **
+**Not guaranteed?**
 
 Yes, most questions won't give the corresponding python version. Therefore, **Typhon will prompt when using gadgets involving versions**.
 
@@ -243,13 +243,13 @@ The order of workflow for Typhon is as follows:
 
 - Each endpoint function (`bypassRCE`, `bypassREAD`, etc.) will call the main function`bypassMAIN`, the main function will collect all available gadgets as much as possible (as in the above example`type`) and pass the collected content to the corresponding subordinate function.
 - `bypassMAIN`After the function simply analyzes the current variable space, it will:
-  - Try to RCE directly (e.g.`help()`, `breakporint()`）
+  - Try to RCE directly (e.g.`help()`, `breakporint()`)
   - Try to get generator
   - Try to get type
   - Try to get object
-  - If the __builtins__ in the current space has not been deleted, but has been modified, try to restore (such as`id.__self__`）
+  - If the __builtins__ in the current space has not been deleted, but has been modified, try to restore (such as`id.__self__`)
   - If the __builtins__ in the current space is deleted, try to restore it from other namespaces
-  - Try coherence chain bypasses
+  - Try inheritance chain bypasses
   - Ability to try to get import packages
   - Try to directly recover through the __builtins__ RCE
   - Pass the result to the lower function
