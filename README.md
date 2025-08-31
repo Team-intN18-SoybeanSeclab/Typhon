@@ -1,5 +1,7 @@
 # Typhon: Lets solve pyjail without brain
 
+简体中文 | [English](./README_ENG.md)
+
 **本工具目前处于PoC阶段，尚不具备实战能力，也没有在任何平台发布版本（pip，github，etc.）。然而由于基本功能已经实现，我们欢迎各位尝试使用并提供反馈。目前，你可以尝试使用`bypassMAIN`函数来体验本工具的功能。当前阶段，你可以通过阅读[Proof of Concept](#proof-of-concept)部分来了解本工具的核心思路。**
 
 听着，我已经受够那些愚蠢的CTF pyjail题目了——每次我都要浪费时间在又臭又长的黑名单和各种pyjail总结之间找哪个链子没被过滤，或者在命名空间里一个一个运行`dir()`去找能用的东西。这简直就是一种折磨。
@@ -203,7 +205,7 @@ safe_run('cat /f*')
 
 ## Proof of Concept
 
-这就是Typhon的工作原理：
+Typhon的工作原理如下：
 
 ### bypass by path & technique
 
@@ -264,9 +266,16 @@ Typhon的workflow顺序如下：
 - [ ] 支持低于python3.7的版本
 - [ ] 支持audit hook绕过
 
-## Maintainer
+## Contributors
 
-@ [LamentXU (Weilin Du)](https://github.com/LamentXU123)
+**Author & Maintainer**
+
+@ [LamentXU (Weilin Du)](https://github.com/LamentXU123)  
+
+**Speical Thanks**
+
+@ [黄豆安全实验室](https://hdsec.cn)给予我必须的鼓励  
+@ [jailctf](https://github.com/jailctf)伟大的Jailbreaker项目给予我启发  
 
 ## License
 
