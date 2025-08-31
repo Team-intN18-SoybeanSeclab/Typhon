@@ -218,7 +218,7 @@ Typhon has hundreds of built-in paths. Every time we want to bypass getting some
 
 ### gadgets chain
 
-This idea is[pyjailbreaker](https://github.com/jailctf/pyjailbreaker)Inspiration from tools.
+This idea is inspired by [pyjailbreaker](https://github.com/jailctf/pyjailbreaker).
 
 pyjailbreaker does not directly implement RCE through gadgets in one step, but instead searches for the items needed in the RCE chain step by step. If the following blacklist exists:
 
@@ -274,8 +274,8 @@ The order of workflow for Typhon is as follows:
 
 **Speical Thanks**
 
-@ [hdsec](https://hdsec.cn)Give me the necessary encouragement
-@ [jailctf](https://github.com/jailctf)The great Jailbreaker project inspired me
+@ [hdsec](https://hdsec.cn) for giving me the necessary encouragement
+@ [jailctf](https://github.com/jailctf) fot the Jailbreaker project inspired me
 
 ## License
 
