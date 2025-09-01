@@ -78,7 +78,7 @@ import re
 def safe_run(cmd):
     if len(cmd) > 160:
         return "Command too long"
-    if any([i for i in ['import', '__builtins__'] if i in cmd]):
+    if any([i for i in ['import', '__builtins__', '{}'] if i in cmd]):
         return "WAF!"
     if re.match(r'.*import.*', cmd):
         return "WAF!"
@@ -95,7 +95,7 @@ safe_run(input("Enter command: "))
 
 - 限制长度最大值为160
 - 在exec的命名空间里没有`__builtins__`
-- 禁止使用`builtins`字符
+- 禁止使用`builtins`, `import`, `{}`字符
 - 设置了正则表达式`'.*import.*'`限制条件
 
 **Step2. 将waf导入Typhon**
@@ -107,7 +107,7 @@ import re
 def safe_run(cmd):
     if len(cmd) > 160:
         return "Command too long"
-    if any([i for i in ['import', '__builtins__'] if i in cmd]):
+    if any([i for i in ['import', '__builtins__', '{}'] if i in cmd]):
         return "WAF!"
     if re.match(r'.*import.*', cmd):
         return "WAF!"
@@ -122,7 +122,7 @@ import re
 def safe_run(cmd):
     import Typhon
     Typhon.bypassRCE(cmd,
-    banned_chr=['__builtins__'],
+    banned_chr=['__builtins__', 'import', '{}'],
     banned_re='.*import.*',
     local_scope={'__builtins__': None},
     max_length=160)
@@ -138,7 +138,7 @@ safe_run(input("Enter command: "))
 
 ## Important Note
 
-- 一定要将行`import Typhon`放在`Typhon`内置绕过函数的上一行。否则，`Typhon`将无法通过栈帧获取当前的全局变量空间。
+- 一定要将行`import Typhon`放在`Typhon`内置绕过函数的上一行（即使你患有PEP-8强迫症）。否则，`Typhon`将无法通过栈帧获取当前的全局变量空间。
 
 **Do:**
 ```python
@@ -266,6 +266,7 @@ Typhon的workflow顺序如下：
 
 - [ ] 支持低于python3.7的版本
 - [ ] 支持audit hook绕过
+- [ ] 支持eval模式
 
 ## Contributors
 

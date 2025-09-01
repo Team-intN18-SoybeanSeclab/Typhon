@@ -412,7 +412,11 @@ def bypasses_output(bypassed_payload: Union[str, list] = None, generated_path: l
         print('\n')
         for i in bypassed_payload:
             print(i)
-        print('\n')
+            for j in reminder:
+                if j in i:
+                    print('\033[33mReminder: ' + reminder[j] + '\033[0m')
+            print('')
+        print('')
         print('\033[36m+++++++++++Jail broken+++++++++++\033[0m')
         exit(0)
     if generated_path:

@@ -78,7 +78,7 @@ import re
 def safe_run(cmd):
     if len(cmd) > 160:
         return "Command too long"
-    if any([i for i in ['import', '__builtins__'] if i in cmd]):
+    if any([i for i in ['import', '__builtins__', '{}'] if i in cmd]):
         return "WAF!"
     if re.match(r'.*import.*', cmd):
         return "WAF!"
@@ -95,7 +95,7 @@ It can be seen that the waf of the above question is as follows:
 
 - The maximum limit length is 160
 - There is no exec namespace `__builtins__`
-- No use `builtins` character
+- No use `builtins`, `import`, `{}` characters
 - Set regular expressions `'.*import.*'` limitation conditions
 
 **Step2. Import waf into Typhon**
@@ -107,7 +107,7 @@ import re
 def safe_run(cmd):
     if len(cmd) > 160:
         return "Command too long"
-    if any([i for i in ['import', '__builtins__'] if i in cmd]):
+    if any([i for i in ['import', '__builtins__', '{}'] if i in cmd]):
         return "WAF!"
     if re.match(r'.*import.*', cmd):
         return "WAF!"
@@ -122,7 +122,7 @@ import re
 def safe_run(cmd):
     import Typhon
     Typhon.bypassRCE(cmd,
-    banned_chr=['__builtins__'],
+    banned_chr=['__builtins__', 'import', '{}'],
     banned_re='.*import.*',
     local_scope={'__builtins__': None},
     max_length=160)
@@ -138,7 +138,7 @@ Run your question program and wait for the **Jail broken** message to appear.
 
 ## Important Note
 
-- Must make `import Typhon` the very previous line of the `bypass*` function. otherwise, the current global variable space will not be available through the stack frame.
+- Must make `import Typhon` the very previous line of the `bypass*` function (even if you have been obsessed with PEP-8). otherwise, the current global variable space will not be available through the stack frame.
 
 **Do:**
 ```python
