@@ -72,7 +72,7 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
     DEBUG for more details.
     '''
     global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder
-    reminder = {} # The reminder of bypass method that could not be used in remote (like coherence chain)
+    reminder = {} # The reminder of bypass method that could not be used in remote (like inheritance chain)
     search_depth = depth # The maximum search depth for combined bypassing
     if local_scope == {}:
         # If the local scope is not specified, raise a warning.
@@ -290,9 +290,9 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
         else:
             logger.info('[-] no paths found to restore builtins in other namespaces.')
 
-    # Step8: Try coherence chain
+    # Step8: Try inheritance chain
     if 'OBJECT' in tags:
-        logger.info('[*] Trying to find coherence chains.')
+        logger.info('[*] Trying to find inheritance chains.')
         search = ['os', 'subprocess', 'uuid', 'pydoc', '_posixsubprocess',
                 'multiprocessing', '__builtins__', 'codecs', 'warnings',
                 'importlib', 'weakref', 'reprlib', 'sys']
@@ -306,7 +306,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                         for _ in BypassGenerator(payload, allow_unicode_bypass=allow_unicode_bypass).generate_bypasses():
                             if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
                                 search[j].append(_)
-                                reminder[_] = f'for now, {index} is the index of {i.__name__}, {j} must fit in index of {i.__name__}'
+                                reminder[_] = f'WARNING [!] {index} is the index of {i.__name__}, path to {j} must fit in index of {i.__name__}'
                             continue
             except AttributeError:
                 pass
@@ -326,11 +326,11 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
             tags.append(tag)
             generated_path[tag] = payload
             achivements[k] = [payload, payload_len]
-            logger.info(f'[+] Found coherence chain: {payload} -> {k}')
+            logger.info(f'[+] Found inheritance chain: {payload} -> {k}')
         logger.info("[*] moudles we have found:")
         logger.info(get_moudle_from_tagged_scope(tagged_scope))
     else:
-        logger.info('[*] No object found, skip coherence chains.')
+        logger.info('[*] No object found, skip inheritance chains.')
 
     # Step9: Try to restore __import__
     try_to_restore('import', __import__.__class__)

@@ -76,7 +76,7 @@ Suppose there is the following question:
 ```python
 import re
 def safe_run(cmd):
-    if len(cmd) > 100:
+    if len(cmd) > 160:
         return "Command too long"
     if any([i for i in ['import', '__builtins__'] if i in cmd]):
         return "WAF!"
@@ -93,7 +93,7 @@ First, we need to analyze the functionality of pyjail waf (which is probably the
 
 It can be seen that the waf of the above question is as follows:
 
-- The maximum limit length is 100
+- The maximum limit length is 160
 - There is no exec namespace `__builtins__`
 - No use `builtins` character
 - Set regular expressions `'.*import.*'` limitation conditions
@@ -105,7 +105,7 @@ First we delete the exec line:
 ```python
 import re
 def safe_run(cmd):
-    if len(cmd) > 100:
+    if len(cmd) > 160:
         return "Command too long"
     if any([i for i in ['import', '__builtins__'] if i in cmd]):
         return "WAF!"
@@ -125,7 +125,7 @@ def safe_run(cmd):
     banned_chr=['__builtins__'],
     banned_re='.*import.*',
     local_scope={'__builtins__': None},
-    max_length=100)
+    max_length=160)
 
 safe_run(input("Enter command: "))
 ```
@@ -214,7 +214,7 @@ We define two ways of bypass:
 - path: Bypassed by different loads (e.g.`os.system('calc')`and`subprocess.Popen('calc')`)  
 - technique: Use different techniques to process the same payload to bypass (e.g.`os.system('c'+'a'+'l'+'c')`and`os.system('clac'[::-1])`)  
 
-Typhon has hundreds of built-in paths. Every time we want to bypass getting something, we first find all available through local_scope.`path`, Next, by `bypasser.py` Bypass method in generates each `path` Corresponding to different variants and try to bypass the blacklist.
+Typhon has hundreds of built-in paths. Every time we want to bypass getting something, we first find all available through local_scope.`path`, Next, with `technique` in `bypasser.py`, each different variants is generated from each `path` and try to bypass the blacklist.
 
 ### gadgets chain
 
@@ -258,8 +258,9 @@ The order of workflow for Typhon is as follows:
 ## Remaining Work to the first release
 
 - [ ] Improve the end point function of bypass* (`bypassRCE`, `bypassREAD`, etc.)
+- [ ] Better bypasser logic
 - [ ] More gadgets
-- [ ] More bypass methods
+- [ ] More bypass methods (`techniques`)
 
 ## Future Work
 

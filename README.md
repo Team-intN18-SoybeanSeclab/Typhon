@@ -76,7 +76,7 @@ Typhon.bypassRCE(cmd: str,
 ```python
 import re
 def safe_run(cmd):
-    if len(cmd) > 100:
+    if len(cmd) > 160:
         return "Command too long"
     if any([i for i in ['import', '__builtins__'] if i in cmd]):
         return "WAF!"
@@ -93,7 +93,7 @@ safe_run(input("Enter command: "))
 
 可以看出，上述题目的waf如下：
 
-- 限制长度最大值为100
+- 限制长度最大值为160
 - 在exec的命名空间里没有`__builtins__`
 - 禁止使用`builtins`字符
 - 设置了正则表达式`'.*import.*'`限制条件
@@ -105,7 +105,7 @@ safe_run(input("Enter command: "))
 ```python
 import re
 def safe_run(cmd):
-    if len(cmd) > 100:
+    if len(cmd) > 160:
         return "Command too long"
     if any([i for i in ['import', '__builtins__'] if i in cmd]):
         return "WAF!"
@@ -125,7 +125,7 @@ def safe_run(cmd):
     banned_chr=['__builtins__'],
     banned_re='.*import.*',
     local_scope={'__builtins__': None},
-    max_length=100)
+    max_length=160)
 
 safe_run(input("Enter command: "))
 ```
@@ -214,7 +214,7 @@ Typhon的工作原理如下：
 - path: 通过不同的载荷进行绕过（例如`os.system('calc')`和`subprocess.Popen('calc')`）  
 - technique: 使用不同技术对相同的有效载荷进行处理从而绕过（例如，`os.system('c'+'a'+'l'+'c')` 和 `os.system('clac'[::-1])`)  
 
-Typhon内置了上百种path。每次我们要绕过获取某个东西时，我们先通过local_scope找到所有可以用的`path`，接下来，通过`bypasser.py`中的绕过方式生成每个`path`对应的不同变体，并尝试绕过黑名单。
+Typhon内置了上百种path。每次我们要绕过获取某个东西时，我们先通过local_scope找到所有可以用的`path`，接下来，通过`bypasser.py`中的`technique`生成每个`path`对应的不同变体，并尝试绕过黑名单。
 
 ### gadgets chain
 
@@ -258,8 +258,9 @@ Typhon的workflow顺序如下：
 ## Remaining Work to the first release
 
 - [ ] 完善bypass*的终点函数（`bypassRCE`, `bypassREAD`, etc.）
+- [ ] 更好的bypasser逻辑
 - [ ] 更多的gadgets
-- [ ] 更多绕过方法
+- [ ] 更多绕过方法（`techniques`）
 
 ## Future Work
 

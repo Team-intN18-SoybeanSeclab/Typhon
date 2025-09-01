@@ -342,7 +342,7 @@ def progress_bar(current, total, bar_length=80):
     sys.stdout.write(f"\rBypassing ({current}/{total}): [{arrow + spaces}] {percent:.1f}%")
     sys.stdout.flush()
 
-def bypasses_output(bypassed_payload: Union[str, list] = '', generated_path = list):
+def bypasses_output(bypassed_payload: Union[str, list] = None, generated_path: list = []):
     """
     Print a fancy output of the bypassed payload
     if bypassed_payload is set, it means we RCE successfully, the program ends.
@@ -355,6 +355,17 @@ def bypasses_output(bypassed_payload: Union[str, list] = '', generated_path = li
     :return: None
     """
     from Typhon import achivements, reminder
+    print('\n')
+    bypassed_path, printed_reminder = [], []
+    if isinstance(bypassed_payload, str):
+        bypassed_payload = [bypassed_payload]
+    bypassed_path.extend(bypassed_payload)
+    bypassed_path.extend(achivements.values())
+    for i in bypassed_path:
+        for j in reminder:
+            if j in i and j not in printed_reminder:
+                printed_reminder.append(j)
+                print('\033[33m' + reminder[j] + '\033[0m')
     print('\n')
     print('-----------Progress-----------')
     print('\n')
@@ -373,15 +384,6 @@ def bypasses_output(bypassed_payload: Union[str, list] = '', generated_path = li
     print('-----------Progress-----------')
     print('\n')
     if bypassed_payload:
-        if isinstance(bypassed_payload, str):
-            bypassed_payload = [bypassed_payload]
-        printed_reminder = []
-        for i in bypassed_payload:
-            for j in reminder:
-                if j in i and j not in printed_reminder:
-                    printed_reminder.append(j)
-                    print('\033[33m' + reminder[j] + '\033[0m')
-        print('\n')
         print('\033[36m+++++++++++Jail broken+++++++++++\033[0m')
         print('\n')
         for i in bypassed_payload:
