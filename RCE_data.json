@@ -116,7 +116,9 @@
         ["MODULE_BUILTINS.__import__", "MODULE_BUILTINS"],
         ["MODULE_BUILTINS.__loader__.load_module", "MODULE_BUILTINS"],
         ["importlib.import_module", "importlib"],
-        ["importlib.__import__", "importlib"],
+        ["importlib.__import__", "importlib"]
+    ],
+    "modules":[
         ["sys.modules", "sys"]
     ],
     "generator": [
