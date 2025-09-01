@@ -145,7 +145,7 @@ def is_tag(string: str) -> bool:
     """
     prefix = ('USER_DEFINED_', 'MODULE_', 'EXCEPTION_')
     fixed_tag = ['BUILTINS_SET', 'BUILTINS_SET_CHANGED', 'BUILTINS', 'UNKNOWN', 
-                 'TYPE', 'OBJ', 'GENERATOR']
+                 'TYPE', 'OBJECT', 'GENERATOR']
     return (string.startswith(prefix) or string in fixed_tag)
 
 def parse_payload_list(
@@ -203,9 +203,9 @@ def parse_payload_list(
             if 'TYPE' in generated_path:
                 output.append(path.replace('TYPE', generated_path['TYPE']))
             continue
-        if 'OBJ' in path:
-            if 'OBJ' in generated_path:
-                output.append(path.replace('OBJ', generated_path['OBJ']))
+        if 'OBJECT' in path:
+            if 'OBJECT' in generated_path:
+                output.append(path.replace('OBJECT', generated_path['OBJECT']))
             continue
         if 'BUILTINS_SET' in path:
             if 'BUILTINS_SET' in generated_path:

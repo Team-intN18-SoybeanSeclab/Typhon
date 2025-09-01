@@ -46,6 +46,8 @@ def general_bypasser(func):
         return func(self, payload[0])
     return check
 
+# def bypasser_require(required_need):
+
 def bypasser_not_work_with(bypasser_list: List[str]):
     """
     Decorator for bypassers which do not work with any other bypasser in the list.
@@ -61,6 +63,24 @@ def bypasser_not_work_with(bypasser_list: List[str]):
                 for j in bypasser_list:
                     if i.__name__ == j:
                         return None # Do not work with this
+            return func(self, payload[0])
+        return check
+    return _
+
+def bypasser_must_work_with(bypasser_list: List[str]):
+    """
+    Decorator for bypassers which must work with at least one bypasser in the list.
+    """
+    def _(func):
+        func._is_bypasser = True
+        @wraps(func)
+        def check(self, payload):
+            for i in payload[1]:
+                if i.__name__ == func.__name__:
+                    return None # Do not do the same bypass
+            for j in bypasser_list:
+                if not any(i.__name__ == j for i in payload[1]):
+                    return None # Do not work without this
             return func(self, payload[0])
         return check
     return _
@@ -375,3 +395,30 @@ class BypassGenerator:
         PR welcome.
         """
         return payload.replace(';', '\n')
+    
+    @bypasser_must_work_with(['string_slicing'])
+    def string_to_str_join(self, payload: str) -> str:
+        """
+        Convert string to string join.
+        'a' + 'b' -> ''.join(['a', 'b'])
+        """
+        class Transformer(ast.NodeTransformer):
+            def visit_BinOp(self, node):
+                if isinstance(node.op, ast.Add) and isinstance(node.left, ast.Constant) and isinstance(node.right, ast.Constant):
+                    if isinstance(node.left.value, str) and isinstance(node.right.value, str):
+                        return ast.Call(
+                            func=ast.Attribute(
+                                value=ast.Constant(value=''),
+                                attr='join',
+                                ctx=ast.Load()
+                            ),
+                            args=[ast.List(elts=[node.left, node.right], ctx=ast.Load())],
+                            keywords=[]
+                        )
+                return node
+
+        tree = ast.parse(payload, mode='eval')
+        new_tree = Transformer().visit(tree)
+        return ast.unparse(new_tree)
+
+
