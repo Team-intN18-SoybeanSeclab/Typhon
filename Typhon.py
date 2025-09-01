@@ -231,16 +231,16 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                             and type(check_result) == ModuleType):
                         if not builtin_module_found_count:
                             logger.info('[*] Using %s as the restored builtins module.', i)
-                            tagged_scope[i] = [check_result, 'MOUDLE_BUILTINS']
+                            tagged_scope[i] = [check_result, 'MODULE_BUILTINS']
                             builtin_module_payload = i
-                            tags.append('MOUDLE_BUILTINS')
-                            generated_path['MOUDLE_BUILTINS'] = i
+                            tags.append('MODULE_BUILTINS')
+                            generated_path['MODULE_BUILTINS'] = i
                         builtin_module_found_count += 1
                     else:
                         if (not check_result == builtins and not check_result == __builtins__):
                             logger.debug('[!] %s is not the restored builtins.', i)
                 achivements['builtins set'] = [builtin_dict_payload, builtin_dict_found_count]
-                achivements['builtins moudle'] = [builtin_module_payload, builtin_module_found_count]
+                achivements['builtins module'] = [builtin_module_payload, builtin_module_found_count]
                 if not builtin_dict_payload and not builtin_module_payload:
                     logger.info('[-] no way to find a bypass method to restore builtins.')
             else:
@@ -253,7 +253,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
     # Step7: Try to restore __builtins__ in other namespaces (if possible)
     # The code is somehow duplicated with the previous step, but I'm not turning it to one func caz
     # it is only used twice.
-    if 'BUILTINS_SET' not in tags and 'MOUDLE_BUILTINS' not in tags:
+    if 'BUILTINS_SET' not in tags and 'MODULE_BUILTINS' not in tags:
         logger.info('[*] try to find __builtins__ in other namespaces.')
         builtin_path = filter_path_list(RCE_data['restore_builtins_in_other_ns'], tagged_scope)
         if builtin_path:
@@ -282,16 +282,16 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                             and type(check_result) == ModuleType):
                         if not builtin_module_found_count:
                             logger.info('[*] Using %s as the restored builtins module.', i)
-                            tagged_scope[i] = [check_result, 'MOUDLE_BUILTINS']
+                            tagged_scope[i] = [check_result, 'MODULE_BUILTINS']
                             builtin_module_payload = i
-                            tags.append('MOUDLE_BUILTINS')
-                            generated_path['MOUDLE_BUILTINS'] = i
+                            tags.append('MODULE_BUILTINS')
+                            generated_path['MODULE_BUILTINS'] = i
                         builtin_module_found_count += 1
                     else:
                         if (not check_result == builtins and not check_result == __builtins__):
                             logger.debug('[!] %s is not the restored builtins.', i)
                 achivements['builtins set'] = [builtin_dict_payload, builtin_dict_found_count]
-                achivements['builtins moudle'] = [builtin_module_payload, builtin_module_found_count]
+                achivements['builtins module'] = [builtin_module_payload, builtin_module_found_count]
                 if not builtin_dict_payload and not builtin_module_payload:
                     logger.info('[-] no way to find a bypass method to restore builtins in other namespaces.')
             else:
@@ -302,10 +302,10 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
     # Step8: Try inheritance chain
     if 'OBJECT' in tags:
         logger.info('[*] Trying to find inheritance chains.')
-        useful_moudles = ['os', 'subprocess', 'uuid', 'pydoc', '_posixsubprocess',
+        useful_modules = ['os', 'subprocess', 'uuid', 'pydoc', '_posixsubprocess',
                 'multiprocessing', '__builtins__', 'codecs', 'warnings',
                 'importlib', 'weakref', 'reprlib', 'sys']
-        search = {item: [] for item in useful_moudles if item not in get_moudle_from_tagged_scope(tagged_scope)}
+        search = {item: [] for item in useful_modules if item not in get_module_from_tagged_scope(tagged_scope)}
         for index, i in enumerate(().__class__.__bases__[0].__subclasses__()):
             try:
                 for j in search:
@@ -319,7 +319,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                             continue
             except AttributeError:
                 pass
-        for i in useful_moudles:
+        for i in useful_modules:
             if i not in search:
                 # get_name_and_object_from_tag return something like [('os', <module 'os' (built-in)>)]
                 achivements[i] = [get_name_and_object_from_tag('MODULE_'+i.upper(), tagged_scope)[0][0], 1]
@@ -340,8 +340,8 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
             generated_path[tag] = payload
             achivements[k] = [payload, payload_len]
             logger.info(f'[+] Found inheritance chain: {payload} -> {k}')
-        logger.info("[*] moudles we have found:")
-        logger.info(get_moudle_from_tagged_scope(tagged_scope))
+        logger.info("[*] modules we have found:")
+        logger.info(get_module_from_tagged_scope(tagged_scope))
     else:
         logger.info('[*] No object found, skip inheritance chains.')
 
@@ -350,7 +350,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
     try_to_restore('modules', sys.modules.__class__)
 
     # Step10: Try to RCE directly with builtins 
-    if 'BUILTINS_SET' in tags or 'MOUDLE_BUILTINS' in tags:
+    if 'BUILTINS_SET' in tags or 'MODULE_BUILTINS' in tags:
         logger.info('[*] try to RCE directly with builtins.')
         try_to_restore('builtins2RCEinput', end_of_prog=True)
 

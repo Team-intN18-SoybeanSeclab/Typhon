@@ -241,7 +241,7 @@ def filter_path_list(path_list: list, tagged_scope: dict) -> list:
         """
         if need in sys.modules: # need is a module
             need_module = sys.modules[need]
-            module_dict = get_moudle_from_tagged_scope(tagged_scope)
+            module_dict = get_module_from_tagged_scope(tagged_scope)
             if need_module in module_dict.values():
                 return path.replace(need, get_name_and_object_from_tag('MODULE_'+need.upper(), tagged_scope)[0][0]) # The module is already imported, we don't need to import it again
             # TODO: check if module is already imported, if not, check if we can import modules
@@ -422,7 +422,7 @@ def bypasses_output(bypassed_payload: Union[str, list] = None, generated_path: l
     if generated_path:
         return generated_path
 
-def get_moudle_from_tagged_scope(tagged_scope: dict) -> dict:
+def get_module_from_tagged_scope(tagged_scope: dict) -> dict:
     """
     Get the module from the tagged scope
     
