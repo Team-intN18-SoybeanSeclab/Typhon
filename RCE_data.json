@@ -122,10 +122,10 @@
         ["sys.modules", "sys"]
     ],
     "generator": [
-        ["(RANDOMVARNAME for RANDOMVARNAME in ()).gi_frame", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
-        ["(await RANDOMVARNAME for RANDOMVARNAME in ()).ag_frame", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
-        ["try:1/0\nexcept Exception as e:e.__traceback__.tb_frame", "EXCEPTION"],
-        ["async def a():pass;a().cr_frame", "BUILTINS_SET_CHANGED|BUILTINS_SET"]
+        ["(RANDOMVARNAME for RANDOMVARNAME in ()).gi_frame", ""],
+        ["(await RANDOMVARNAME for RANDOMVARNAME in ()).ag_frame", ""],
+        ["try:1/0\nexcept EXCEPTION_ZERODIVISIONERROR as e:e.__traceback__.tb_frame", "EXCEPTION_ZERODIVISIONERROR"],
+        ["async def a():pass;a().cr_frame", ""]
     ],
     "type": [
         ["BUILTINOBJ.__class__.__class__", ""],

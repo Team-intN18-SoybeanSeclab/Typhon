@@ -70,13 +70,18 @@ def tag_variables(variables, change_in_builtins) -> list:
     builtins_set = set(dir(builtins))
     
     for name, obj in variables.items():
-        # Check if it's an exception
-        if isinstance(obj, BaseException):
-            tagged[name] = 'EXCEPTION'
-            continue
         # Check if it's a builtin object
         if name in builtins_set:
             tagged[name] = 'BUILTINS'
+            continue
+        if obj == object:
+            tagged[name] = 'OBJECT'
+            continue
+        if obj == type:
+            tagged[name] = 'TYPE'
+            continue
+        if obj.__class__ == (a for a in ()).__class__:
+            tagged[name] = 'GENERATOR'
             continue
         if isinstance(obj, dict) and set(obj.keys()) == set(dir(builtins)):
             if change_in_builtins:
@@ -100,6 +105,10 @@ def tag_variables(variables, change_in_builtins) -> list:
             continue
         # Check if it's a class
         if inspect.isclass(obj):
+                    # Check if it's an exception
+            if issubclass(obj.__class__, BaseException):
+                tagged[name] = 'EXCEPTION_{}'.format(obj.__name__.upper())
+                continue
             tagged[name] = 'USER_DEFINED_CLASS'
             continue
         # Check for user-defined variables
@@ -134,7 +143,7 @@ def is_tag(string: str) -> bool:
     :param string: The string to check
     :return: True if the string is a valid tag, False otherwise
     """
-    prefix = ('USER_DEFINED_', 'MODULE_')
+    prefix = ('USER_DEFINED_', 'MODULE_', 'EXCEPTION_')
     fixed_tag = ['BUILTINS_SET', 'BUILTINS_SET_CHANGED', 'BUILTINS', 'UNKNOWN', 
                  'TYPE', 'OBJ', 'GENERATOR']
     return (string.startswith(prefix) or string in fixed_tag)
@@ -158,9 +167,6 @@ def parse_payload_list(
     from Typhon import generated_path
     output = []
     allowed_letters = [i for i in ascii_letters + '_' if i not in char_blacklist and i not in local_scope]
-    allowed_digits = [i for i in digits if i not in char_blacklist]
-    payload_tag = ['RANDOMVARNAME', 'RANDOMSTRING', 'BUILTINOBJ', 'GENERATOR', 
-                   'TYPE', 'OBJ', 'BUILTINS_SET', 'MODULE_BUILTINS']
     builtin_obj = ['[]', '()', '{}', "''"] # list, tuple, dict, string
     # builtin_obj.extend(allowed_digits)  # This line is only here to tell you that
     # digits do not work in some cases (like 1.__class__)

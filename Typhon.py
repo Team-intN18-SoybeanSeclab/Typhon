@@ -106,6 +106,15 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
         one of the restore success.
         """
         data_name_tag = data_name.upper()
+        current_scope = get_name_and_object_from_tag(data_name_tag, tagged_scope)
+        for _ in current_scope:
+            obj = _[1]
+            if obj.__class__ == check:
+                logger.info('[+] %s exists in the original scope.', data_name)
+                achivements[data_name] = [_[0], 1]
+                tags.append(data_name_tag)
+                generated_path[data_name_tag] = _[0]
+                return obj
         path = filter_path_list(RCE_data[data_name], tagged_scope)
         if path:
             logger.info('[*] %d paths found to obtain %s. \
