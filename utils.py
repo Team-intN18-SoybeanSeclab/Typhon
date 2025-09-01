@@ -7,6 +7,19 @@ from bypasser import *
 from string import ascii_letters, digits
 from types import FunctionType, ModuleType
 
+def get_name_and_object_from_tag(tag: str, tagged_scope: dict):
+    """
+    Get the name and object from a tag.
+    
+    :param tag: The tag to analyze
+    :return: A tuple with the name and object
+    """
+    output = []
+    for i in tagged_scope:
+        if tagged_scope[i][1] == tag:
+            output.append((i, tagged_scope[i][0]))
+    return output
+
 def exec_with_returns(code: str, scope: dict):
     """
     Execute a code string with a given scope and return the value of
@@ -221,8 +234,10 @@ def filter_path_list(path_list: list, tagged_scope: dict) -> list:
         :return: the payload if the need is met, None otherwise
         """
         if need in sys.modules: # need is a module
-            if need in tagged_scope:
-                return path # The module is already imported, we don't need to import it again
+            need_module = sys.modules[need]
+            module_dict = get_moudle_from_tagged_scope(tagged_scope)
+            if need_module in module_dict.values():
+                return path.replace(need, get_name_and_object_from_tag('MODULE_'+need.upper(), tagged_scope)[0][0]) # The module is already imported, we don't need to import it again
             # TODO: check if module is already imported, if not, check if we can import modules
         elif need in dir(builtins): # need is a builtin
             need = __builtins__[need]
@@ -408,6 +423,6 @@ def get_moudle_from_tagged_scope(tagged_scope: dict) -> dict:
     module_dict = {}
     for i in tagged_scope:
         if 'MODULE_' in tagged_scope[i][1]:
-            module_name = tagged_scope[i][1].split('_')[1]
+            module_name = tagged_scope[i][1].split('_')[1].lower()
             module_dict[module_name] = tagged_scope[i][0]
     return module_dict

@@ -293,10 +293,10 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
     # Step8: Try inheritance chain
     if 'OBJECT' in tags:
         logger.info('[*] Trying to find inheritance chains.')
-        search = ['os', 'subprocess', 'uuid', 'pydoc', '_posixsubprocess',
+        useful_moudles = ['os', 'subprocess', 'uuid', 'pydoc', '_posixsubprocess',
                 'multiprocessing', '__builtins__', 'codecs', 'warnings',
                 'importlib', 'weakref', 'reprlib', 'sys']
-        search = {item: [] for item in search}
+        search = {item: [] for item in useful_moudles if item not in get_moudle_from_tagged_scope(tagged_scope)}
         for index, i in enumerate(().__class__.__bases__[0].__subclasses__()):
             try:
                 for j in search:
@@ -310,6 +310,10 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                             continue
             except AttributeError:
                 pass
+        for i in useful_moudles:
+            if i not in search:
+                # get_name_and_object_from_tag return something like [('os', <module 'os' (built-in)>)]
+                achivements[i] = [get_name_and_object_from_tag('MODULE_'+i.upper(), tagged_scope)[0][0], 1]
         for k in search:
             payload = search[k]
             if not payload:
@@ -319,7 +323,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
             payload = payload[0]
             output = exec_with_returns(payload, original_scope)
             if type(output) == ModuleType:
-                tag = f'MODULE_{output.__name__}'
+                tag = f'MODULE_{output.__name__.upper()}'
             else:
                 tag = 'BUILTINS_SET'
             tagged_scope[payload] = [output, tag]
