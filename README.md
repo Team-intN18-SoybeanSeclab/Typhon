@@ -233,7 +233,7 @@ pyjailbreaker不直接通过gadgets一步到位实现RCE，而是一步一步寻
 - 随后，我们找到获取``__builtins__``后的RCE链子`BUILTINS_SET['breakpoint']()`
 - 最后，我们将代表builtins字典的占位符`BUILTINS_SET`替换为上步中获取的`__builtins__`路径，以此类推，将`TYPE`占位符替换为真实的路径，就得到了最终的payload。
 
-```
+```python
 'J'.__class__.__class__.__subclasses__('J'.__class__.__class__)[0].register.__globals__['__snitliub__'[::-1]]['breakpoint']()
 ```
 
@@ -247,11 +247,11 @@ Typhon的workflow顺序如下：
   - 尝试获取生成器
   - 尝试获取type
   - 尝试获取object
-  - 如当前空间中的__builtins__未被删除，但被修改，尝试恢复（如`id.__self__`）
-  - 如当前空间中的__builtins__被删除，尝试从其他命名空间恢复
+  - 如当前空间中的``__builtins__``未被删除，但被修改，尝试恢复（如`id.__self__`）
+  - 如当前空间中的``__builtins__``被删除，尝试从其他命名空间恢复
   - 承上，尝试继承链绕过
   - 尝试获取import包的能力
-  - 尝试直接通过可能恢复的__builtins__ RCE
+  - 尝试直接通过可能恢复的``__builtins__`` RCE
   - 将结果传递给下级函数
 - 下级函数拿到`bypassMAIN`的结果后，会根据该函数所实现的需求，选择对应的gadgets进行处理（如`bypassRCE`专注于RCE，`bypassREAD`专注于文件读取，`bypassENV`专注于读取环境变量）。其过程与上述相似。
 
@@ -275,7 +275,7 @@ Typhon的workflow顺序如下：
 **Speical Thanks**
 
 @ [黄豆安全实验室](https://hdsec.cn)给予我必须的鼓励  
-@ [jailctf](https://github.com/jailctf)伟大的Jailbreaker项目给予我启发  
+@ [pyjailbreaker](https://github.com/jailctf/pyjailbreaker)项目给予我启发  
 
 ## License
 
