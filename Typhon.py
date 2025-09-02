@@ -3,7 +3,7 @@
 # (like in CTFs) and should not be used for any malicious purposes.
 # The code is maintained on github. If any bugs found or you have any
 # suggestions, please raise an issue or pull request on the github 
-# repository https://github.com/LamentXU123/Typhon.
+# repository https://github.com/Team-intN18-SoybeanSeclab/Typhon.
 # If you have any questions, please feel free to contact me.
 # Weilin Du <1372449351@qq.com>, 2025.
 
@@ -36,13 +36,13 @@ from utils import *
 with open('RCE_data.json', 'r') as f:
     RCE_data = json.load(f)
 BANNER = r'''
-    .-')          _                 
-   (`_^ (    .----`/                Typhon: a pyjail bypassing tool
-    ` )  \_/`   __/     __,    
-    __{   |`  __/      /_/     [Typhon Version]: v0.1
-   / _{    \__/ '--.  //       [Python Version]: v'''+sys.version.split()[0]+r'''
-   \_> \_\  >__/    \((        [Github]: https://github.com/LamentXU123/Typhon
-        _/ /` _\_   |))        
+    .-')          _                 Typhon: a pyjail bypassing tool
+   (`_^ (    .----`/                
+    ` )  \_/`   __/     __,    [Typhon Version]: v0.1
+    __{   |`  __/      /_/     [Python Version]: v'''+sys.version.split()[0]+r'''
+   / _{    \__/ '--.  //       [Github]: https://github.com/Team-intN18-SoybeanSeclab/Typhon
+   \_> \_\  >__/    \((        [Author]: LamentXU <1372449351@qq.com>
+        _/ /` _\_   |))       
 '''
 
 print(BANNER)
@@ -309,7 +309,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
         subclasses = ().__class__.__bases__[0].__subclasses__()
         subclasses_len = len(subclasses)
         for index, i in enumerate(subclasses):
-            progress_bar(index, subclasses_len)
+            progress_bar(index+1, subclasses_len)
             try:
                 for j in search:
                     if j in i.__init__.__globals__:
@@ -322,6 +322,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                             continue
             except AttributeError:
                 pass
+        print()
         for i in useful_modules:
             if i not in search:
                 # get_name_and_object_from_tag return something like [('os', <module 'os' (built-in)>)]

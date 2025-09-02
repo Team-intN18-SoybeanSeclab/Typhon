@@ -41,7 +41,7 @@ def general_bypasser(func):
     @wraps(func)
     def check(self, payload):
         for i in payload[1]:
-            if i.__name__ == func.__name__:
+            if i == func.__name__:
                 return None # Do not do the same bypass
         return func(self, payload[0])
     return check
@@ -57,11 +57,11 @@ def bypasser_not_work_with(bypasser_list: List[str]):
         @wraps(func)
         def check(self, payload):
             for i in payload[1]:
-                if i.__name__ == func.__name__:
+                if i == func.__name__:
                     return None # Do not do the same bypass
             for i in payload[1]:
                 for j in bypasser_list:
-                    if i.__name__ == j:
+                    if i == j:
                         return None # Do not work with this
             return func(self, payload[0])
         return check
@@ -76,10 +76,10 @@ def bypasser_must_work_with(bypasser_list: List[str]):
         @wraps(func)
         def check(self, payload):
             for i in payload[1]:
-                if i.__name__ == func.__name__:
+                if i == func.__name__:
                     return None # Do not do the same bypass
             for j in bypasser_list:
-                if not any(i.__name__ == j for i in payload[1]):
+                if not any(i == j for i in payload[1]):
                     return None # Do not work without this
             return func(self, payload[0])
         return check
@@ -147,7 +147,7 @@ class BypassGenerator:
                 or new_payload in variants
                 or new_payload == initial_payload): continue
             _ = deepcopy(payload)
-            _[1].append(method)
+            _[1].append(method.__name__)
             variants.append(new_payload)
             variants.extend(self.combine_bypasses([new_payload, _[1]], initial_payload, depth-1))
         return variants
@@ -237,7 +237,7 @@ class BypassGenerator:
     #     new_tree = Transformer().visit(tree)
     #     return ast.unparse(new_tree)
     @bypasser_not_work_with(
-        ['numbers_to_hex_base', 'numbers_to_oct_base', 'encode_string_hex', 'string_reversing'])
+        ['numbers_to_hex_base', 'numbers_to_oct_base', 'encode_string_hex'])
     def numbers_to_binary_base(self, payload):
         """
         Convert numbers to binary base (e.g., 42 → 0b101010).
@@ -260,7 +260,7 @@ class BypassGenerator:
             return payload
 
     @bypasser_not_work_with(
-        ['numbers_to_hex_base', 'numbers_to_oct_base', 'encode_string_hex', 'string_reversing'])
+        ['numbers_to_hex_base', 'numbers_to_oct_base', 'encode_string_hex'])
     def numbers_to_oct_base(self, payload):
         """
         Convert numbers to oct base.
@@ -280,7 +280,7 @@ class BypassGenerator:
         return ast.unparse(new_tree).replace(f'\'0o{placeholder}', '0o').replace(f'{placeholder}\'', '')
 
     @bypasser_not_work_with(
-        ['numbers_to_hex_base', 'numbers_to_oct_base', 'encode_string_hex', 'string_reversing'])
+        ['numbers_to_hex_base', 'numbers_to_oct_base', 'encode_string_hex'])
     def numbers_to_hex_base(self, payload):
         """
         Convert numbers to hex base.
