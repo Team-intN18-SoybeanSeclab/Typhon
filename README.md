@@ -278,8 +278,9 @@ Typhon的workflow顺序如下：
 
 感谢所有对此项目做过贡献的人：
 
-<!-- readme: collaborators,contributors -start -->
-<!-- readme: collaborators,contributors -end -->
+<a href="https://github.com/eryajf/learn-github/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Team-intN18-SoybeanSeclab/Typhon" />
+</a>
 
 **Speical Thanks**
 

@@ -277,8 +277,9 @@ The order of workflow for Typhon is as follows:
 
 Thanks to all the contributors who have helped improve this project.
 
-<!-- readme: collaborators,contributors -start -->
-<!-- readme: collaborators,contributors -end -->
+<a href="https://github.com/eryajf/learn-github/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Team-intN18-SoybeanSeclab/Typhon" />
+</a>
 
 **Speical Thanks**
 
