@@ -42,7 +42,7 @@ def general_bypasser(func):
         for i in payload[1]:
             if i == func.__name__:
                 return None # Do not do the same bypass
-        return func(self, payload[0])
+        return func(self, payload[0]).replace(' + ', '+').replace(', ', ',')
     return check
 
 def flatten_add_chain(n: ast.AST):
@@ -71,7 +71,7 @@ def bypasser_not_work_with(bypasser_list: List[str]):
                 for j in bypasser_list:
                     if i == j:
                         return None # Do not work with this
-            return func(self, payload[0])
+            return func(self, payload[0]).replace(' + ', '+').replace(', ', ',')
         return check
     return _
 
@@ -89,7 +89,7 @@ def bypasser_must_work_with(bypasser_list: List[str]):
             for j in bypasser_list:
                 if not any(i == j for i in payload[1]):
                     return None # Do not work without this
-            return func(self, payload[0])
+            return func(self, payload[0]).replace(' + ', '+').replace(', ', ',')
         return check
     return _
 
@@ -367,7 +367,7 @@ class BypassGenerator:
 
         tree = ast.parse(payload, mode='eval')
         new_tree = Transformer().visit(tree)
-        return ast.unparse(new_tree).replace(' + ', '+')
+        return ast.unparse(new_tree)
 
     @bypasser_not_work_with(['string_slicing'])
     def string_reversing(self, payload):
@@ -453,7 +453,7 @@ class BypassGenerator:
         tree = ast.parse(payload, mode='eval')
         new_body = Transformer().visit(tree.body)
         ast.fix_missing_locations(new_body)
-        return emit(new_body).replace(', ', ',')
+        return emit(new_body)
 
     @bypasser_must_work_with(['string_slicing'])
     def string_to_chr(self, payload: str) -> str:
@@ -514,7 +514,7 @@ class BypassGenerator:
         tree = ast.parse(payload, mode='eval')
         new_body = Transformer().visit(tree.body)
         ast.fix_missing_locations(new_body)
-        return emit_min(new_body, name).replace(' + ', '+').replace(', ', ',')
+        return emit_min(new_body, name)
 
     @bypasser_must_work_with(['string_slicing'])
     def string_to_bytes(self, payload: str) -> str:
@@ -575,4 +575,4 @@ class BypassGenerator:
         tree = ast.parse(payload, mode='eval')
         new_body = Transformer().visit(tree.body)
         ast.fix_missing_locations(new_body)
-        return emit_min(new_body, name).replace(' + ', '+').replace(', ', ',')
+        return emit_min(new_body, name)
