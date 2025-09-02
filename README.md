@@ -264,7 +264,7 @@ Typhon的workflow顺序如下：
 
 ## Future Work
 
-- [ ] 支持低于python3.9的版本
+- [ ] 支持低于python3.8的版本
 - [ ] 支持audit hook绕过
 - [ ] 支持eval模式
 

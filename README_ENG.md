@@ -264,7 +264,7 @@ The order of workflow for Typhon is as follows:
 
 ## Future Work
 
-- [ ] Supports versions below python 3.9
+- [ ] Supports versions below python 3.8
 - [ ] Support audit hook bypass
 
 ## Contributors
