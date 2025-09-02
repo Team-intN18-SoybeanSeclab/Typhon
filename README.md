@@ -49,7 +49,7 @@ Typhon.bypassRCE(cmd: str,
     banned_re: Union[str, list[str]] = [],
     allow_unicode_bypass = False,
     max_length: int = None,
-    depth: int = 10,
+    depth: int = 5,
     print_all_payload: bool = False,
     log_level: str = 'INFO') 
 ```

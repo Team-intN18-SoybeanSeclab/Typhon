@@ -60,6 +60,7 @@ def exec_with_returns(code: str, scope: dict):
         return scope.get('__return__')
     except Exception as e:
         logger.debug(f'Error executing code when testing payloads: {e}')
+        return None
 
 def merge_dicts(dict1: dict, dict2: dict) -> dict:
     """

@@ -93,6 +93,7 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
             print('\033[2A')
         except UnicodeEncodeError:
             logger.warning('[!] We cannot print unicode in the shell, set allow_unicode_bypass to False.')
+            logger.warning('[!] Please, change a better shell to enable the unicode feature.')
             allow_unicode_bypass = False
     if local_scope == {}:
         # If the local scope is not specified, raise a warning.
@@ -139,9 +140,10 @@ Try to bypass blacklist with them. Please be paitent.', len(path), data_name)
                     # If end of program, no need to exec to check in case of stucking by RCE function like help()
                     if end_of_prog: exec_with_returns_ = lambda _, __: True
                     else: exec_with_returns_ = exec_with_returns
-                    if exec_with_returns_(i, original_scope).__class__ == check or check is None:
+                    result = exec_with_returns_(i, original_scope)
+                    if (result.__class__ == check or check is None) and not result is None:
                         success = True
-                        tagged_scope[i] = [exec_with_returns_(i, original_scope), data_name_tag]
+                        tagged_scope[i] = [result, data_name_tag]
                         achivements[data_name] = [i, len(_)]
                         tags.append(data_name_tag)
                         generated_path[data_name_tag] = i
