@@ -268,7 +268,7 @@ Typhon的workflow顺序如下：
 - [ ] 支持audit hook绕过
 - [ ] 支持eval模式
 
-## Contributors
+## Credits
 
 **Author & Maintainer**
 
