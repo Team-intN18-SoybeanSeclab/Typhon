@@ -306,7 +306,10 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                 'multiprocessing', '__builtins__', 'codecs', 'warnings',
                 'importlib', 'weakref', 'reprlib', 'sys']
         search = {item: [] for item in useful_modules if item not in get_module_from_tagged_scope(tagged_scope)}
-        for index, i in enumerate(().__class__.__bases__[0].__subclasses__()):
+        subclasses = ().__class__.__bases__[0].__subclasses__()
+        subclasses_len = len(subclasses)
+        for index, i in enumerate(subclasses):
+            progress_bar(index, subclasses_len)
             try:
                 for j in search:
                     if j in i.__init__.__globals__:

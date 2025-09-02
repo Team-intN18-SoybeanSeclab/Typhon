@@ -1,7 +1,7 @@
 import ast
 import tokenize
 
-from copy import copy
+from copy import copy, deepcopy
 from Typhon import logger
 from functools import wraps
 from typing import Union, List
@@ -111,8 +111,6 @@ class BypassGenerator:
             list: List of unique transformed payloads
         """
         bypassed = [self.payload]
-        # for method in self.bypass_methods:
-        #     bypassed.append(method([self.payload, []]))
         
         from Typhon import search_depth # The maximum search depth for combined bypassing
         # Generate combinations of multiple bypasses
@@ -148,7 +146,7 @@ class BypassGenerator:
                 or new_payload is None 
                 or new_payload in variants
                 or new_payload == initial_payload): continue
-            _ = copy(payload)
+            _ = deepcopy(payload)
             _[1].append(method)
             variants.append(new_payload)
             variants.extend(self.combine_bypasses([new_payload, _[1]], initial_payload, depth-1))
@@ -396,29 +394,29 @@ class BypassGenerator:
         """
         return payload.replace(';', '\n')
     
-    @bypasser_must_work_with(['string_slicing'])
-    def string_to_str_join(self, payload: str) -> str:
-        """
-        Convert string to string join.
-        'a' + 'b' -> ''.join(['a', 'b'])
-        """
-        class Transformer(ast.NodeTransformer):
-            def visit_BinOp(self, node):
-                if isinstance(node.op, ast.Add) and isinstance(node.left, ast.Constant) and isinstance(node.right, ast.Constant):
-                    if isinstance(node.left.value, str) and isinstance(node.right.value, str):
-                        return ast.Call(
-                            func=ast.Attribute(
-                                value=ast.Constant(value=''),
-                                attr='join',
-                                ctx=ast.Load()
-                            ),
-                            args=[ast.List(elts=[node.left, node.right], ctx=ast.Load())],
-                            keywords=[]
-                        )
-                return node
+    # @bypasser_must_work_with(['string_slicing'])
+    # def string_to_str_join(self, payload: str) -> str:
+    #     """
+    #     Convert string to string join.
+    #     'a' + 'b' -> ''.join(['a', 'b'])
+    #     """
+    #     class Transformer(ast.NodeTransformer):
+    #         def visit_BinOp(self, node):
+    #             if isinstance(node.op, ast.Add) and isinstance(node.left, ast.Constant) and isinstance(node.right, ast.Constant):
+    #                 if isinstance(node.left.value, str) and isinstance(node.right.value, str):
+    #                     return ast.Call(
+    #                         func=ast.Attribute(
+    #                             value=ast.Constant(value=''),
+    #                             attr='join',
+    #                             ctx=ast.Load()
+    #                         ),
+    #                         args=[ast.List(elts=[node.left, node.right], ctx=ast.Load())],
+    #                         keywords=[]
+    #                     )
+    #             return node
 
-        tree = ast.parse(payload, mode='eval')
-        new_tree = Transformer().visit(tree)
-        return ast.unparse(new_tree)
+    #     tree = ast.parse(payload, mode='eval')
+    #     new_tree = Transformer().visit(tree)
+    #     return ast.unparse(new_tree)
 
 
