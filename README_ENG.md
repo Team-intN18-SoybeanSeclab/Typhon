@@ -169,6 +169,8 @@ There are some gadgets (such as inheritance chains) that search for correspondin
 
 Yes, most questions won't give the corresponding python version. Therefore, **Typhon will prompt when using gadgets involving versions.**
 
+![image](./image/reminder_example.png)
+
 In this case, CTF players often need to find the index value required by the gadgets in the question environment.
 
 - Don't be in the same time `import` Used twice `Typhon` bypass function. If you have any requirements, please delete the existing ones `Typhon` modules and import them when needed.

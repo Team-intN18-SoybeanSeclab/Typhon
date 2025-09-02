@@ -169,6 +169,8 @@ Pyjail中存在一些通过索引寻找对应object的gadgets（如继承链）�
 
 是的，大多数题目都不会给出对应的python版本。因此，**Typhon会在使用涉及版本的gadgets时做出提示**。  
 
+![image](./image/reminder_example.png)
+
 这种情况下往往需要CTF选手自己去找题目环境中该gadgets需要的索引值。  
 
 - 不要在同一次`import`中使用两次`Typhon`的绕过函数。如有需求，请删除已有的`Typhon`模块，并在需要时再导入。
