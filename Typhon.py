@@ -13,6 +13,9 @@ import logging
 from inspect import currentframe
 from typing import Any, Dict, Union
 
+from os import environ
+environ["PYTHONUTF8"] = "1"
+
 if __name__ == '__main__':
     print('This is the main file of the Typhon package. \
 Please run bypass*() function to bypass the sandbox.')
@@ -20,7 +23,7 @@ Please run bypass*() function to bypass the sandbox.')
 
 # need to be set before other imports
 log_level_ = 'INFO' # changable in bypassMAIN()
-search_depth = 10 # changable in bypassMAIN()
+search_depth = 5 # changable in bypassMAIN()
 logging.basicConfig(level=log_level_, format='%(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -52,7 +55,7 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
            banned_re: Union[str, List[str]] = [],
            max_length: int = None,
            allow_unicode_bypass: bool = False,
-           depth: int = 10,
+           depth: int = 5,
            print_all_payload: bool = False,
            log_level: str = 'INFO') -> None:
     '''
@@ -83,6 +86,14 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
     logger.setLevel(log_level_)
     reminder = {} # The reminder of bypass method that could not be used in remote (like inheritance chain)
     search_depth = depth # The maximum search depth for combined bypassing
+    if allow_unicode_bypass:
+        # test if unicode char is printable
+        try:
+            print('TESTING [*] unicode test: 𝕒')
+            print('\033[2A')
+        except UnicodeEncodeError:
+            logger.warning('[!] We cannot print unicode in the shell, set allow_unicode_bypass to False.')
+            allow_unicode_bypass = False
     if local_scope == {}:
         # If the local scope is not specified, raise a warning.
         logger.info('[*] local scope not specified, using the global scope.')
@@ -202,7 +213,7 @@ Try to bypass blacklist with them. Please be paitent.', len(simple_path))
     if 'BUILTINS_SET' in tags: # full lovely builtins set ;)
         logger.info('[*] __builitins__ not deleted, and every builtin is available.')
     elif 'BUILTINS_SET_CHANGED' in tags: # some thing was missing
-        logger.info('[*] builitins not fully available (%d is missing)\
+        logger.info('[*] builitins not fully available (%d is missing) \
 in the namespace, try to restore them.',
                     len(change_in_builtins))
         builtin_path = filter_path_list(RCE_data['restore_builtins_in_current_ns'], tagged_scope)
@@ -244,6 +255,8 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                 achivements['builtins module'] = [builtin_module_payload, builtin_module_found_count]
                 if not builtin_dict_payload and not builtin_module_payload:
                     logger.info('[-] no way to find a bypass method to restore builtins.')
+                else:
+                    try_to_restore('builtins2RCEinput', end_of_prog=True) # try to RCE directly with builtins
             else:
                 logger.info('[-] no way to find a bypass method to restore builtins.')
         else:
@@ -367,7 +380,7 @@ def bypassRCE(
     banned_chr:list=[],
     banned_ast:list=[],
     banned_re:list=[],
-    max_length:int=1000,
+    max_length:int=None,
     allow_unicode_bypass:bool=False,
     depth:int=20,
     print_all_payload:bool=False,
