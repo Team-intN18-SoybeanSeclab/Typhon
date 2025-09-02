@@ -394,29 +394,65 @@ class BypassGenerator:
         """
         return payload.replace(';', '\n')
     
-    # @bypasser_must_work_with(['string_slicing'])
-    # def string_to_str_join(self, payload: str) -> str:
-    #     """
-    #     Convert string to string join.
-    #     'a' + 'b' -> ''.join(['a', 'b'])
-    #     """
-    #     class Transformer(ast.NodeTransformer):
-    #         def visit_BinOp(self, node):
-    #             if isinstance(node.op, ast.Add) and isinstance(node.left, ast.Constant) and isinstance(node.right, ast.Constant):
-    #                 if isinstance(node.left.value, str) and isinstance(node.right.value, str):
-    #                     return ast.Call(
-    #                         func=ast.Attribute(
-    #                             value=ast.Constant(value=''),
-    #                             attr='join',
-    #                             ctx=ast.Load()
-    #                         ),
-    #                         args=[ast.List(elts=[node.left, node.right], ctx=ast.Load())],
-    #                         keywords=[]
-    #                     )
-    #             return node
+    @bypasser_must_work_with(['string_slicing'])
+    def string_to_str_join(self, payload: str) -> str:
+        """
+        Convert string to string join.
+        'a' + 'b' -> ''.join(['a', 'b'])
+        """
+        def is_str_like(n: ast.AST) -> bool:
+            return (isinstance(n, ast.Constant) and isinstance(n.value, str)) or isinstance(n, ast.JoinedStr)
 
-    #     tree = ast.parse(payload, mode='eval')
-    #     new_tree = Transformer().visit(tree)
-    #     return ast.unparse(new_tree)
+        def flatten_add_chain(n: ast.AST):
+            parts = []
+            def collect(x):
+                if isinstance(x, ast.BinOp) and isinstance(x.op, ast.Add):
+                    collect(x.left)
+                    collect(x.right)
+                else:
+                    parts.append(x)
+            collect(n)
+            return parts
+
+        class StrConcatToJoin(ast.NodeTransformer):
+            def visit_BinOp(self, node: ast.BinOp):
+                if isinstance(node.op, ast.Add):
+                    parts = flatten_add_chain(node)
+                    if parts and all(is_str_like(p) for p in parts):
+                        return ast.Call(
+                            func=ast.Attribute(value=ast.Constant(value=''), attr='join', ctx=ast.Load()),
+                            args=[ast.List(elts=parts, ctx=ast.Load())],
+                            keywords=[]
+                        )
+                node.left = self.visit(node.left)
+                node.right = self.visit(node.right)
+                return node
+
+        def _elem_src(n: ast.AST) -> str:
+            if isinstance(n, ast.Constant) and isinstance(n.value, str):
+                return repr(n.value)
+            return ast.unparse(n)
+
+        def _is_empty_str_join_call(n: ast.AST) -> bool:
+            return (
+                isinstance(n, ast.Call) and
+                isinstance(n.func, ast.Attribute) and
+                isinstance(n.func.value, ast.Constant) and n.func.value.value == '' and
+                n.func.attr == 'join' and
+                n.args and isinstance(n.args[0], ast.List)
+            )
+
+        def emit(n: ast.AST) -> str:
+            if _is_empty_str_join_call(n):
+                items = ','.join(_elem_src(e) for e in n.args[0].elts)
+                return "''.join([" + items + "])"
+            if isinstance(n, ast.BinOp) and isinstance(n.op, ast.Add):
+                return f"{emit(n.left)} + {emit(n.right)}"
+            return ast.unparse(n)
+
+        tree = ast.parse(payload, mode='eval')
+        new_body = StrConcatToJoin().visit(tree.body)
+        ast.fix_missing_locations(new_body)
+        return emit(new_body).replace(', ', ',')
 
 

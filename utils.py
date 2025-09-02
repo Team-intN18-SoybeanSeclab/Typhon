@@ -337,9 +337,6 @@ def try_bypasses(pathlist,
     else: Total = len(pathlist)
     for i, path in enumerate(pathlist):
         progress_bar(i+1, Total)
-        # if not is_blacklisted(path, blacklist):
-        #     successful_payloads.append(path)
-        #     continue
         for _ in BypassGenerator(path, allow_unicode_bypass=allow_unicode_bypass).generate_bypasses():
             if not is_blacklisted(_, banned_chars, banned_AST, banned_re, max_length): successful_payloads.append(_)
             continue
