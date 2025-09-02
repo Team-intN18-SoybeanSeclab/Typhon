@@ -1,11 +1,10 @@
 import ast
-import tokenize
 
-from copy import copy, deepcopy
 from Typhon import logger
-from functools import wraps
 from typing import Union, List
+from copy import copy, deepcopy
 from random import randint, choice
+from functools import wraps, reduce
 
 def remove_duplicate(List) -> list:
     """
@@ -46,7 +45,16 @@ def general_bypasser(func):
         return func(self, payload[0])
     return check
 
-# def bypasser_require(required_need):
+def flatten_add_chain(n: ast.AST):
+    parts = []
+    def collect(x):
+        if isinstance(x, ast.BinOp) and isinstance(x.op, ast.Add):
+            collect(x.left)
+            collect(x.right)
+        else:
+            parts.append(x)
+    collect(n)
+    return parts
 
 def bypasser_not_work_with(bypasser_list: List[str]):
     """
@@ -87,15 +95,18 @@ def bypasser_must_work_with(bypasser_list: List[str]):
 
 
 class BypassGenerator:
-    def __init__(self, payload: str, allow_unicode_bypass: bool):
+    def __init__(self, payload: str, allow_unicode_bypass: bool, local_scope: dict):
         """
         Initialize the bypass generator with a payload.
         
         Args:
             :param payload: The Python expression/statement to be transformed
-            :param allow_unicode_bypass: if unicode bypasses are allowed.
+            :param allow_unicode_bypass: if unicode bypasses are allowed
+            :param local_scope: tagged local scope
         """
         self.payload = payload
+        self.allow_unicode_bypass = allow_unicode_bypass
+        self.local_scope = local_scope
         self.bypass_methods = []
         for method_name in dir(self):
             method = getattr(self, method_name)
@@ -403,18 +414,7 @@ class BypassGenerator:
         def is_str_like(n: ast.AST) -> bool:
             return (isinstance(n, ast.Constant) and isinstance(n.value, str)) or isinstance(n, ast.JoinedStr)
 
-        def flatten_add_chain(n: ast.AST):
-            parts = []
-            def collect(x):
-                if isinstance(x, ast.BinOp) and isinstance(x.op, ast.Add):
-                    collect(x.left)
-                    collect(x.right)
-                else:
-                    parts.append(x)
-            collect(n)
-            return parts
-
-        class StrConcatToJoin(ast.NodeTransformer):
+        class Transformer(ast.NodeTransformer):
             def visit_BinOp(self, node: ast.BinOp):
                 if isinstance(node.op, ast.Add):
                     parts = flatten_add_chain(node)
@@ -451,8 +451,128 @@ class BypassGenerator:
             return ast.unparse(n)
 
         tree = ast.parse(payload, mode='eval')
-        new_body = StrConcatToJoin().visit(tree.body)
+        new_body = Transformer().visit(tree.body)
         ast.fix_missing_locations(new_body)
         return emit(new_body).replace(', ', ',')
 
+    @bypasser_must_work_with(['string_slicing'])
+    def string_to_chr(self, payload: str) -> str:
+        '''
+        'a'+'b'+'c' -> chr(97)+chr(98)+chr(99)'
+        '''
+        from utils import find_object
+        name = find_object(chr, self.local_scope)
+        if name is None:
+            return payload
+            
+        def is_single_char_str_const(n: ast.AST) -> bool:
+            return isinstance(n, ast.Constant) and isinstance(n.value, str) and len(n.value) == 1
 
+        def rebuild_plus_chain(nodes):
+            return reduce(lambda l, r: ast.BinOp(left=l, op=ast.Add(), right=r), nodes)
+
+        def _is_named_list_call(n: ast.AST, name: str) -> bool:
+            return (isinstance(n, ast.Call) and
+                    isinstance(n.func, ast.Name) and n.func.id == name and
+                    n.args and isinstance(n.args[0], ast.List))
+
+        def _emit_min_list(lst: ast.List) -> str:
+            items = []
+            for e in lst.elts:
+                if isinstance(e, ast.Constant) and isinstance(e.value, int):
+                    items.append(str(e.value))
+                else:
+                    items.append(ast.unparse(e))
+            return '[' + ','.join(items) + ']'
+
+        def emit_min(n: ast.AST, name: str) -> str:
+            if isinstance(n, ast.BinOp) and isinstance(n.op, ast.Add):
+                return emit_min(n.left) + '+' + emit_min(n.right)
+            if _is_named_list_call(n, name):
+                name = n.func.id
+                arg0 = n.args[0]  # List
+                return f"{name}(" + _emit_min_list(arg0) + ")"
+            return ast.unparse(n)
+        class Transformer(ast.NodeTransformer):
+            def visit_BinOp(self, node: ast.BinOp):
+                if isinstance(node.op, ast.Add):
+                    parts = flatten_add_chain(node)
+                    if parts and all(is_single_char_str_const(p) for p in parts):
+                        calls = []
+                        for p in parts:
+                            code = ord(p.value)
+                            call = ast.Call(
+                                func=ast.Name(id=name, ctx=ast.Load()),
+                                args=[ast.Constant(code)],
+                                keywords=[]
+                            )
+                            calls.append(call)
+                        return rebuild_plus_chain(calls)
+                node.left = self.visit(node.left)
+                node.right = self.visit(node.right)
+                return node
+        tree = ast.parse(payload, mode='eval')
+        new_body = Transformer().visit(tree.body)
+        ast.fix_missing_locations(new_body)
+        return emit_min(new_body, name).replace(' + ', '+').replace(', ', ',')
+
+    @bypasser_must_work_with(['string_slicing'])
+    def string_to_bytes(self, payload: str) -> str:
+        '''
+        'a'+'b'+'c' -> bytes([97])+bytes([98])+bytes([99])
+        '''
+        from utils import find_object
+        name = find_object(bytes, self.local_scope)
+        if name is None:
+            return payload
+
+        def is_single_char_str_const(n: ast.AST) -> bool:
+            return isinstance(n, ast.Constant) and isinstance(n.value, str) and len(n.value) == 1
+
+        def rebuild_plus_chain(nodes):
+            return reduce(lambda l, r: ast.BinOp(left=l, op=ast.Add(), right=r), nodes)
+
+        def _is_named_list_call(n: ast.AST, name: str) -> bool:
+            return (isinstance(n, ast.Call) and
+                    isinstance(n.func, ast.Name) and n.func.id == name and
+                    n.args and isinstance(n.args[0], ast.List))
+
+        def _emit_min_list(lst: ast.List) -> str:
+            items = []
+            for e in lst.elts:
+                if isinstance(e, ast.Constant) and isinstance(e.value, int):
+                    items.append(str(e.value))
+                else:
+                    items.append(ast.unparse(e))
+            return '[' + ','.join(items) + ']'
+
+        def emit_min(n: ast.AST, name: str) -> str:
+            if isinstance(n, ast.BinOp) and isinstance(n.op, ast.Add):
+                return emit_min(n.left) + '+' + emit_min(n.right)
+            if _is_named_list_call(n, name):
+                name = n.func.id
+                arg0 = n.args[0]  # List
+                return f"{name}(" + _emit_min_list(arg0) + ")"
+            return ast.unparse(n)
+        class Transformer(ast.NodeTransformer):
+            def visit_BinOp(self, node: ast.BinOp):
+                if isinstance(node.op, ast.Add):
+                    parts = flatten_add_chain(node)
+                    if parts and all(is_single_char_str_const(p) for p in parts):
+                        calls = []
+                        for p in parts:
+                            code = ord(p.value)  # 单字符
+                            call = ast.Call(
+                                func=ast.Name(id=name, ctx=ast.Load()),
+                                args=[ast.List(elts=[ast.Constant(code)], ctx=ast.Load())],
+                                keywords=[]
+                            )
+                            calls.append(call)
+                        return rebuild_plus_chain(calls)
+                node.left = self.visit(node.left)
+                node.right = self.visit(node.right)
+                return node
+        tree = ast.parse(payload, mode='eval')
+        new_body = Transformer().visit(tree.body)
+        ast.fix_missing_locations(new_body)
+        return emit_min(new_body, name).replace(' + ', '+').replace(', ', ',')

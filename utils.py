@@ -20,6 +20,19 @@ def get_name_and_object_from_tag(tag: str, tagged_scope: dict):
             output.append((i, tagged_scope[i][0]))
     return output
 
+def find_object(object: object, tagged_scope: dict):
+    """
+    Find an object in a tagged scope.
+    
+    :param object: The object to find
+    :param tagged_scope: The tagged scope to search in
+    :return: name of the object, None if not found
+    """
+    for i in tagged_scope:
+        if tagged_scope[i][0] == object:
+            return i
+    return None
+
 def exec_with_returns(code: str, scope: dict):
     """
     Execute a code string with a given scope and return the value of
@@ -337,7 +350,7 @@ def try_bypasses(pathlist,
     else: Total = len(pathlist)
     for i, path in enumerate(pathlist):
         progress_bar(i+1, Total)
-        for _ in BypassGenerator(path, allow_unicode_bypass=allow_unicode_bypass).generate_bypasses():
+        for _ in BypassGenerator(path, allow_unicode_bypass=allow_unicode_bypass, local_scope=local_scope).generate_bypasses():
             if not is_blacklisted(_, banned_chars, banned_AST, banned_re, max_length): successful_payloads.append(_)
             continue
     if pathlist and log_level_ != 'DEBUG':
