@@ -273,6 +273,13 @@ The order of workflow for Typhon is as follows:
 
 @ [LamentXU (Weilin Du)](https://github.com/LamentXU123)  
 
+**Contributors**
+
+Thanks to all the contributors who have helped improve this project.
+
+<!-- readme: collaborators,contributors -start -->
+<!-- readme: collaborators,contributors -end -->
+
 **Speical Thanks**
 
 @ [hdsec](https://hdsec.cn) for giving me the necessary encouragement
