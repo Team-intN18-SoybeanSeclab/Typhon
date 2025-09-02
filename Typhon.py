@@ -52,7 +52,7 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
            banned_re: Union[str, List[str]] = [],
            max_length: int = None,
            allow_unicode_bypass: bool = False,
-           depth: int = 20,
+           depth: int = 10,
            print_all_payload: bool = False,
            log_level: str = 'INFO') -> None:
     '''
