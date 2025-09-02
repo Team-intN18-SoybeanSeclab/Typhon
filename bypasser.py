@@ -356,7 +356,7 @@ class BypassGenerator:
 
         tree = ast.parse(payload, mode='eval')
         new_tree = Transformer().visit(tree)
-        return ast.unparse(new_tree)
+        return ast.unparse(new_tree).replace(' + ', '+')
 
     @bypasser_not_work_with(['string_slicing'])
     def string_reversing(self, payload):
