@@ -399,7 +399,7 @@ def bypasses_output(bypassed_payload: Union[str, list] = None, generated_path: l
         for j in reminder:
             if j in i and j not in printed_reminder:
                 printed_reminder.append(j)
-                print('\033[33m' + reminder[j] + '\033[0m')
+                print('\033[33mWARNING [!] ' + reminder[j] + '\033[0m')
     print('\n')
     print('-----------Progress-----------')
     print('\n')

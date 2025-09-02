@@ -319,7 +319,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                         for _ in BypassGenerator(payload, allow_unicode_bypass=allow_unicode_bypass, local_scope=tagged_scope).generate_bypasses():
                             if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
                                 search[j].append(_)
-                                reminder[_] = f'WARNING [!] {index} is the index of {i.__name__}, path to {j} must fit in index of {i.__name__}'
+                                reminder[_] = f'{index} is the index of {i.__name__}, path to {j} must fit in index of {i.__name__}'
                             continue
             except AttributeError:
                 pass
