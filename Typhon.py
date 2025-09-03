@@ -77,7 +77,7 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
     global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder
     useful_modules = ['os', 'subprocess', 'uuid', 'pydoc', '_posixsubprocess',
         'multiprocessing', '__builtins__', 'codecs', 'warnings',
-        'importlib', 'weakref', 'reprlib', 'sys', 'linecache']
+        'importlib', 'weakref', 'reprlib', 'sys', 'linecache', 'pty']
     log_level_ = log_level.upper()
     if log_level_ not in ['DEBUG', 'INFO', 'TESTING']:
         logger.warning('[!] Invalid log level, using INFO instead.')
