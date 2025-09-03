@@ -128,8 +128,10 @@ class BypassGenerator:
         # Generate combinations of multiple bypasses
         combined = self.combine_bypasses([self.payload, []], self.payload, search_depth)
         bypassed.extend(combined)
+        bypassed = remove_duplicate(bypassed) # Remove duplicates
+        bypassed.sort(key=len)
         
-        return remove_duplicate(bypassed)  # Remove duplicates
+        return bypassed
     
     def combine_bypasses(self, payload: List[Union[str, list]], initial_payload: str, depth: int):
         """

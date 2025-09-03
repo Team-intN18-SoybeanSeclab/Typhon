@@ -368,7 +368,6 @@ def try_bypasses(pathlist,
             continue
     if pathlist and log_level_ != 'DEBUG':
         sys.stdout.write('\n')
-    successful_payloads.sort(key=len)
     return successful_payloads
 
 def progress_bar(current, total, bar_length=80):
