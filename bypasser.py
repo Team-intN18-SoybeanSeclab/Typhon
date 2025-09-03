@@ -129,7 +129,7 @@ class BypassGenerator:
         combined = self.combine_bypasses([self.payload, []], self.payload, search_depth)
         bypassed.extend(combined)
         bypassed = remove_duplicate(bypassed) # Remove duplicates
-        bypassed.sort(key=len)
+        # bypassed.sort(key=len)
         
         return bypassed
     
