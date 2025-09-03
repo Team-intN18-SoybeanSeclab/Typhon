@@ -229,18 +229,15 @@ def parse_payload_list(
             if 'MODULE_BUILTINS' in generated_path:
                 output.append(path.replace('MODULE_BUILTINS', generated_path['MODULE_BUILTINS']))
             continue
-        if 'COMMAND' in path:
-            if cmd:
-                output.append(path.replace('COMMAND', f"'{cmd}'"))
-            continue
-        if 'CMD_FILE' in path:
-            if cmd:
-                output.append(path.replace('CMD_FILE', "'/bin/" + cmd.split(' ')[0] + "'"))
-            continue
-        if 'UNFOLD_CMD_ARGS' in path:
-            if cmd:
-                output.append(path.replace('UNFOLD_CMD_ARGS', ','.join(["'"+i+"'" for i in cmd.split(' ')[1:]])))
-            continue
+        if cmd:
+            if 'COMMAND' in path:
+                path = path.replace('COMMAND', f"'{cmd}'")
+            if 'CMD_FILE' in path:
+                path = path.replace('CMD_FILE', "'/bin/" + cmd.split(' ')[0] + "'")
+            if 'UNFOLD_CMD_ARGS' in path:
+                if ' ' not in cmd:
+                    path = path.replace('UNFOLD_CMD_ARGS', '')
+                path = path.replace('UNFOLD_CMD_ARGS', ','.join(["'"+i+"'" for i in cmd.split(' ')[1:]]))
         output.append(path)
     # if cmd != None: # Then we need to fill in the blanks with the RCE command
     #         CMD = "'" + cmd + "'"

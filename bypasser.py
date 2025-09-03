@@ -313,40 +313,40 @@ class BypassGenerator:
         new_tree = Transformer().visit(tree)
         return ast.unparse(new_tree).replace(f'\'0x{placeholder}', '0x').replace(f'{placeholder}\'', '')
 
-    @general_bypasser
-    def obfuscate_func_call(self, payload):
-        """
-        Obfuscate function calls using lambda wrappers.
-        """
-        class Transformer(ast.NodeTransformer):
-            def visit_Call(self, node):
-                if isinstance(node.func, ast.Lambda):
-                    return node
-                try:
-                    return ast.Call(
-                        func=ast.Lambda(
-                            args=ast.arguments(
-                                posonlyargs=[],
-                                args=[ast.arg(arg='a'), ast.arg(arg='b')],
-                                kwonlyargs=[],
-                                kw_defaults=[],
-                                defaults=[]
-                            ),
-                            body=ast.Call(
-                                func=ast.Name(id='a', ctx=ast.Load()),
-                                args=[ast.Name(id='b', ctx=ast.Load())],
-                                keywords=[]
-                            )
-                        ),
-                        args=[node.func, node.args[0]],
-                        keywords=[]
-                    )
-                except IndexError:
-                    return node
+    # @general_bypasser
+    # def obfuscate_func_call(self, payload):
+    #     """
+    #     Obfuscate function calls using lambda wrappers.
+    #     """
+    #     class Transformer(ast.NodeTransformer):
+    #         def visit_Call(self, node):
+    #             if isinstance(node.func, ast.Lambda):
+    #                 return node
+    #             try:
+    #                 return ast.Call(
+    #                     func=ast.Lambda(
+    #                         args=ast.arguments(
+    #                             posonlyargs=[],
+    #                             args=[ast.arg(arg='a'), ast.arg(arg='b')],
+    #                             kwonlyargs=[],
+    #                             kw_defaults=[],
+    #                             defaults=[]
+    #                         ),
+    #                         body=ast.Call(
+    #                             func=ast.Name(id='a', ctx=ast.Load()),
+    #                             args=[ast.Name(id='b', ctx=ast.Load())],
+    #                             keywords=[]
+    #                         )
+    #                     ),
+    #                     args=[node.func, node.args[0]],
+    #                     keywords=[]
+    #                 )
+    #             except IndexError:
+    #                 return node
 
-        tree = ast.parse(payload, mode='eval')
-        new_tree = Transformer().visit(tree)
-        return ast.unparse(new_tree)
+    #     tree = ast.parse(payload, mode='eval')
+    #     new_tree = Transformer().visit(tree)
+    #     return ast.unparse(new_tree)
 
     @bypasser_not_work_with(['string_reversing'])
     def string_slicing(self, payload):
