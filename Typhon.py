@@ -112,7 +112,7 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
     # changes in local scope comparing to standard builtins
     change_in_builtins = [i for i in local_scope if i in dir(builtins)]
 
-    def try_to_restore(data_name:str, check:object=None, end_of_prog=False):
+    def try_to_restore(data_name:str, check:object=None, end_of_prog=False, cmd=None):
         """
         Try to obtain certain thing from the original scope.
         data_name is a string that can refer to a list in RCE_data.json
@@ -120,6 +120,7 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
         if not specified, any object will be accepted.
         end_of_prog is a boolean flag to indicate if the program is ending if 
         one of the restore success.
+        cmd is a string refer to the command executed in the payload.
         """
         data_name_tag = data_name.upper()
         current_scope = get_name_and_object_from_tag(data_name_tag, tagged_scope)
@@ -136,7 +137,7 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
             logger.info('[*] %d paths found to obtain %s. \
 Try to bypass blacklist with them. Please be paitent.', len(path), data_name)
             logger.debug('[*] %s paths: %s', data_name, str(path))
-            _ = try_bypasses(path, banned_chr, banned_ast, banned_re, max_length, allow_unicode_bypass, tagged_scope)
+            _ = try_bypasses(path, banned_chr, banned_ast, banned_re, max_length, allow_unicode_bypass, tagged_scope, cmd)
             if _:
                 success = False
                 for i in _:
@@ -386,10 +387,10 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                             break
         print()
     if 'LOAD_MODULE' in tags:
-        logger.info('[*] try to import modules with IMPORT path.')
+        logger.info('[*] try to import modules with LOAD_MODULE path.')
         for i in useful_modules:
             progress_bar(useful_modules.index(i)+1, len(useful_modules))
-            module_path = generated_path['IMPORT'] + "('" + i + "')"
+            module_path = generated_path['LOAD_MODULE'] + "('" + i + "')"
             for _ in BypassGenerator(module_path, allow_unicode_bypass=allow_unicode_bypass, local_scope=tagged_scope).generate_bypasses():
                 if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
                     result = exec_with_returns(_, original_scope)
@@ -421,9 +422,9 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
     # Step11: Try to RCE directly with builtins 
     if 'BUILTINS_SET' in tags or 'MODULE_BUILTINS' in tags:
         logger.info('[*] try to RCE directly with builtins.')
-        try_to_restore('builtins2RCEinput', end_of_prog=True)
-
-    return bypasses_output(generated_path=generated_path)
+        # try_to_restore('builtins2RCEinput', end_of_prog=True)
+        
+    return generated_path
 
 def bypassRCE(
     cmd,
@@ -452,8 +453,10 @@ def bypassRCE(
     :param log_level: is the logging level, default is INFO, change it to
     DEBUG for more details.
     """
-
-    generated = bypassMAIN(local_scope,
+    if cmd == '':
+        logger.warning('[!] command is empty, nothing to execute.')
+        exit(0)
+    generated_path = bypassMAIN(local_scope,
                            banned_chr=banned_chr,
                            banned_ast=banned_ast,
                            banned_re=banned_re,
@@ -462,4 +465,7 @@ def bypassRCE(
                            depth=depth,
                            print_all_payload=print_all_payload,
                            log_level=log_level)
-    print(tagged_scope)
+
+    try_to_restore('__import__2RCE', end_of_prog=True, cmd=cmd)
+    
+    return bypasses_output(generated_path=generated_path)
