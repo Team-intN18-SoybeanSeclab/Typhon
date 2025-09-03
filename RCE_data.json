@@ -48,6 +48,8 @@
     "restore_builtins_in_current_ns":[
         ["__builtins__","BUILTINS_SET_CHANGED"],
         ["vars()['__builtins__']","vars"],
+        ["globals()['__builtins__']","globals"],
+        ["locals()['__builtins__']","locals"],
         ["help.__call__.__builtins__","help"],
         ["help.__call__.__globals__.__builtins__","help"],
         ["license.__call__.__globals__.__builtins__","license"],
