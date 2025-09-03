@@ -108,17 +108,19 @@
     ],
     "import": [
         ["GENERATOR.f_globals['__builtins__'].__import__", "GENERATOR"],
-        ["GENERATOR.f_globals['__loader__'].load_module", "GENERATOR"],
         ["GENERATOR.f_back_f_globals['__builtins__'].__import__", "GENERATOR"],
-        ["GENERATOR.f_back.f_globals['__loader__'].load_module", "GENERATOR"],
         ["__import__", "__import__"],
-        ["__loader__.load_module", "__loader__"],
         ["BUILTINS_SET['__import__']", "BUILTINS_SET"],
-        ["BUILTINS_SET['__loader__'].load_module", "BUILTINS_SET"],
         ["MODULE_BUILTINS.__import__", "MODULE_BUILTINS"],
-        ["MODULE_BUILTINS.__loader__.load_module", "MODULE_BUILTINS"],
-        ["importlib.import_module", "importlib"],
         ["importlib.__import__", "importlib"]
+    ],
+    "load_module": [
+        ["GENERATOR.f_globals['__loader__'].load_module", "GENERATOR"],
+        ["GENERATOR.f_back.f_globals['__loader__'].load_module", "GENERATOR"],
+        ["__loader__.load_module", "__loader__"],
+        ["BUILTINS_SET['__loader__'].load_module", "BUILTINS_SET"],
+        ["MODULE_BUILTINS.__loader__.load_module", "MODULE_BUILTINS"],
+        ["importlib.import_module", "importlib"]
     ],
     "modules":[
         ["sys.modules", "sys"]

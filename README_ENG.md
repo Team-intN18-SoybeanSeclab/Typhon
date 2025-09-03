@@ -173,34 +173,6 @@ Yes, most questions won't give the corresponding python version. Therefore, **Ty
 
 In this case, CTF players often need to find the index value required by the gadgets in the question environment.
 
-- Don't be in the same time `import` Used twice `Typhon` bypass function. If you have any requirements, please delete the existing ones `Typhon` modules and import them when needed.
-
-**Do:**
-```python
-def safe_run(cmd):
-    import Typhon
-    Typhon.bypassRCE(cmd,
-    banned_chr=['builtins', 'os', 'exec', 'import'])
-    del Typhon
-    import Typhon
-    Typhon.bypassRCE(cmd,
-    local_scope={'__builtins__': None})
-
-safe_run('cat /f*')
-```
-
-**Don't:**
-```python
-def safe_run(cmd):
-    import Typhon
-    Typhon.bypassRCE(cmd,
-    banned_chr=['builtins', 'os', 'exec', 'import'])
-    Typhon.bypassRCE(cmd,
-    local_scope={'__builtins__': None})
-
-safe_run('cat /f*')
-```
-
 - I can't use this payload, can I change it?
 
 You can add the parameters `print_all_payload=True` , Typhon will print all the payloads it generates.
