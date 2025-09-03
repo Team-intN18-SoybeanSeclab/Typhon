@@ -422,7 +422,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
     # Step11: Try to RCE directly with builtins 
     if 'BUILTINS_SET' in tags or 'MODULE_BUILTINS' in tags:
         logger.info('[*] try to RCE directly with builtins.')
-        # try_to_restore('builtins2RCEinput', end_of_prog=True)
+        try_to_restore('builtins2RCEinput', end_of_prog=True)
         
     return generated_path
 
