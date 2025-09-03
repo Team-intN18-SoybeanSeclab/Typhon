@@ -405,7 +405,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
         logger.info('[*] try to import modules with MODULES path.')
         for i in useful_modules:
             progress_bar(useful_modules.index(i)+1, len(useful_modules))
-            module_path = generated_path['IMPORT'] + "['" + i + "']"
+            module_path = generated_path['MODULES'] + "['" + i + "']"
             for _ in BypassGenerator(module_path, allow_unicode_bypass=allow_unicode_bypass, local_scope=tagged_scope).generate_bypasses():
                 if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
                     result = exec_with_returns(_, original_scope)
