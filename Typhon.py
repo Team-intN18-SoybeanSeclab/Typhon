@@ -138,7 +138,7 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
         if path:
             logger.info('[*] %d paths found to obtain %s. \
 Try to bypass blacklist with them. Please be paitent.', len(path), data_name)
-            logger.debug('[*] %s paths: %s', data_name, str([_[0] for _ in path]))
+            logger.debug('[*] %s paths: %s', data_name, str(path))
             _ = try_bypasses(path, banned_chr, banned_ast, banned_re, max_length, allow_unicode_bypass, tagged_scope, cmd)
             if _:
                 success = False
@@ -335,7 +335,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                 for j in searched_modules:
                     if j in i.__init__.__globals__:
                         object_path = generated_path['OBJECT']
-                        payload = [f'{object_path}.__subclasses__()[{index}].__init__.__globals__["{j}"]', [object_path]]
+                        payload = f'{object_path}.__subclasses__()[{index}].__init__.__globals__["{j}"]'
                         for _ in BypassGenerator(payload, allow_unicode_bypass=allow_unicode_bypass, local_scope=tagged_scope).generate_bypasses():
                             if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
                                 searched_modules_tmp[j].append(_)
@@ -368,7 +368,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
         logger.info('[*] try to import modules with IMPORT path.')
         for i in useful_modules:
             progress_bar(useful_modules.index(i)+1, len(useful_modules))
-            module_path = [generated_path['IMPORT'] + "('" + i + "')", generated_path['IMPORT']]
+            module_path = generated_path['IMPORT'] + "('" + i + "')"
             for _ in BypassGenerator(module_path, allow_unicode_bypass=allow_unicode_bypass, local_scope=tagged_scope).generate_bypasses():
                 if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
                     result = exec_with_returns(_, original_scope)
@@ -380,7 +380,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
         logger.info('[*] try to import modules with LOAD_MODULE path.')
         for i in useful_modules:
             progress_bar(useful_modules.index(i)+1, len(useful_modules))
-            module_path = [generated_path['LOAD_MODULE'] + "('" + i + "')", generated_path['LOAD_MODULE']]
+            module_path = generated_path['LOAD_MODULE'] + "('" + i + "')"
             for _ in BypassGenerator(module_path, allow_unicode_bypass=allow_unicode_bypass, local_scope=tagged_scope).generate_bypasses():
                 if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
                     result = exec_with_returns(_, original_scope)
@@ -392,7 +392,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
         logger.info('[*] try to import modules with MODULES path.')
         for i in useful_modules:
             progress_bar(useful_modules.index(i)+1, len(useful_modules))
-            module_path = [generated_path['MODULES'] + "('" + i + "')", generated_path['MODULES']]
+            module_path = generated_path['MODULES'] + "['" + i + "']"
             for _ in BypassGenerator(module_path, allow_unicode_bypass=allow_unicode_bypass, local_scope=tagged_scope).generate_bypasses():
                 if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
                     result = exec_with_returns(_, original_scope)

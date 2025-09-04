@@ -96,18 +96,17 @@ def bypasser_must_work_with(bypasser_list: List[str]):
 
 
 class BypassGenerator:
-    def __init__(self, payload: List[List[str]], allow_unicode_bypass: bool, local_scope: dict, parent_payload: str = ''):
+    def __init__(self, payload: str, allow_unicode_bypass: bool, local_scope: dict, parent_payload: str = ''):
         """
         Initialize the bypass generator with a payload.
         
         Args:
-            :param payload: The Python expression/statement to be transformed, with its raw payload
+            :param payload: The Python expression/statement to be transformed
             :param allow_unicode_bypass: if unicode bypasses are allowed
             :param local_scope: tagged local scope
             :param parent_payload: Parent payload of the payload
         """
-        self.raw = payload[1]
-        self.payload = payload[0]
+        self.payload = payload
         self.allow_unicode_bypass = allow_unicode_bypass
         self.parent_payload = parent_payload
         self.local_scope = local_scope
@@ -117,7 +116,7 @@ class BypassGenerator:
             if callable(method):
                 if getattr(method, '_is_bypasser', False):
                     self.bypass_methods.append(method)   
-
+    
     def generate_bypasses(self):
         """
         Generate all possible bypass variants by applying each transformation method.
@@ -133,9 +132,10 @@ class BypassGenerator:
         bypassed.extend(combined)
         bypassed = remove_duplicate(bypassed) # Remove duplicates
         # bypassed.sort(key=len)
+        
         return bypassed
-
-    def combine_bypasses(self, payload: List[List[str]], initial_payload: str, depth: int):
+    
+    def combine_bypasses(self, payload: List[Union[str, list]], initial_payload: str, depth: int):
         """
         Recursively combine multiple bypass methods for deeper obfuscation.
         
@@ -598,7 +598,7 @@ class BypassGenerator:
             
             def replace_chars(self, s):
                 """Replace characters in a string using the char_map"""
-                return ''.join([char_map[c] if c in char_map else c for c in s]).replace('__', '_＿')
+                return ''.join([char_map[c] if c in char_map else c for c in s])
             
             def visit_Name(self, node):
                 """Process variable/function names"""
@@ -622,7 +622,7 @@ class BypassGenerator:
         tree = ast.parse(payload, mode='eval')
         new_body = Transformer().visit(tree.body)
         ast.fix_missing_locations(new_body)
-        return ast.unparse(new_body)
+        return ast.unparse(new_body).replace('__', '_＿')
 
     @bypasser_not_work_with(['unicode_replace_2'])
     def unicode_replace_1(self, payload: str) -> str:

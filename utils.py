@@ -163,7 +163,7 @@ def is_tag(string: str) -> bool:
     return (string.startswith(prefix) or string in fixed_tag)
 
 def parse_payload_list(
-    payload: List[List[str]],
+    payload: List[str],
     char_blacklist: List[str],
     allow_unicode_bypass: bool,
     local_scope: dict,
@@ -187,8 +187,6 @@ def parse_payload_list(
     # digits do not work in some cases (like 1.__class__)
     builtin_obj.extend(["'" + i + "'" for i in allowed_letters])
     for path in payload:
-        raw = path[1]
-        path = path[0]
         if cmd:
             if 'COMMAND' in path:
                 path = path.replace('COMMAND', f"'{cmd}'")
@@ -236,7 +234,7 @@ def parse_payload_list(
         if 'MODULE_BUILTINS' in path:
             if 'MODULE_BUILTINS' in generated_path:
                 path = path.replace('MODULE_BUILTINS', generated_path['MODULE_BUILTINS'])
-        output.append([path, raw])
+        output.append(path)
     # if cmd != None: # Then we need to fill in the blanks with the RCE command
     #         CMD = "'" + cmd + "'"
     #         CMD_FILE = '"/bin/' + cmd.split(' ') + "'"
@@ -244,15 +242,15 @@ def parse_payload_list(
 
     return output
 
-def filter_path_list(path_list: list, tagged_scope: dict) -> List[List[str]]:
+def filter_path_list(path_list: list, tagged_scope: dict) -> list:
     """
     return a filtered list of payloads based on the scope
     
     :param path_list: list of payloads to filter
     :param scope: the scope to filter by
-    :return: filtered list of payloads e.g. [payload1: [parent_path1, parent_path2]]
+    :return: filtered list of payloads
     """
-    def check_need(path: str, tagged_scope: dict, need: str) -> Union[list, None]:
+    def check_need(path: str, tagged_scope: dict, need: str) -> Union[str, None]:
         """
         Check if a path needs something in the scope
         
@@ -264,18 +262,17 @@ def filter_path_list(path_list: list, tagged_scope: dict) -> List[List[str]]:
             need_module = sys.modules[need]
             module_dict = get_module_from_tagged_scope(tagged_scope)
             if need_module in module_dict.values():
-                module = get_name_and_object_from_tag('MODULE_'+need.upper(), tagged_scope)[0][0]
-                return [path.replace(need, module), path]# The module is already imported, we don't need to import it again
+                return path.replace(need, get_name_and_object_from_tag('MODULE_'+need.upper(), tagged_scope)[0][0]) # The module is already imported, we don't need to import it again
             # TODO: check if module is already imported, if not, check if we can import modules
         elif need in dir(builtins): # need is a builtin
             need = __builtins__[need]
             for i in tagged_scope:
                 if tagged_scope[i][0] == need:
-                    return [path, path]
+                    return path
         elif is_tag(need): # need is a tag
             for i in tagged_scope:
                 if tagged_scope[i][1] == need:
-                    return [path.replace(need, i), path]
+                    return path.replace(need, i)
         else: # need is a path
             pass # TODO
         return None
