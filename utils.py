@@ -182,6 +182,7 @@ def parse_payload_list(
     output = []
     allowed_letters = [i for i in ascii_letters + '_' if i not in char_blacklist and i not in local_scope]
     builtin_obj = ['[]', '()', '{}', "''"] # list, tuple, dict, string
+    all_objects = [i for i in local_scope if local_scope[i][0].__class__ == type]
     # builtin_obj.extend(allowed_digits)  # This line is only here to tell you that
     # digits do not work in some cases (like 1.__class__)
     builtin_obj.extend(["'" + i + "'" for i in allowed_letters])
@@ -195,19 +196,22 @@ def parse_payload_list(
             continue
         if 'RANDOMSTRING' in path:
             if allowed_letters:
-                output.append(path.replace('RANDOMSTRING', '"'+allowed_letters[0]+'"'))
+                output.append(path.replace('RANDOMSTRING', "'"+allowed_letters[0]+"'"))
             # unicode bypass
             if allow_unicode_bypass:
-                output.append(path.replace('RANDOMSTRING', '"'+generate_unicode_char()+'"'))
+                output.append(path.replace('RANDOMSTRING', "'"+generate_unicode_char()+"'"))
             continue
         if 'BUILTINOBJ' in path: #TODO
             # note: we assume that OBJ tag is in the beginning of the payload
             obj = path.split('.')[0] + '.' + path.split('.')[1]
             if allowed_letters:
-                output.append(path.replace('BUILTINOBJ', '"'+choice(allowed_letters)+'"'))
+                output.append(path.replace('BUILTINOBJ', "'"+choice(allowed_letters)+"'"))
             # unicode bypass
             if allow_unicode_bypass:
-                output.append(path.replace('BUILTINOBJ', '"'+generate_unicode_char()+'"'))
+                output.append(path.replace('BUILTINOBJ', "'"+generate_unicode_char()+"'"))
+        if 'BUILTINTYPE':
+            if all_objects:
+                output.append(path.replace('BUILTINTYPE', choice(all_objects)))
             continue
         if 'GENERATOR' in path:
             if 'GENERATOR' in generated_path:
