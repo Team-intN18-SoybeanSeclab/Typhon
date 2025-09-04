@@ -96,7 +96,7 @@ def bypasser_must_work_with(bypasser_list: List[str]):
 
 
 class BypassGenerator:
-    def __init__(self, payload: str, allow_unicode_bypass: bool, local_scope: dict):
+    def __init__(self, payload: str, allow_unicode_bypass: bool, local_scope: dict, parent_payload: str = ''):
         """
         Initialize the bypass generator with a payload.
         
@@ -104,9 +104,11 @@ class BypassGenerator:
             :param payload: The Python expression/statement to be transformed
             :param allow_unicode_bypass: if unicode bypasses are allowed
             :param local_scope: tagged local scope
+            :param parent_payload: Parent payload of the payload
         """
         self.payload = payload
         self.allow_unicode_bypass = allow_unicode_bypass
+        self.parent_payload = parent_payload
         self.local_scope = local_scope
         self.bypass_methods = []
         for method_name in dir(self):

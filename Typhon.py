@@ -482,7 +482,6 @@ def bypassRCE(
                            interactive=interactive,
                            print_all_payload=print_all_payload,
                            log_level=log_level)
-    print(tagged_scope)
     try_to_restore('__import__2RCE', end_of_prog=True, cmd=cmd)
     
     return bypasses_output(generated_path=generated_path)
