@@ -147,7 +147,7 @@ Try to bypass blacklist with them. Please be paitent.', len(path), data_name)
                     if end_of_prog: exec_with_returns_ = lambda _, __: True
                     else: exec_with_returns_ = exec_with_returns
                     result = exec_with_returns_(i, original_scope)
-                    if (result.__class__ == check or check is None) and not result is None:
+                    if (result.__class__ == check or check is None) and (not result is None or end_of_prog):
                         success = True
                         tagged_scope[i] = [result, data_name_tag]
                         achivements[data_name] = [i, len(_)]
@@ -385,8 +385,6 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                 if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
                     result = exec_with_returns(_, original_scope)
                     if not result is None:
-                        if result.__name__ == 'pty':
-                            print('pty')
                         if result.__name__ == sys.modules[i].__name__:
                             searched_modules[i].append(_)
         print()
@@ -417,6 +415,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
             for i in payload_list:
                 if i not in payload_with_reminder:
                     payload = i
+                    break
             if not payload:
                 payload = payload_with_reminder[0]
             if module == '__builtins__':
