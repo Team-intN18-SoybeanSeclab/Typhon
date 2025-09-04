@@ -187,52 +187,6 @@ def parse_payload_list(
     # digits do not work in some cases (like 1.__class__)
     builtin_obj.extend(["'" + i + "'" for i in allowed_letters])
     for path in payload:
-        if 'RANDOMVARNAME' in path:
-            if allowed_letters:
-                output.append(path.replace('RANDOMVARNAME', allowed_letters[0]))
-            # unicode bypass
-            if allow_unicode_bypass:
-                output.append(path.replace('RANDOMVARNAME', generate_unicode_char()))
-            continue
-        if 'RANDOMSTRING' in path:
-            if allowed_letters:
-                output.append(path.replace('RANDOMSTRING', "'"+allowed_letters[0]+"'"))
-            # unicode bypass
-            if allow_unicode_bypass:
-                output.append(path.replace('RANDOMSTRING', "'"+generate_unicode_char()+"'"))
-            continue
-        if 'BUILTINOBJ' in path: #TODO
-            # note: we assume that OBJ tag is in the beginning of the payload
-            obj = path.split('.')[0] + '.' + path.split('.')[1]
-            if allowed_letters:
-                output.append(path.replace('BUILTINOBJ', "'"+choice(allowed_letters)+"'"))
-            # unicode bypass
-            if allow_unicode_bypass:
-                output.append(path.replace('BUILTINOBJ', "'"+generate_unicode_char()+"'"))
-        if 'BUILTINTYPE':
-            if all_objects:
-                output.append(path.replace('BUILTINTYPE', choice(all_objects)))
-            continue
-        if 'GENERATOR' in path:
-            if 'GENERATOR' in generated_path:
-                output.append(path.replace('GENERATOR', generated_path['GENERATOR']))
-            continue
-        if 'TYPE' in path:
-            if 'TYPE' in generated_path:
-                output.append(path.replace('TYPE', generated_path['TYPE']))
-            continue
-        if 'OBJECT' in path:
-            if 'OBJECT' in generated_path:
-                output.append(path.replace('OBJECT', generated_path['OBJECT']))
-            continue
-        if 'BUILTINS_SET' in path:
-            if 'BUILTINS_SET' in generated_path:
-                output.append(path.replace('BUILTINS_SET', generated_path['BUILTINS_SET']))
-            continue
-        if 'MODULE_BUILTINS' in path:
-            if 'MODULE_BUILTINS' in generated_path:
-                output.append(path.replace('MODULE_BUILTINS', generated_path['MODULE_BUILTINS']))
-            continue
         if cmd:
             if 'COMMAND' in path:
                 path = path.replace('COMMAND', f"'{cmd}'")
@@ -242,6 +196,44 @@ def parse_payload_list(
                 if ' ' not in cmd:
                     path = path.replace('UNFOLD_CMD_ARGS', '')
                 path = path.replace('UNFOLD_CMD_ARGS', ','.join(["'"+i+"'" for i in cmd.split(' ')[1:]]))
+        if 'RANDOMVARNAME' in path:
+            if allowed_letters:
+                path = path.replace('RANDOMVARNAME', allowed_letters[0])
+            # unicode bypass
+            if allow_unicode_bypass:
+                path = path.replace('RANDOMVARNAME', generate_unicode_char())
+        if 'RANDOMSTRING' in path:
+            if allowed_letters:
+                path = path.replace('RANDOMSTRING', "'"+allowed_letters[0]+"'")
+            # unicode bypass
+            if allow_unicode_bypass:
+                path = path.replace('RANDOMSTRING', "'"+generate_unicode_char()+"'")
+        if 'BUILTINOBJ' in path: #TODO
+            # note: we assume that OBJ tag is in the beginning of the payload
+            obj = path.split('.')[0] + '.' + path.split('.')[1]
+            if allowed_letters:
+                path = path.replace('BUILTINOBJ', "'"+choice(allowed_letters)+"'")
+            # unicode bypass
+            if allow_unicode_bypass:
+                path = path.replace('BUILTINOBJ', "'"+generate_unicode_char()+"'")
+        if 'BUILTINTYPE':
+            if all_objects:
+                path = path.replace('BUILTINTYPE', choice(all_objects))
+        if 'GENERATOR' in path:
+            if 'GENERATOR' in generated_path:
+                path = path.replace('GENERATOR', generated_path['GENERATOR'])
+        if 'TYPE' in path:
+            if 'TYPE' in generated_path:
+                path = path.replace('TYPE', generated_path['TYPE'])
+        if 'OBJECT' in path:
+            if 'OBJECT' in generated_path:
+                path = path.replace('OBJECT', generated_path['OBJECT'])
+        if 'BUILTINS_SET' in path:
+            if 'BUILTINS_SET' in generated_path:
+                path = path.replace('BUILTINS_SET', generated_path['BUILTINS_SET'])
+        if 'MODULE_BUILTINS' in path:
+            if 'MODULE_BUILTINS' in generated_path:
+                path = path.replace('MODULE_BUILTINS', generated_path['MODULE_BUILTINS'])
         output.append(path)
     # if cmd != None: # Then we need to fill in the blanks with the RCE command
     #         CMD = "'" + cmd + "'"
