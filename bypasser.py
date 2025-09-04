@@ -585,12 +585,12 @@ class BypassGenerator:
     def unicode_bypasses(self, payload: str, unicode_charset: str) -> str:
         """
         Bypass unicode encoding and decoding.
-        abcdefghijklmnopqrstuvwxyz_ -> 𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻＿ (unicode_charset)
+        abcdefghijklmnopqrstuvwxyz -> 𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻 (unicode_charset)
         """
         # Create mappings: regular -> unicode
         char_map = {}
 
-        for regular, unicode_char in zip(ascii_letters+'_', unicode_charset):
+        for regular, unicode_char in zip(ascii_letters, unicode_charset):
             char_map[regular] = unicode_char
 
         class Transformer(ast.NodeTransformer):
@@ -622,16 +622,16 @@ class BypassGenerator:
         tree = ast.parse(payload, mode='eval')
         new_body = Transformer().visit(tree.body)
         ast.fix_missing_locations(new_body)
-        return ast.unparse(new_body)
+        return ast.unparse(new_body).replace('__', '_＿')
 
     @bypasser_not_work_with(['unicode_replace_2'])
     def unicode_replace_1(self, payload: str) -> str:
         if self.allow_unicode_bypass:
-            payload = self.unicode_bypasses(payload, '𝒶𝒷𝒸𝒹ℯ𝒻ℊ𝒽𝒾𝒿𝓀𝓁𝓂𝓃ℴ𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏𝒜ℬ𝒞𝒟ℰℱ𝒢ℋℐ𝒥𝒦ℒℳ𝒩𝒪𝒫𝒬ℛ𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵＿')
+            payload = self.unicode_bypasses(payload, '𝒶𝒷𝒸𝒹ℯ𝒻ℊ𝒽𝒾𝒿𝓀𝓁𝓂𝓃ℴ𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏𝒜ℬ𝒞𝒟ℰℱ𝒢ℋℐ𝒥𝒦ℒℳ𝒩𝒪𝒫𝒬ℛ𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵')
         return payload
 
     @bypasser_not_work_with(['unicode_replace_1'])
     def unicode_replace_2(self, payload: str) -> str:
         if self.allow_unicode_bypass:
-            payload = self.unicode_bypasses(payload, '𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡＿')
+            payload = self.unicode_bypasses(payload, '𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡')
         return payload
