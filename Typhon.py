@@ -57,6 +57,7 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
            allow_unicode_bypass: bool = False,
            depth: int = 5,
            print_all_payload: bool = False,
+           interactive: bool = True,
            log_level: str = 'INFO') -> None:
     '''
     This is the main function of the Typhon package.
@@ -71,6 +72,7 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
     :param allow_unicode_bypass: if unicode bypasses are allowed.
     :param depth: is the depth that combined bypassing being generarted
     :param print_all_payload: if all payloads should be printed.
+    :param interactive: if the pyjail is a interactive shell that allows stdin. 
     :param log_level: is the logging level, default is INFO, change it to
     DEBUG for more details.
     '''
@@ -184,7 +186,7 @@ Try to bypass blacklist with them. Please be paitent.', len(path), data_name)
     tags = [i[1] for i in tagged_scope.values()]
 
     # Step2: Try to exec directly with simple paths
-    simple_path = filter_path_list(RCE_data['directly_getshell'], tagged_scope)
+    simple_path = filter_path_list(RCE_data['directly_getshell'], tagged_scope) if interactive else []
     if simple_path:
         logger.info('[*] %d paths found to directly getshell. \
 Try to bypass blacklist with them. Please be paitent.', len(simple_path))
@@ -262,7 +264,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                 if not builtin_dict_payload and not builtin_module_payload:
                     logger.info('[-] no way to find a bypass method to restore builtins.')
                 else:
-                    try_to_restore('builtins2RCEinput', end_of_prog=True) # try to RCE directly with builtins
+                    if interactive: try_to_restore('builtins2RCEinput', end_of_prog=True) # try to RCE directly with builtins
             else:
                 logger.info('[-] no way to find a bypass method to restore builtins.')
         else:
@@ -420,9 +422,9 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
     logger.info(get_module_from_tagged_scope(tagged_scope))
 
     # Step11: Try to RCE directly with builtins 
-    if 'BUILTINS_SET' in tags or 'MODULE_BUILTINS' in tags:
+    if ('BUILTINS_SET' in tags or 'MODULE_BUILTINS' in tags) and interactive:
         logger.info('[*] try to RCE directly with builtins.')
-        # try_to_restore('builtins2RCEinput', end_of_prog=True)
+        try_to_restore('builtins2RCEinput', end_of_prog=True)
         
     return generated_path
 
@@ -433,9 +435,10 @@ def bypassRCE(
     banned_ast:list=[],
     banned_re:list=[],
     max_length:int=None,
+    depth:int=5,
     allow_unicode_bypass:bool=False,
-    depth:int=20,
     print_all_payload:bool=False,
+    interactive:bool=True,
     log_level:str='INFO'
 ):
     """
@@ -450,6 +453,7 @@ def bypassRCE(
     :param allow_unicode_bypass: if unicode bypasses are allowed.
     :param depth: is the depth that combined bypassing being generarted
     :param print_all_payload: if all payloads should be printed.
+    :param interactive: if the pyjail is a interactive shell that allows stdin. 
     :param log_level: is the logging level, default is INFO, change it to
     DEBUG for more details.
     """
@@ -463,6 +467,7 @@ def bypassRCE(
                            max_length=max_length,
                            allow_unicode_bypass=allow_unicode_bypass,
                            depth=depth,
+                           interactive=interactive,
                            print_all_payload=print_all_payload,
                            log_level=log_level)
 

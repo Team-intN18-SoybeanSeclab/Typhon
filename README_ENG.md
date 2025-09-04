@@ -43,15 +43,16 @@ pip install TyphonBreaker
 ```python
 import Typhon
 Typhon.bypassRCE(cmd: str,
-    local_scope: Dict[str, Any],
-    banned_chr: list = [],
-    banned_ast: list[ast.AST] = [],
-    banned_re: Union[str, list[str]] = [],
-    allow_unicode_bypass = False,
-    max_length: int = None,
-    depth: int = 5,
-    print_all_payload: bool = False,
-    log_level: str = 'INFO') 
+    local_scope:dict={},
+    banned_chr:list=[],
+    banned_ast:list=[],
+    banned_re:list=[],
+    max_length:int=None,
+    depth:int=5,
+    allow_unicode_bypass:bool=False,
+    print_all_payload:bool=False,
+    interactive:bool=True,
+    log_level:str='INFO')
 ```
 
 `cmd`: bash command used by RCE
@@ -62,6 +63,7 @@ Typhon.bypassRCE(cmd: str,
 `max_length`: Maximum length of payload
 `allow_unicode_bypass`: Whether to allow unicode to bypass
 `print_all_payload`: Whether to print all payloads
+`interaceive`: if the pyjail is a interactive shell that allows stdin. 
 `depth`: Maximum recursion depth (the default value is recommended)
 `log_level`: Output level (only `info` and `debug` are meaningful, no change is recommended)
 
@@ -176,6 +178,11 @@ In this case, CTF players often need to find the index value required by the gad
 - I can't use this payload, can I change it?
 
 You can add the parameters `print_all_payload=True` , Typhon will print all the payloads it generates.
+
+- This WEB challenge doesn't seem to have stdin open, my `exec(input())` didn't work.
+
+You can add `intercative=False` to the argument and Typhon will disable all payloads involving `stdin`.
+
 
 ## Proof of Concept
 

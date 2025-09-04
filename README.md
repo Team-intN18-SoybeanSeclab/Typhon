@@ -43,15 +43,16 @@ pip install TyphonBreaker
 ```python
 import Typhon
 Typhon.bypassRCE(cmd: str,
-    local_scope: Dict[str, Any],
-    banned_chr: list = [],
-    banned_ast: list[ast.AST] = [],
-    banned_re: Union[str, list[str]] = [],
-    allow_unicode_bypass = False,
-    max_length: int = None,
-    depth: int = 5,
-    print_all_payload: bool = False,
-    log_level: str = 'INFO') 
+    local_scope:dict={},
+    banned_chr:list=[],
+    banned_ast:list=[],
+    banned_re:list=[],
+    max_length:int=None,
+    depth:int=5,
+    allow_unicode_bypass:bool=False,
+    print_all_payload:bool=False,
+    interactive:bool=True,
+    log_level:str='INFO')
 ```
 
 `cmd`: RCE所使用的bash command  
@@ -63,6 +64,7 @@ Typhon.bypassRCE(cmd: str,
 `allow_unicode_bypass`: 是否允许unicode绕过  
 `print_all_payload`: 是否打印所有payload  
 `depth`: 最大递归深度（建议使用默认值）  
+`interactive`: 当前pyjail是否允许`stdin`（即如`breakpoint()`等payload是否成立）
 `log_level`: 输出级别（只有`info`和`debug`有意义，不建议更改）  
 
 **Command Line Interface**
@@ -176,6 +178,10 @@ Pyjail中存在一些通过索引寻找对应object的gadgets（如继承链）�
 - 这个payload我用不了能不能换一个
 
 你可以在参数中加上`print_all_payload=True`，Typhon就会打印其生成的所有payload。
+
+- 这个WEB题好像没开放stdin，我`exec(input())`没用
+
+你可以在参数中加上`intercative=False`，Typhon就会禁止使用所有涉及`stdin`的payload。
 
 ## Proof of Concept
 
