@@ -94,6 +94,15 @@ def bypasser_must_work_with(bypasser_list: List[str]):
         return check
     return _
 
+def after_tagging_bypasser(func):
+    """
+    Decorator for bypassers which should be applied after tagging.
+    """
+    func.is_after_tagging_bypasser = True
+    @wraps(func)
+    def check(self, payload):
+        return func(self, payload).replace(' + ', '+').replace(', ', ',')
+    return check
 
 class BypassGenerator:
     def __init__(self, payload: list, allow_unicode_bypass: bool, local_scope: dict, parent_payload: str = ''):
@@ -111,13 +120,14 @@ class BypassGenerator:
         self.allow_unicode_bypass = allow_unicode_bypass
         self.parent_payload = parent_payload
         self.local_scope = local_scope
-        self.bypass_methods = []
+        self.bypass_methods, self.after_tagging_bypassers = [], []
         for method_name in dir(self):
             method = getattr(self, method_name)
             if callable(method):
                 if getattr(method, '_is_bypasser', False):
                     self.bypass_methods.append(method)   
-    
+                elif getattr(method, 'is_after_tagging_bypasser', False):
+                    self.after_tagging_bypassers.append(method)
     def generate_bypasses(self):
         """
         Generate all possible bypass variants by applying each transformation method.
@@ -140,6 +150,9 @@ class BypassGenerator:
                     raise ValueError(f'Tag {j} not found in payload {i}')
                 i = i.replace(j, self.tags[j])
             output.append(i)
+        tmp_output = copy(output)
+        for method in self.after_tagging_bypassers:
+            output.extend([method(i) for i in tmp_output])
         return output
     
     def combine_bypasses(self, payload: List[Union[str, list]], initial_payload: str, depth: int):
@@ -643,7 +656,7 @@ class BypassGenerator:
             payload = self.unicode_bypasses(payload, '𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡')
         return payload
     
-    @general_bypasser
+    @after_tagging_bypasser
     def repr_to_exec(self, payload: str) -> str:
         """
         wraps the payload with exec()
@@ -663,7 +676,7 @@ class BypassGenerator:
             quote = "'"
         return f"{name}({quote}{payload}{quote})"
 
-    @general_bypasser
+    @after_tagging_bypasser
     def repr_to_eval(self, payload: str) -> str:
         """
         wraps the payload with exec()
