@@ -184,7 +184,8 @@ def parse_payload_list(
     output = []
     allowed_letters = [i for i in ascii_letters + '_' if i not in char_blacklist and i not in local_scope]
     builtin_obj = ['[]', '()', '{}', "''"] # list, tuple, dict, string
-    all_objects = [i for i in local_scope if local_scope[i][0].__class__ == type]
+    allowed_objects = [i for i in local_scope if local_scope[i][0].__class__ == type and i not in char_blacklist]
+    allowed_objects.sort(key=len)
     # builtin_obj.extend(allowed_digits)  # This line is only here to tell you that
     # digits do not work in some cases (like 1.__class__)
     builtin_obj.extend(["'" + i + "'" for i in allowed_letters])
@@ -221,23 +222,33 @@ def parse_payload_list(
             if allow_unicode_bypass:
                 payload = payload.replace('BUILTINOBJ', "'"+generate_unicode_char()+"'")
         if 'BUILTINtype' in payload:
-            if all_objects:
-                tags['BUILTINtype'] = choice(all_objects)
+            if allowed_objects:
+                tags['BUILTINtype'] = allowed_objects[0]
         if 'GENERATOR' in payload:
             if 'GENERATOR' in generated_path:
                 tags['GENERATOR'] = generated_path['GENERATOR']
+            if not generated_path['GENERATOR']:
+                continue
         if 'TYPE' in payload:
             if 'TYPE' in generated_path:
                 tags['TYPE'] = generated_path['TYPE']
+            if not generated_path['TYPE']:
+                continue
         if 'OBJECT' in payload:
             if 'OBJECT' in generated_path:
                 tags['OBJECT'] = generated_path['OBJECT']
+            if not generated_path['OBJECT']:
+                continue
         if 'BUILTINS_SET' in payload:
             if 'BUILTINS_SET' in generated_path:
                 tags['BUILTINS_SET'] = generated_path['BUILTINS_SET']
+            if not generated_path['BUILTINS_SET']:
+                continue
         if 'MODULE_BUILTINS' in payload:
             if 'MODULE_BUILTINS' in generated_path:
                 tags['MODULE_BUILTINS'] = generated_path['MODULE_BUILTINS']
+            if not generated_path['MODULE_BUILTINS']:
+                continue
         output.append([payload, tags])
     # if cmd != None: # Then we need to fill in the blanks with the RCE command
     #         CMD = "'" + cmd + "'"
