@@ -142,6 +142,8 @@ class BypassGenerator:
                     and self._allow_after_tagging_bypassers): 
                     raise ValueError(f'Tag {j} not found in payload {i}')
                 i = i.replace(j, self.tags[j])
+                i = i.replace(self.unicode_replace_1(j), self.tags[j])
+                i = i.replace(self.unicode_replace_2(j), self.tags[j])
             output.append(i)
         if self._allow_after_tagging_bypassers:
             from utils import find_object

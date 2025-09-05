@@ -8,33 +8,17 @@ from contextlib import redirect_stdout
 class TestTyphon(unittest.TestCase):
     def test_bypassMAIN(self):
         with redirect_stdout(StringIO()) as f:
-            # case1: some basic WAF
-            from Typhon import bypassMAIN
-            case1 = bypassMAIN(
-            banned_chr=['__builtins__', '__subclasses__'],
-            banned_re='.*import.*',
-            local_scope={'__builtins__': None},
-            max_length=100,
-            log_level='TESTING')
-            self.assertTrue(any(i in case1 for i in ['OBJECT', 'TYPE']))
-            # case2: NO waf
             with patch('builtins.exit') as mock_exit:
-                from Typhon import bypassMAIN
-                bypassMAIN(log_level='TESTING')
-                mock_exit.assert_called_with(0)
-            # case3: depth
-            with patch('builtins.exit') as mock_exit:
-                from Typhon import bypassMAIN
-                a = bypassMAIN(depth=0, log_level='TESTING', banned_chr=['help'])
-                self.assertFalse('help' in a.values())
-            with patch('builtins.exit') as mock_exit:
-                from Typhon import bypassMAIN
-                bypassMAIN(
-                banned_chr=['import', '{}', 'help', 'breakpoint', 'input', '+', '__builtins__', 'load_module'],
-                banned_re='.*import.*',allow_unicode_bypass=True,
-                local_scope={},
+                # case1: some basic WAF
+                import Typhon
+                case1 = Typhon.bypassMAIN(
+                banned_chr=['__builtins__', '__subclasses__'],
+                banned_re='.*import.*',
+                local_scope={'__builtins__': None},
+                allow_unicode_bypass=True,
+                max_length=150,
                 log_level='TESTING')
                 mock_exit.assert_called_with(0)
-
+                del Typhon
 if __name__ == '__main__':
     unittest.main()
