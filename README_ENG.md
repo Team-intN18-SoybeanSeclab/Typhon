@@ -8,7 +8,7 @@ Listen, I'm done with all those stupid dumb dumb CTF pyjail challenges - every t
 
 So this is Typhon, a tool dedicated to solve pyjails without having to a brain.
 
-![image](./image/usage_example.png)
+![image](./image/usage_example.gif)
 
 **Please be sure to finish reading this readme before using the Typhon tool.**
 

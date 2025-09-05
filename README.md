@@ -8,7 +8,7 @@
 
 所以这就是Typhon（提丰），一个致力于让你不需要脑子也能做pyjail的一把梭工具。
 
-![image](./image/usage_example.png)
+![image](./image/usage_example.gif)
 
 **请务必看完本readme后再使用Typhon工具。**
 
