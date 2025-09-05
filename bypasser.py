@@ -136,7 +136,8 @@ class BypassGenerator:
         # bypassed.sort(key=len)
         for i in bypassed:
             for j in self.tags:
-                if j not in i: raise ValueError(f'Tag {j} not found in payload {i}')
+                if j not in i and self.unicode_replace_1(j) not in i and self.unicode_replace_2(j) not in i: 
+                    raise ValueError(f'Tag {j} not found in payload {i}')
                 i = i.replace(j, self.tags[j])
             output.append(i)
         return output
