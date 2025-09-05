@@ -136,14 +136,16 @@ class BypassGenerator:
         # bypassed.sort(key=len)
         for i in bypassed:
             for j in self.tags:
+                tag_unicode_1 = self.unicode_bypasses(j, '𝒶𝒷𝒸𝒹ℯ𝒻ℊ𝒽𝒾𝒿𝓀𝓁𝓂𝓃ℴ𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏𝒜ℬ𝒞𝒟ℰℱ𝒢ℋℐ𝒥𝒦ℒℳ𝒩𝒪𝒫𝒬ℛ𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵')
+                tag_unicode_2 = self.unicode_bypasses(j, '𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡')
                 if (j not in i
-                    and self.unicode_replace_1(j) not in i
-                    and self.unicode_replace_2(j) not in i
+                    and tag_unicode_1 not in i
+                    and tag_unicode_2 not in i
                     and self._allow_after_tagging_bypassers): 
                     raise ValueError(f'Tag {j} not found in payload {i}')
                 i = i.replace(j, self.tags[j])
-                i = i.replace(self.unicode_replace_1(j), self.tags[j])
-                i = i.replace(self.unicode_replace_2(j), self.tags[j])
+                i = i.replace(tag_unicode_1, self.tags[j])
+                i = i.replace(tag_unicode_2, self.tags[j])
             output.append(i)
         if self._allow_after_tagging_bypassers:
             from utils import find_object
