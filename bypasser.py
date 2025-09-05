@@ -94,18 +94,9 @@ def bypasser_must_work_with(bypasser_list: List[str]):
         return check
     return _
 
-def after_tagging_bypasser(func):
-    """
-    Decorator for bypassers which should be applied after tagging.
-    """
-    func.is_after_tagging_bypasser = True
-    @wraps(func)
-    def check(self, payload):
-        return func(self, payload).replace(' + ', '+').replace(', ', ',')
-    return check
 
 class BypassGenerator:
-    def __init__(self, payload: list, allow_unicode_bypass: bool, local_scope: dict, parent_payload: str = ''):
+    def __init__(self, payload: list, allow_unicode_bypass: bool, local_scope: dict, _allow_after_tagging_bypassers: bool = True):
         """
         Initialize the bypass generator with a payload.
         
@@ -113,14 +104,13 @@ class BypassGenerator:
             :param payload: The Python expression/statement to be transformed
             :param allow_unicode_bypass: if unicode bypasses are allowed
             :param local_scope: tagged local scope
-            :param parent_payload: Parent payload of the payload
         """
         self.payload = payload[0]
         self.tags = payload[1]
         self.allow_unicode_bypass = allow_unicode_bypass
-        self.parent_payload = parent_payload
         self.local_scope = local_scope
         self.bypass_methods, self.after_tagging_bypassers = [], []
+        self._allow_after_tagging_bypassers = _allow_after_tagging_bypassers
         for method_name in dir(self):
             method = getattr(self, method_name)
             if callable(method):
@@ -146,13 +136,19 @@ class BypassGenerator:
         # bypassed.sort(key=len)
         for i in bypassed:
             for j in self.tags:
-                if j not in i and self.unicode_replace_1(j) not in i and self.unicode_replace_2(j) not in i: 
+                if (j not in i
+                    and self.unicode_replace_1(j) not in i
+                    and self.unicode_replace_2(j) not in i
+                    and self._allow_after_tagging_bypassers): 
                     raise ValueError(f'Tag {j} not found in payload {i}')
                 i = i.replace(j, self.tags[j])
             output.append(i)
-        tmp_output = copy(output)
-        for method in self.after_tagging_bypassers:
-            output.extend([method(i) for i in tmp_output])
+        if self._allow_after_tagging_bypassers:
+            from utils import find_object
+            if find_object(exec, self.local_scope):
+                output.extend(BypassGenerator([self.repr_to_exec(i), {}], self.allow_unicode_bypass, self.local_scope, _allow_after_tagging_bypassers=False).generate_bypasses())
+            if find_object(eval, self.local_scope):
+                output.extend(BypassGenerator([self.repr_to_eval(i), {}], self.allow_unicode_bypass, self.local_scope, _allow_after_tagging_bypassers=False).generate_bypasses())
         return output
     
     def combine_bypasses(self, payload: List[Union[str, list]], initial_payload: str, depth: int):
@@ -655,8 +651,8 @@ class BypassGenerator:
         if self.allow_unicode_bypass:
             payload = self.unicode_bypasses(payload, '𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡')
         return payload
-    
-    @after_tagging_bypasser
+
+    # @after_tagging_bypasser
     def repr_to_exec(self, payload: str) -> str:
         """
         wraps the payload with exec()
@@ -676,7 +672,7 @@ class BypassGenerator:
             quote = "'"
         return f"{name}({quote}{payload}{quote})"
 
-    @after_tagging_bypasser
+    # @after_tagging_bypasser
     def repr_to_eval(self, payload: str) -> str:
         """
         wraps the payload with exec()
