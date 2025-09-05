@@ -120,6 +120,8 @@ def tag_variables(variables, change_in_builtins) -> list:
         # Check if it's a class
         if inspect.isclass(obj):
                     # Check if it's an exception
+            if obj == Exception:
+                tagged[name] = 'EXCEPTION'
             if issubclass(obj.__class__, BaseException):
                 tagged[name] = 'EXCEPTION_{}'.format(obj.__name__.upper())
                 continue
@@ -159,7 +161,7 @@ def is_tag(string: str) -> bool:
     """
     prefix = ('USER_DEFINED_', 'MODULE_', 'EXCEPTION_')
     fixed_tag = ['BUILTINS_SET', 'BUILTINS_SET_CHANGED', 'BUILTINS', 'UNKNOWN', 
-                 'TYPE', 'OBJECT', 'GENERATOR']
+                 'TYPE', 'OBJECT', 'GENERATOR', 'EXCEPTION']
     return (string.startswith(prefix) or string in fixed_tag)
 
 def parse_payload_list(

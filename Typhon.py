@@ -13,9 +13,6 @@ import logging
 from inspect import currentframe
 from typing import Any, Dict, Union
 
-from os import environ
-environ["PYTHONUTF8"] = "1"
-
 if __name__ == '__main__':
     print('This is the main file of the Typhon package. \
 Please run bypass*() function to bypass the sandbox.')
@@ -78,7 +75,7 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
     '''
     global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder
     useful_modules = ['os', 'subprocess', 'uuid', 'pydoc', '_posixsubprocess',
-        'multiprocessing', '__builtins__', 'codecs', 'warnings',
+        'multiprocessing', 'builtins', 'codecs', 'warnings',
         'importlib', 'weakref', 'reprlib', 'sys', 'linecache', 'pty']
     log_level_ = log_level.upper()
     if log_level_ not in ['DEBUG', 'INFO', 'TESTING']:
@@ -361,7 +358,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
     # Step9: Try to restore __import__
     try_to_restore('import')
     try_to_restore('load_module')
-    try_to_restore('modules', sys.modules.__class__)
+    try_to_restore('modules')
     
     # Step10: Try to import modules
     if 'IMPORT' in tags:
@@ -428,6 +425,11 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                 tags.append(tag)
                 generated_path[tag] = payload
                 achivements[module] = [payload, len(searched_modules[module])]
+            
+    # Again, try to restore __import__
+    try_to_restore('import')
+    try_to_restore('load_module')
+    try_to_restore('modules')    
     
     logger.info("[*] modules we have found:")
     logger.info(get_module_from_tagged_scope(tagged_scope))

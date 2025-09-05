@@ -126,6 +126,7 @@
         ["(RANDOMVARNAME for RANDOMVARNAME in ()).gi_frame",""],
         ["(await RANDOMVARNAME for RANDOMVARNAME in ()).ag_frame",""],
         ["try:1/0\nexcept EXCEPTION_ZERODIVISIONERROR as e:e.__traceback__.tb_frame","EXCEPTION_ZERODIVISIONERROR"],
+        ["try:1/0\nexcept Exception as e:e.__traceback__.tb_frame","EXCEPTION"],
         ["async def a():pass;a().cr_frame",""]
     ],
     "type": [
