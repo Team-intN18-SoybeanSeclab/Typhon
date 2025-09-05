@@ -144,6 +144,7 @@ Try to bypass blacklist with them. Please be paitent.', len(path), data_name)
                     if end_of_prog: exec_with_returns_ = lambda _, __: True
                     else: exec_with_returns_ = exec_with_returns
                     result = exec_with_returns_(i, original_scope)
+                    original_scope.pop('__return__', None)
                     if (result.__class__ == check or check is None) and (not result is None or end_of_prog):
                         success = True
                         tagged_scope[i] = [result, data_name_tag]
@@ -174,7 +175,6 @@ Try to bypass blacklist with them. Please be paitent.', len(path), data_name)
     # not using | for backward compatibility
     local_scope = merge_dicts(local_scope['__builtins__'], local_scope)
     tagged_scope = tag_scope(local_scope, change_in_builtins)
-    all_objects = [i[0] for i in tagged_scope.values()]
     # check if we got an UNKNOWN tag
     for i in tagged_scope:
         if tagged_scope[i][0] == 'UNKNOWN':
@@ -237,6 +237,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                 builtin_dict_payload, builtin_module_payload = None, None
                 for i in _:
                     check_result = exec_with_returns(i, original_scope)
+                    original_scope.pop('__return__', None)
                     if (check_result == __builtins__ 
                         and type(check_result) == dict):
                         if not builtin_dict_found_count:
@@ -290,6 +291,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                 builtin_dict_payload, builtin_module_payload = None, None
                 for i in _:
                     check_result = exec_with_returns(i, original_scope)
+                    original_scope.pop('__return__', None)
                     if (check_result == __builtins__ 
                         and type(check_result) == dict):
                         if not builtin_dict_found_count:
@@ -369,6 +371,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
             for _ in BypassGenerator(module_path, allow_unicode_bypass=allow_unicode_bypass, local_scope=tagged_scope).generate_bypasses():
                 if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
                     result = exec_with_returns(_, original_scope)
+                    original_scope.pop('__return__', None)
                     if not result is None:
                         if result.__name__ == sys.modules[i].__name__:
                             searched_modules[i].append(_)
@@ -381,6 +384,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
             for _ in BypassGenerator(module_path, allow_unicode_bypass=allow_unicode_bypass, local_scope=tagged_scope).generate_bypasses():
                 if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
                     result = exec_with_returns(_, original_scope)
+                    original_scope.pop('__return__', None)
                     if not result is None:
                         if result.__name__ == sys.modules[i].__name__:
                             searched_modules[i].append(_)
@@ -393,6 +397,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
             for _ in BypassGenerator(module_path, allow_unicode_bypass=allow_unicode_bypass, local_scope=tagged_scope).generate_bypasses():
                 if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
                     result = exec_with_returns(_, original_scope)
+                    original_scope.pop('__return__', None)
                     if not result is None:
                         if result.__name__ == sys.modules[i].__name__:
                             searched_modules[i].append(_)
@@ -420,6 +425,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
             else:
                 tag = 'MODULE_'+module.upper()
             result = exec_with_returns(payload, original_scope)
+            original_scope.pop('__return__', None)
             if result:
                 tagged_scope[payload] = [result, tag]
                 tags.append(tag)

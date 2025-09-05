@@ -651,6 +651,8 @@ class BypassGenerator:
         """
         from utils import find_object
         name = find_object(exec, self.local_scope)
+        if name is None:
+            return payload
         single_comma = payload.find("'")
         double_comma = payload.find('"')
         if single_comma > double_comma:
@@ -671,6 +673,8 @@ class BypassGenerator:
             return payload
         from utils import find_object
         name = find_object(eval, self.local_scope)
+        if name is None:
+            return payload
         single_comma = payload.find("'")
         double_comma = payload.find('"')
         if single_comma > double_comma:

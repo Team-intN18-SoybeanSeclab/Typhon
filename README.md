@@ -126,7 +126,7 @@ def safe_run(cmd):
     Typhon.bypassRCE(cmd,
     banned_chr=['__builtins__', 'import', '{}'],
     banned_re='.*import.*',
-    local_scope={'__builtins__': None},
+    local_scope={'__builtins__': {}},
     max_length=160)
 
 safe_run(input("Enter command: "))
