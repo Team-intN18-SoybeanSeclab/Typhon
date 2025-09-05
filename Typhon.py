@@ -337,8 +337,11 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                         payload = [f"OBJECT.__subclasses__()[{index}].__init__.__globals__['{j}']", {'OBJECT': object_path}]
                         for _ in BypassGenerator(payload, allow_unicode_bypass=allow_unicode_bypass, local_scope=tagged_scope).generate_bypasses():
                             if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
-                                searched_modules_tmp[j].append(_)
-                                reminder[_] = f'{index} is the index of {i.__name__}, path to {j} must fit in index of {i.__name__}'
+                                result = exec_with_returns(_, original_scope)
+                                original_scope.pop('__return__', None)
+                                if not result is None:
+                                    searched_modules_tmp[j].append(_)
+                                    reminder[_] = f'{index} is the index of {i.__name__}, path to {j} must fit in index of {i.__name__}'
                             continue
             except AttributeError:
                 pass

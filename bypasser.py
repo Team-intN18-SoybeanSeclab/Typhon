@@ -598,6 +598,45 @@ class BypassGenerator:
         ast.fix_missing_locations(new_body)
         return emit_min(new_body, name)
     
+    @bypasser_must_work_with(['string_to_bytes'])
+    def nested_bytes_decoder(self, payload: str) -> str:
+        '''
+        bytes([97]) -> bytes([97]).decode()
+        '''
+        tree = ast.parse(payload)
+        
+        class NestedBytesTransformer(ast.NodeTransformer):
+            def visit_Call(self, node):
+                node = self.generic_visit(node)
+                
+                if (isinstance(node.func, ast.Name) and 
+                    node.func.id == 'bytes' and 
+                    len(node.args) == 1):
+                    
+                    arg = node.args[0]
+                    if (isinstance(arg, ast.List) and
+                        len(arg.elts) > 0 and
+                        all(isinstance(elt, ast.Constant) and 
+                            isinstance(elt.value, int) for elt in arg.elts)):
+                        
+                        return ast.Call(
+                            func=ast.Attribute(
+                                value=node,
+                                attr='decode',
+                                ctx=ast.Load()
+                            ),
+                            args=[],
+                            keywords=[]
+                        )
+                
+                return node
+        
+        transformer = NestedBytesTransformer()
+        modified_tree = transformer.visit(tree)
+        ast.fix_missing_locations(modified_tree)
+        
+        return ast.unparse(modified_tree)
+    
     def unicode_bypasses(self, payload: str, unicode_charset: str) -> str:
         """
         Bypass unicode encoding and decoding.
