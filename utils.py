@@ -252,7 +252,7 @@ def filter_path_list(path_list: list, tagged_scope: dict) -> List[list]:
     :param scope: the scope to filter by
     :return: filtered list of payloads, with its tags e.g. ['TYPE.__base__', {'TYPE': 'int.__class__'}]
     """
-    def check_need(path: str, tagged_scope: dict, need: str) -> Union[str, None]:
+    def check_need(path: Union[str, list], tagged_scope: dict, need: str) -> Union[str, None]:
         """
         Check if a path needs something in the scope
         
@@ -260,24 +260,29 @@ def filter_path_list(path_list: list, tagged_scope: dict) -> List[list]:
         :param scope: the scope to check in
         :return: the payload if the need is met, None otherwise
         """
+        if isinstance(path, list):
+            tags = path[1]
+            path = path[0]
+        else:
+            tags = {}
         if need in sys.modules: # need is a module
             need_module = sys.modules[need]
             module_dict = get_module_from_tagged_scope(tagged_scope)
             if need_module in module_dict.values():
-                return [path, {need: get_name_and_object_from_tag('MODULE_'+need.upper(), tagged_scope)[0][0]}] # The module is already imported, we don't need to import it again
+                tags[need] = get_name_and_object_from_tag('MODULE_'+need.upper(), tagged_scope)[0][0] # The module is already imported, we don't need to import it again
+                return [path, tags]
             # TODO: check if module is already imported, if not, check if we can import modules
         elif need in dir(builtins): # need is a builtin
             need = __builtins__[need]
             for i in tagged_scope:
                 if tagged_scope[i][0] == need:
-                    return [path, {}]
+                    return [path, tags]
         elif is_tag(need): # need is a tag
             for i in tagged_scope:
                 if tagged_scope[i][1] == need:
                     if need in path:
-                        return [path, {need: i}]
-                    else:
-                        return [path, {}]
+                        tags[need] = i
+                    return [path, tags]
         else: # need is a path
             pass # TODO
         return None
