@@ -86,7 +86,7 @@ def tag_variables(variables, change_in_builtins) -> list:
     for name, obj in variables.items():
         # Check if it's a builtin object
         if name in builtins_set:
-            tagged[name] = 'BUILTINS'
+            tagged[name] = f'BUILTINS_{name}'
             continue
         if obj == object:
             tagged[name] = 'OBJECT'
@@ -159,8 +159,8 @@ def is_tag(string: str) -> bool:
     :param string: The string to check
     :return: True if the string is a valid tag, False otherwise
     """
-    prefix = ('USER_DEFINED_', 'MODULE_', 'EXCEPTION_')
-    fixed_tag = ['BUILTINS_SET', 'BUILTINS_SET_CHANGED', 'BUILTINS', 'UNKNOWN', 
+    prefix = ('USER_DEFINED_', 'MODULE_', 'EXCEPTION_', 'BUILTINS_')
+    fixed_tag = ['BUILTINS_SET', 'BUILTINS_SET_CHANGED', 'UNKNOWN', 
                  'TYPE', 'OBJECT', 'GENERATOR', 'EXCEPTION']
     return (string.startswith(prefix) or string in fixed_tag)
 
@@ -286,10 +286,10 @@ def filter_path_list(path_list: list, tagged_scope: dict) -> List[list]:
                 return [path, tags]
             # TODO: check if module is already imported, if not, check if we can import modules
         elif need in dir(builtins): # need is a builtin
-            need = __builtins__[need]
+            need_obj = __builtins__[need]
             for i in tagged_scope:
-                if tagged_scope[i][0] == need:
-                    return [path, tags]
+                if tagged_scope[i][0] == need_obj:
+                    return [path.replace(need, i), tags]
         elif is_tag(need): # need is a tag
             for i in tagged_scope:
                 if tagged_scope[i][1] == need:
