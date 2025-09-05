@@ -4,9 +4,11 @@
 
 **This tool is currently in the PoC stage and does not have practical capabilities yet, nor has it been released on any platform (pip, github, etc.). However, since the basic functions have been implemented, we welcome everyone to try and provide feedback. Currently, you can try `bypassMAIN` Functions to experience the functions of this tool. At present, you can read [Proof of Concept](#proof-of-concept) to partly understand the core ideas of this tool.**
 
-Listen, I've had enough of those stupid dumb dumb CTF pyjail challenges - every time I'm wasting time finding which chain is not filtered between a stinky blacklist and various pyjail summary, or running `dir()` one by one in the namespace Find something that can be used. This is simply torture.
+Listen, I'm done with all those stupid dumb dumb CTF pyjail challenges - every time I'm wasting time finding which chain is not filtered between a stinky blacklist and various pyjail summary, or running `dir()` one by one in the namespace Find something that can be used. This is simply torture.
 
 So this is Typhon, a tool dedicated to solve pyjails without having to a brain.
+
+![image](./image/usage_example.png)
 
 **Please be sure to finish reading this readme before using the Typhon tool.**
 
