@@ -163,7 +163,7 @@ def is_tag(string: str) -> bool:
     return (string.startswith(prefix) or string in fixed_tag)
 
 def parse_payload_list(
-    payload: List[str],
+    payload: List[list],
     char_blacklist: List[str],
     allow_unicode_bypass: bool,
     local_scope: dict,
@@ -176,7 +176,7 @@ def parse_payload_list(
     :param allow_unicode_bypass: if unicode bypasses are allowed.
     :param local_scope: the local scope to use for tag analysis
     :param cmd: the final RCE command to execute, default None
-    :return: list of payloads
+    :return: filtered list of payloads, with its tags e.g. ['TYPE.__base__', {'TYPE': 'int.__class__'}]
     """
     from Typhon import generated_path
     output = []
@@ -187,54 +187,56 @@ def parse_payload_list(
     # digits do not work in some cases (like 1.__class__)
     builtin_obj.extend(["'" + i + "'" for i in allowed_letters])
     for path in payload:
+        tags = path[1]
+        payload = path[0]
         if cmd:
-            if 'COMMAND' in path:
-                path = path.replace('COMMAND', f"'{cmd}'")
-            if 'CMD_FILE' in path:
-                path = path.replace('CMD_FILE', "'/bin/" + cmd.split(' ')[0] + "'")
-            if 'UNFOLD_CMD_ARGS' in path:
+            if 'COMMAND' in payload:
+                payload = payload.replace('COMMAND', f"'{cmd}'")
+            if 'CMD_FILE' in payload:
+                payload = payload.replace('CMD_FILE', "'/bin/" + cmd.split(' ')[0] + "'")
+            if 'UNFOLD_CMD_ARGS' in payload:
                 if ' ' not in cmd:
-                    path = path.replace('UNFOLD_CMD_ARGS', '')
-                path = path.replace('UNFOLD_CMD_ARGS', ','.join(["'"+i+"'" for i in cmd.split(' ')[1:]]))
-        if 'RANDOMVARNAME' in path:
+                    payload = payload.replace('UNFOLD_CMD_ARGS', '')
+                payload = payload.replace('UNFOLD_CMD_ARGS', ','.join(["'"+i+"'" for i in cmd.split(' ')[1:]]))
+        if 'RANDOMVARNAME' in payload:
             if allowed_letters:
-                path = path.replace('RANDOMVARNAME', allowed_letters[0])
+                payload = payload.replace('RANDOMVARNAME', allowed_letters[0])
             # unicode bypass
             if allow_unicode_bypass:
-                path = path.replace('RANDOMVARNAME', generate_unicode_char())
-        if 'RANDOMSTRING' in path:
+                payload = payload.replace('RANDOMVARNAME', generate_unicode_char())
+        if 'RANDOMSTRING' in payload:
             if allowed_letters:
-                path = path.replace('RANDOMSTRING', "'"+allowed_letters[0]+"'")
+                payload = payload.replace('RANDOMSTRING', "'"+allowed_letters[0]+"'")
             # unicode bypass
             if allow_unicode_bypass:
-                path = path.replace('RANDOMSTRING', "'"+generate_unicode_char()+"'")
-        if 'BUILTINOBJ' in path: #TODO
+                payload = payload.replace('RANDOMSTRING', "'"+generate_unicode_char()+"'")
+        if 'BUILTINOBJ' in payload: #TODO
             # note: we assume that OBJ tag is in the beginning of the payload
-            obj = path.split('.')[0] + '.' + path.split('.')[1]
+            obj = payload.split('.')[0] + '.' + payload.split('.')[1]
             if allowed_letters:
-                path = path.replace('BUILTINOBJ', "'"+choice(allowed_letters)+"'")
+                payload = payload.replace('BUILTINOBJ', "'"+choice(allowed_letters)+"'")
             # unicode bypass
             if allow_unicode_bypass:
-                path = path.replace('BUILTINOBJ', "'"+generate_unicode_char()+"'")
-        if 'BUILTINTYPE':
+                payload = payload.replace('BUILTINOBJ', "'"+generate_unicode_char()+"'")
+        if 'BUILTINtype' in payload:
             if all_objects:
-                path = path.replace('BUILTINTYPE', choice(all_objects))
-        if 'GENERATOR' in path:
+                tags['BUILTINtype'] = choice(all_objects)
+        if 'GENERATOR' in payload:
             if 'GENERATOR' in generated_path:
-                path = path.replace('GENERATOR', generated_path['GENERATOR'])
-        if 'TYPE' in path:
+                tags['GENERATOR'] = generated_path['GENERATOR']
+        if 'TYPE' in payload:
             if 'TYPE' in generated_path:
-                path = path.replace('TYPE', generated_path['TYPE'])
-        if 'OBJECT' in path:
+                tags['TYPE'] = generated_path['TYPE']
+        if 'OBJECT' in payload:
             if 'OBJECT' in generated_path:
-                path = path.replace('OBJECT', generated_path['OBJECT'])
-        if 'BUILTINS_SET' in path:
+                tags['OBJECT'] = generated_path['OBJECT']
+        if 'BUILTINS_SET' in payload:
             if 'BUILTINS_SET' in generated_path:
-                path = path.replace('BUILTINS_SET', generated_path['BUILTINS_SET'])
-        if 'MODULE_BUILTINS' in path:
+                tags['BUILTINS_SET'] = generated_path['BUILTINS_SET']
+        if 'MODULE_BUILTINS' in payload:
             if 'MODULE_BUILTINS' in generated_path:
-                path = path.replace('MODULE_BUILTINS', generated_path['MODULE_BUILTINS'])
-        output.append(path)
+                tags['MODULE_BUILTINS'] = generated_path['MODULE_BUILTINS']
+        output.append([payload, tags])
     # if cmd != None: # Then we need to fill in the blanks with the RCE command
     #         CMD = "'" + cmd + "'"
     #         CMD_FILE = '"/bin/' + cmd.split(' ') + "'"
@@ -242,13 +244,13 @@ def parse_payload_list(
 
     return output
 
-def filter_path_list(path_list: list, tagged_scope: dict) -> list:
+def filter_path_list(path_list: list, tagged_scope: dict) -> List[list]:
     """
     return a filtered list of payloads based on the scope
     
     :param path_list: list of payloads to filter
     :param scope: the scope to filter by
-    :return: filtered list of payloads
+    :return: filtered list of payloads, with its tags e.g. ['TYPE.__base__', {'TYPE': 'int.__class__'}]
     """
     def check_need(path: str, tagged_scope: dict, need: str) -> Union[str, None]:
         """
@@ -262,17 +264,20 @@ def filter_path_list(path_list: list, tagged_scope: dict) -> list:
             need_module = sys.modules[need]
             module_dict = get_module_from_tagged_scope(tagged_scope)
             if need_module in module_dict.values():
-                return path.replace(need, get_name_and_object_from_tag('MODULE_'+need.upper(), tagged_scope)[0][0]) # The module is already imported, we don't need to import it again
+                return [path, {need: get_name_and_object_from_tag('MODULE_'+need.upper(), tagged_scope)[0][0]}] # The module is already imported, we don't need to import it again
             # TODO: check if module is already imported, if not, check if we can import modules
         elif need in dir(builtins): # need is a builtin
             need = __builtins__[need]
             for i in tagged_scope:
                 if tagged_scope[i][0] == need:
-                    return path
+                    return [path, {}]
         elif is_tag(need): # need is a tag
             for i in tagged_scope:
                 if tagged_scope[i][1] == need:
-                    return path.replace(need, i)
+                    if need in path:
+                        return [path, {need: i}]
+                    else:
+                        return [path, {}]
         else: # need is a path
             pass # TODO
         return None
@@ -297,7 +302,7 @@ def filter_path_list(path_list: list, tagged_scope: dict) -> list:
                 if path:
                     filtered_list.append(path)
         else: # we don't need anything in this path
-            filtered_list.append(path)
+            filtered_list.append([path, {}])
     return filtered_list
 
 def is_blacklisted(payload, banned_char, banned_AST, banned_re, max_length) -> bool:

@@ -96,7 +96,7 @@ def bypasser_must_work_with(bypasser_list: List[str]):
 
 
 class BypassGenerator:
-    def __init__(self, payload: str, allow_unicode_bypass: bool, local_scope: dict, parent_payload: str = ''):
+    def __init__(self, payload: list, allow_unicode_bypass: bool, local_scope: dict, parent_payload: str = ''):
         """
         Initialize the bypass generator with a payload.
         
@@ -106,7 +106,8 @@ class BypassGenerator:
             :param local_scope: tagged local scope
             :param parent_payload: Parent payload of the payload
         """
-        self.payload = payload
+        self.payload = payload[0]
+        self.tags = payload[1]
         self.allow_unicode_bypass = allow_unicode_bypass
         self.parent_payload = parent_payload
         self.local_scope = local_scope
@@ -131,9 +132,14 @@ class BypassGenerator:
         combined = self.combine_bypasses([self.payload, []], self.payload, search_depth)
         bypassed.extend(combined)
         bypassed = remove_duplicate(bypassed) # Remove duplicates
+        output = []
         # bypassed.sort(key=len)
-        
-        return bypassed
+        for i in bypassed:
+            for j in self.tags:
+                if j not in i: raise ValueError(f'Tag {j} not found in payload {i}')
+                i = i.replace(j, self.tags[j])
+            output.append(i)
+        return output
     
     def combine_bypasses(self, payload: List[Union[str, list]], initial_payload: str, depth: int):
         """
