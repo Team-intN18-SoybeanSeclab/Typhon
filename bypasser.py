@@ -87,8 +87,14 @@ def bypasser_must_work_with(bypasser_list: List[str]):
             for i in payload[1]:
                 if i == func.__name__:
                     return None # Do not do the same bypass
+            success = False
             for j in bypasser_list:
-                if not any(i == j for i in payload[1]):
+                for k in payload[1]:
+                    if k == j:
+                        success = True
+                        break
+                if success: break
+            if not success:
                     return None # Do not work without this
             return func(self, payload[0]).replace(' + ', '+').replace(', ', ',')
         return check
@@ -272,6 +278,7 @@ class BypassGenerator:
     #     tree = ast.parse(payload, mode='eval')
     #     new_tree = Transformer().visit(tree)
     #     return ast.unparse(new_tree)
+
     @bypasser_not_work_with(
         ['numbers_to_hex_base', 'numbers_to_oct_base', 'encode_string_hex'])
     def numbers_to_binary_base(self, payload):
@@ -542,7 +549,7 @@ class BypassGenerator:
         return emit_min(new_body, name)
 
     @bypasser_must_work_with(['string_slicing'])
-    def string_to_bytes(self, payload: str) -> str:
+    def string_to_bytes_plus(self, payload: str) -> str:
         '''
         'a'+'b'+'c' -> bytes([97])+bytes([98])+bytes([99])
         '''
@@ -601,8 +608,36 @@ class BypassGenerator:
         new_body = Transformer().visit(tree.body)
         ast.fix_missing_locations(new_body)
         return emit_min(new_body, name)
-    
-    @bypasser_must_work_with(['string_to_bytes'])
+
+    @general_bypasser
+    def string_to_bytes_comma(self, payload: str) -> str:
+        """
+        'abc' -> bytes([97, 98, 99])
+        """
+        tree = ast.parse(payload)
+        
+        class PreservingStringTransformer(ast.NodeTransformer):
+            def visit_Constant(self, node):
+                if isinstance(node.value, str):  
+                    byte_values = [ord(char) for char in node.value]
+                    
+                    return ast.Call(
+                        func=ast.Name(id='bytes', ctx=ast.Load()),
+                        args=[ast.List(
+                            elts=[ast.Constant(value=byte_val) for byte_val in byte_values],
+                            ctx=ast.Load()
+                        )],
+                        keywords=[]
+                    )
+                
+                return node
+        
+        transformer = PreservingStringTransformer()
+        modified_tree = transformer.visit(tree)
+        ast.fix_missing_locations(modified_tree)
+        return ast.unparse(modified_tree).replace(', ', ',')
+
+    @bypasser_must_work_with(['string_to_bytes_plus', 'string_to_bytes_comma'])
     def nested_bytes_decoder(self, payload: str) -> str:
         '''
         bytes([97]) -> bytes([97]).decode()
