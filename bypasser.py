@@ -159,6 +159,10 @@ class BypassGenerator:
                 output.extend(BypassGenerator([self.repr_to_exec(i), {}], self.allow_unicode_bypass, self.local_scope, _allow_after_tagging_bypassers=False).generate_bypasses())
             if find_object(eval, self.local_scope):
                 output.extend(BypassGenerator([self.repr_to_eval(i), {}], self.allow_unicode_bypass, self.local_scope, _allow_after_tagging_bypassers=False).generate_bypasses())
+            output.append(self.numbers_to_binary_base(i))
+            output.append(self.numbers_to_hex_base(i))
+            output.append(self.numbers_to_oct_base(i))
+            output = remove_duplicate(output)
         return output
     
     def combine_bypasses(self, payload: List[Union[str, list]], initial_payload: str, depth: int):
@@ -258,8 +262,7 @@ class BypassGenerator:
     #     new_tree = Transformer().visit(tree)
     #     return ast.unparse(new_tree)
 
-    @bypasser_not_work_with(
-        ['numbers_to_hex_base', 'numbers_to_oct_base', 'encode_string_hex'])
+    # @after_tagging_bypasser
     def numbers_to_binary_base(self, payload):
         """
         Convert numbers to binary base (e.g., 42 → 0b101010).
@@ -281,8 +284,7 @@ class BypassGenerator:
         except (SyntaxError, AttributeError):
             return payload
 
-    @bypasser_not_work_with(
-        ['numbers_to_hex_base', 'numbers_to_oct_base', 'encode_string_hex'])
+    # @after_tagging_bypasser
     def numbers_to_oct_base(self, payload):
         """
         Convert numbers to oct base.
@@ -297,12 +299,14 @@ class BypassGenerator:
                     return ast.Constant(value=f'0o{placeholder}{oct(node.value)[2:]}{placeholder}')
                 return node
 
-        tree = ast.parse(payload, mode='eval')
-        new_tree = Transformer().visit(tree)
-        return ast.unparse(new_tree).replace(f'\'0o{placeholder}', '0o').replace(f'{placeholder}\'', '')
+        try:
+            tree = ast.parse(payload, mode='eval')
+            new_tree = Transformer().visit(tree)
+            return ast.unparse(new_tree).replace(f'\'0o{placeholder}', '0o').replace(f'{placeholder}\'', '')
+        except (SyntaxError, AttributeError):
+            return payload
 
-    @bypasser_not_work_with(
-        ['numbers_to_hex_base', 'numbers_to_oct_base', 'encode_string_hex'])
+    # @after_tagging_bypasser
     def numbers_to_hex_base(self, payload):
         """
         Convert numbers to hex base.
@@ -317,9 +321,12 @@ class BypassGenerator:
                     return ast.Constant(value=f'0x{placeholder}{hex(node.value)[2:]}{placeholder}')
                 return node
 
-        tree = ast.parse(payload, mode='eval')
-        new_tree = Transformer().visit(tree)
-        return ast.unparse(new_tree).replace(f'\'0x{placeholder}', '0x').replace(f'{placeholder}\'', '')
+        try:
+            tree = ast.parse(payload, mode='eval')
+            new_tree = Transformer().visit(tree)
+            return ast.unparse(new_tree).replace(f'\'0x{placeholder}', '0x').replace(f'{placeholder}\'', '')
+        except (SyntaxError, AttributeError):
+            return payload
 
     # @general_bypasser
     # def obfuscate_func_call(self, payload):
