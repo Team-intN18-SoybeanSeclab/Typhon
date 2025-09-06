@@ -193,28 +193,7 @@ class BypassGenerator:
             variants.append(new_payload)
             variants.extend(self.combine_bypasses([new_payload, _[1]], initial_payload, depth-1))
         return variants
-    
-    # def attr_to_subscript(self, payload):
-    #     """
-    #     Convert attribute access (a.b) to subscript notation (a["b"]).
-        
-    #     Args:
-    #         payload (str): Input payload
-            
-    #     Returns:
-    #         str: Transformed payload
-    #     """
-    #     class Transformer(ast.NodeTransformer):
-    #         def visit_Attribute(self, node):
-    #             return ast.Subscript(
-    #                 value=self.visit(node.value),
-    #                 slice=ast.Constant(value=node.attr),
-    #                 ctx=ast.Load()
-    #             )
-        
-    #     tree = ast.parse(payload, mode='eval')
-    #     new_tree = Transformer().visit(tree)
-    #     return ast.unparse(new_tree)
+
     @general_bypasser
     def encode_string_hex(self, payload):
         """

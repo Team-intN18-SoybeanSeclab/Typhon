@@ -250,10 +250,6 @@ def parse_payload_list(
             if not generated_path['MODULE_BUILTINS']:
                 continue
         output.append([payload, tags])
-    # if cmd != None: # Then we need to fill in the blanks with the RCE command
-    #         CMD = "'" + cmd + "'"
-    #         CMD_FILE = '"/bin/' + cmd.split(' ') + "'"
-    #         CMD_UNFOLD_ARGS = ','.join() # TODO
 
     return output
 

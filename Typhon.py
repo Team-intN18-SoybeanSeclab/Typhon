@@ -495,3 +495,49 @@ def bypassRCE(
     try_to_restore('__import__2RCE', end_of_prog=True, cmd=cmd)
     
     return bypasses_output(generated_path=generated_path)
+
+# def bypassREAD(
+#     filepath,
+#     local_scope:dict={},
+#     banned_chr:list=[],
+#     banned_ast:list=[],
+#     banned_re:list=[],
+#     max_length:int=None,
+#     depth:int=5,
+#     allow_unicode_bypass:bool=False,
+#     print_all_payload:bool=False,
+#     interactive:bool=True,
+#     log_level:str='INFO'
+# ):
+#     """
+#     The main function to try to RCE in sandbox.
+    
+#     :param filepath: path to target file (e.g. /etc/passwd).
+#     :param local_scope: is a list of local variables in the sandbox environment.
+#     :param banned_chr: is a list of blacklisted characters.
+#     :param banned_ast: is a list of banned AST.
+#     :param banned_re: is a banned regex.
+#     :param max_length: is the maximum length of the payload.
+#     :param allow_unicode_bypass: if unicode bypasses are allowed.
+#     :param depth: is the depth that combined bypassing being generarted
+#     :param print_all_payload: if all payloads should be printed.
+#     :param interactive: if the pyjail is a interactive shell that allows stdin. 
+#     :param log_level: is the logging level, default is INFO, change it to
+#     DEBUG for more details.
+#     """
+#     if filepath == '':
+#         logger.critical('[!] filepath is empty, nothing to read.')
+#         exit(0)
+#     generated_path = bypassMAIN(local_scope,
+#                            banned_chr=banned_chr,
+#                            banned_ast=banned_ast,
+#                            banned_re=banned_re,
+#                            max_length=max_length,
+#                            allow_unicode_bypass=allow_unicode_bypass,
+#                            depth=depth,
+#                            interactive=interactive,
+#                            print_all_payload=print_all_payload,
+#                            log_level=log_level)
+#     try_to_restore('getfilecontent', cmd=filepath, end_of_prog=True)
+    
+#     return bypasses_output(generated_path=generated_path)
