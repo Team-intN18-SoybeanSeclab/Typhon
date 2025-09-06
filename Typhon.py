@@ -75,7 +75,7 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
     '''
     global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder
     useful_modules = ['os', 'subprocess', 'uuid', 'pydoc', '_posixsubprocess',
-        'multiprocessing', 'builtins', 'codecs', 'warnings',
+        'multiprocessing', 'builtins', 'codecs', 'warnings', 'base64',
         'importlib', 'weakref', 'reprlib', 'sys', 'linecache', 'pty']
     log_level_ = log_level.upper()
     if log_level_ not in ['DEBUG', 'INFO', 'TESTING']:
@@ -377,7 +377,8 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                     original_scope.pop('__return__', None)
                     if not result is None:
                         if result.__name__ == sys.modules[i].__name__:
-                            searched_modules[i].append(_)
+                            try: searched_modules[i].append(_)
+                            except KeyError: pass
         print()
     if 'LOAD_MODULE' in tags:
         logger.info('[*] try to import modules with LOAD_MODULE path.')
@@ -390,7 +391,8 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                     original_scope.pop('__return__', None)
                     if not result is None:
                         if result.__name__ == sys.modules[i].__name__:
-                            searched_modules[i].append(_)
+                            try: searched_modules[i].append(_)
+                            except KeyError: pass
         print()
     if 'MODULES' in tags:
         logger.info('[*] try to import modules with MODULES path.')
@@ -403,7 +405,8 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                     original_scope.pop('__return__', None)
                     if not result is None:
                         if result.__name__ == sys.modules[i].__name__:
-                            searched_modules[i].append(_)
+                            try: searched_modules[i].append(_)
+                            except KeyError: pass
         print()
     
     # merge searched_modules to tagged_scope

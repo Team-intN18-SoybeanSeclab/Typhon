@@ -1,4 +1,5 @@
 import ast
+import base64
 
 from Typhon import logger
 from typing import Union, List
@@ -239,6 +240,10 @@ class BypassGenerator:
     #     Returns:
     #         str: Transformed payload
     #     """
+    #     from utils import find_object
+    #     base_64_name = find_object(base64, self.local_scope)
+    #     if base_64_name is None:
+    #         return payload
     #     class Transformer(ast.NodeTransformer):
     #         def visit_Constant(self, node):
     #             if isinstance(node.value, str):
@@ -246,7 +251,7 @@ class BypassGenerator:
     #                 return ast.Call(
     #                     func=ast.Attribute(
     #                         value=ast.Call(
-    #                             func=ast.Name(id='base64.b64decode', ctx=ast.Load()),
+    #                             func=ast.Name(id=base_64_name+'.b64decode', ctx=ast.Load()),
     #                             args=[ast.Constant(value=encoded)],
     #                             keywords=[]
     #                         ),
@@ -600,6 +605,11 @@ class BypassGenerator:
         """
         'abc' -> bytes([97, 98, 99])
         """
+        from utils import find_object
+        name = find_object(bytes, self.local_scope)
+        if name is None:
+            return payload
+
         tree = ast.parse(payload)
         
         class PreservingStringTransformer(ast.NodeTransformer):
@@ -608,7 +618,7 @@ class BypassGenerator:
                     byte_values = [ord(char) for char in node.value]
                     
                     return ast.Call(
-                        func=ast.Name(id='bytes', ctx=ast.Load()),
+                        func=ast.Name(id=name, ctx=ast.Load()),
                         args=[ast.List(
                             elts=[ast.Constant(value=byte_val) for byte_val in byte_values],
                             ctx=ast.Load()
@@ -757,3 +767,28 @@ class BypassGenerator:
         else:
             quote = "'"
         return f"{name}({quote}{payload}{quote})"
+
+    @bypasser_must_work_with(['string_to_str_join'])
+    def empty_string_to_str_object(self, payload:str) -> str:
+        '''
+        "".join([]) -> chr().join([])
+        '''
+        from utils import find_object
+        string_name = find_object(str, self.local_scope)
+        if string_name is None: return payload
+        class Transformer(ast.NodeTransformer):
+            def visit_Constant(self, node):
+                if isinstance(node.value, str) and node.value == '':
+                    return ast.Call(
+                        func=ast.Name(id=string_name, ctx=ast.Load()),
+                        args=[],
+                        keywords=[]
+                    )
+                return node
+            
+            def visit_Expr(self, node):
+                self.generic_visit(node)
+                return node
+        tree = ast.parse(payload, mode='eval')
+        new_tree = Transformer().visit(tree)
+        return ast.unparse(new_tree)

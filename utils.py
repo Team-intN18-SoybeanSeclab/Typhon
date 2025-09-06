@@ -7,6 +7,10 @@ from bypasser import *
 from string import ascii_letters, digits
 from types import FunctionType, ModuleType
 
+prefix = ('USER_DEFINED_', 'MODULE_', 'EXCEPTION_', 'BUILTINS_')
+fixed_tag = ['BUILTINS_SET', 'BUILTINS_SET_CHANGED', 'UNKNOWN', 
+                'TYPE', 'OBJECT', 'GENERATOR', 'EXCEPTION']
+
 def get_name_and_object_from_tag(tag: str, tagged_scope: dict):
     """
     Get the name and object from a tag.
@@ -59,7 +63,7 @@ def exec_with_returns(code: str, scope: dict):
         exec(modified_code, scope)
         return scope.get('__return__')
     except Exception as e:
-        logger.debug(f'Error executing code when testing payloads: {e}')
+        logger.debug(f'Error executing code when testing payload {code}: {e}')
         return None
 
 def merge_dicts(dict1: dict, dict2: dict) -> dict:
@@ -159,9 +163,6 @@ def is_tag(string: str) -> bool:
     :param string: The string to check
     :return: True if the string is a valid tag, False otherwise
     """
-    prefix = ('USER_DEFINED_', 'MODULE_', 'EXCEPTION_', 'BUILTINS_')
-    fixed_tag = ['BUILTINS_SET', 'BUILTINS_SET_CHANGED', 'UNKNOWN', 
-                 'TYPE', 'OBJECT', 'GENERATOR', 'EXCEPTION']
     return (string.startswith(prefix) or string in fixed_tag)
 
 def parse_payload_list(
@@ -183,12 +184,12 @@ def parse_payload_list(
     from Typhon import generated_path
     output = []
     allowed_letters = [i for i in ascii_letters + '_' if i not in char_blacklist and i not in local_scope]
-    builtin_obj = ['[]', '()', '{}', "''"] # list, tuple, dict, string
+    allowed_builtin_obj = [i for i in ['[]', '()', '{}', "''", '""'] if i not in char_blacklist] # list, tuple, dict, string
     allowed_objects = [i for i in local_scope if local_scope[i][0].__class__ == type and i not in char_blacklist]
     allowed_objects.sort(key=len)
     # builtin_obj.extend(allowed_digits)  # This line is only here to tell you that
     # digits do not work in some cases (like 1.__class__)
-    builtin_obj.extend(["'" + i + "'" for i in allowed_letters])
+    
     for path in payload:
         tags = path[1]
         payload = path[0]
@@ -216,14 +217,15 @@ def parse_payload_list(
         if 'BUILTINOBJ' in payload: #TODO
             # note: we assume that OBJ tag is in the beginning of the payload
             obj = payload.split('.')[0] + '.' + payload.split('.')[1]
-            if allowed_letters:
-                payload = payload.replace('BUILTINOBJ', "'"+choice(allowed_letters)+"'")
-            # unicode bypass
-            if allow_unicode_bypass:
-                payload = payload.replace('BUILTINOBJ', "'"+generate_unicode_char()+"'")
+            if allowed_builtin_obj:
+                payload = payload.replace('BUILTINOBJ', choice(allowed_builtin_obj))
+            else:
+                continue
         if 'BUILTINtype' in payload:
             if allowed_objects:
                 tags['BUILTINtype'] = allowed_objects[0]
+            else:
+                continue
         if 'GENERATOR' in payload:
             if 'GENERATOR' in generated_path:
                 tags['GENERATOR'] = generated_path['GENERATOR']
