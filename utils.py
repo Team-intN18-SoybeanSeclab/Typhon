@@ -423,6 +423,9 @@ def bypasses_output(bypassed_payload: Union[str, list] = None, generated_path: l
         bypassed_path.extend(bypassed_payload)
     bypassed_path.extend(achivements.values())
     for i in bypassed_path:
+        if isinstance(i, list):
+            i = i[0]
+        if i is None: continue
         for j in reminder:
             if j in i and j not in printed_reminder:
                 printed_reminder.append(j)

@@ -600,6 +600,25 @@ class BypassGenerator:
         ast.fix_missing_locations(new_body)
         return emit_min(new_body, name)
 
+    @bypasser_must_work_with(['string_slicing'])
+    def string_from_string_dict(self, payload: str) -> str:
+        '''
+        There is a globals dict in Typhon, which contains all the string constants found in the scope.
+        e.g. {'b': bytes.__doc__[0]}
+        This bypasser replaces string constants with their corresponding values in the globals dict.
+        'b' -> bytes.__doc__[0]
+        '''
+        from Typhon import string_dict
+        class Transformer(ast.NodeTransformer):
+            def visit_Constant(self, node):
+                if isinstance(node.value, str) and node.value in string_dict:
+                    return ast.Name(id=string_dict[node.value])
+                return node
+        tree = ast.parse(payload, mode='eval')
+        new_body = Transformer().visit(tree.body)
+        ast.fix_missing_locations(new_body)
+        return ast.unparse(new_body)
+
     @general_bypasser
     def string_to_bytes_comma(self, payload: str) -> str:
         """

