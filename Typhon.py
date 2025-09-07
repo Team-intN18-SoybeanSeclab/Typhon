@@ -257,9 +257,12 @@ Try to bypass blacklist with them. Please be paitent.",
                 if j not in string_dict:
                     payload = i + ".__doc__[" + str(index) + "]"
                     string_dict[j] = payload
-                    reminder[payload] = (
-                        f"index {index} of {payload} must match the string literal {j}."
-                    )
+                    for _ in BypassGenerator(
+                        [payload, []], allow_unicode_bypass, tagged_scope
+                    ).generate_bypasses():
+                        reminder[_] = (
+                            f"index {index} of {payload} must match the string literal {j}."
+                        )
     logger.debug("[*] string literals found: %s", string_dict)
 
     # Step2: Try to exec directly with simple paths
