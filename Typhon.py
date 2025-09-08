@@ -61,9 +61,9 @@ def bypassMAIN(
     banned_re: Union[str, List[str]] = [],
     max_length: int = None,
     allow_unicode_bypass: bool = False,
-    depth: int = 5,
     print_all_payload: bool = False,
     interactive: bool = True,
+    depth: int = 5,
     log_level: str = "INFO",
 ) -> None:
     """
@@ -667,10 +667,10 @@ def bypassRCE(
     banned_ast: list = [],
     banned_re: list = [],
     max_length: int = None,
-    depth: int = 5,
     allow_unicode_bypass: bool = False,
     print_all_payload: bool = False,
     interactive: bool = True,
+    depth: int = 5,
     log_level: str = "INFO",
 ):
     """
@@ -699,9 +699,9 @@ def bypassRCE(
         banned_re=banned_re,
         max_length=max_length,
         allow_unicode_bypass=allow_unicode_bypass,
-        depth=depth,
         interactive=interactive,
         print_all_payload=print_all_payload,
+        depth=depth,
         log_level=log_level,
     )
     try_to_restore("__import__2RCE", end_of_prog=True, cmd=cmd)

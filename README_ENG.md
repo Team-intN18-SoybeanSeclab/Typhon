@@ -2,7 +2,7 @@
 
 [简体中文](./README.md) | English
 
-**This tool is currently in the PoC stage and does not have practical capabilities yet, nor has it been released on any platform (pip, github, etc.). However, since the basic functions have been implemented, we welcome everyone to try and provide feedback. Currently, you can try `bypassMAIN` Functions to experience the functions of this tool. At present, you can read [Proof of Concept](#proof-of-concept) to partly understand the core ideas of this tool.**
+**This tool is currently in the PoC stage and does not have practical capabilities yet, nor has it been released on any platform (pip, github, etc.). However, since the basic functions have been implemented, we welcome everyone to try and provide feedback. Currently, you can try `bypassRCE` Functions to experience the functions of this tool. At present, you can read [Proof of Concept](#proof-of-concept) to partly understand the core ideas of this tool.**
 
 Listen, I'm done with all those stupid dumb dumb CTF pyjail challenges - every time I'm wasting time finding which chain is not filtered between a stinky blacklist and various pyjail summary, or running `dir()` one by one in the namespace Find something that can be used. This is simply torture.
 
@@ -27,12 +27,13 @@ So this is Typhon, a tool dedicated to solve pyjails without having to a brain.
 - You can complete pyjail challenges without a brain, take care of your brain cells and eyeballs
 - Have thousands of gadgets and almost all mainstream bypass methods
 - Supports multiple functions to achieve different functions, such as RCE `bypassRCE()`, for reading files `bypassRead()` etc.
+- Not relying on any third-party libraries.
 
 ## How to Use
 
 ### Install
 
-Typhon has been released on pypi. You can use pip to install:
+When I finish the development of this tool, I will release it on pypi. You can use pip to install:
 
 ```
 pip install TyphonBreaker
@@ -50,10 +51,10 @@ Typhon.bypassRCE(cmd: str,
     banned_ast:list=[],
     banned_re:list=[],
     max_length:int=None,
-    depth:int=5,
     allow_unicode_bypass:bool=False,
     print_all_payload:bool=False,
     interactive:bool=True,
+    depth:int=5,
     log_level:str='INFO')
 ```
 

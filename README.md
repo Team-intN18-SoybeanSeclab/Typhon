@@ -2,7 +2,7 @@
 
 简体中文 | [English](./README_ENG.md)
 
-**本工具目前处于PoC阶段，尚不具备实战能力，也没有在任何平台发布版本（pip，github，etc.）。然而由于基本功能已经实现，我们欢迎各位尝试使用并提供反馈。目前，你可以尝试使用`bypassMAIN`函数来体验本工具的功能。当前阶段，你可以通过阅读[Proof of Concept](#proof-of-concept)部分来了解本工具的核心思路。**
+**本工具目前处于PoC阶段，尚不具备实战能力，也没有在任何平台发布版本（pip，github，etc.）。然而由于基本功能已经实现，我们欢迎各位尝试使用并提供反馈。目前，你可以尝试使用`bypassRCE`函数来体验本工具的功能。当前阶段，你可以通过阅读[Proof of Concept](#proof-of-concept)部分来了解本工具的核心思路。**
 
 听着，我已经受够那些愚蠢的CTF pyjail题目了——每次我都要浪费时间在又臭又长的黑名单和各种pyjail总结之间找哪个链子没被过滤，或者在命名空间里一个一个运行`dir()`去找能用的东西。这简直就是一种折磨。
 
@@ -27,12 +27,13 @@
 - 不需要大脑就能完成pyjail题目，爱护您的脑细胞和眼球
 - 拥有上千条gadgets和几乎所有主流的bypass方法
 - 支持多种函数以达成不同功能，如RCE用`bypassRCE()`, 读文件用`bypassRead()`等等
+- 不依赖任何第三方库，使用纯python3实现
 
 ## How to Use
 
 ### Install
 
-Typhon已经在pypi发布。你可以使用pip进行安装：
+等功能实现完成，Typhon将会在pypi发布。那时你可以使用pip进行安装：
 
 ```
 pip install TyphonBreaker
@@ -50,10 +51,10 @@ Typhon.bypassRCE(cmd: str,
     banned_ast:list=[],
     banned_re:list=[],
     max_length:int=None,
-    depth:int=5,
     allow_unicode_bypass:bool=False,
     print_all_payload:bool=False,
     interactive:bool=True,
+    depth:int=5,
     log_level:str='INFO')
 ```
 
@@ -64,9 +65,9 @@ Typhon.bypassRCE(cmd: str,
 `banned_re`: 禁止的正则表达式（列表或字符串）  
 `max_length`: payload的最大长度  
 `allow_unicode_bypass`: 是否允许unicode绕过  
-`print_all_payload`: 是否打印所有payload  
-`depth`: 最大递归深度（建议使用默认值）  
+`print_all_payload`: 是否打印所有payload   
 `interactive`: 当前pyjail是否允许`stdin`（即如`breakpoint()`等payload是否成立）
+`depth`: 最大递归深度（建议使用默认值） 
 `log_level`: 输出级别（只有`info`和`debug`有意义，不建议更改）  
 
 **Command Line Interface**
