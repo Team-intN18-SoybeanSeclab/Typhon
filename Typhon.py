@@ -677,7 +677,7 @@ def bypassRCE(
     allow_unicode_bypass: bool = False,
     print_all_payload: bool = False,
     interactive: bool = True,
-    depth: int = 3,
+    depth: int = 5,
     log_level: str = "INFO",
 ):
     """

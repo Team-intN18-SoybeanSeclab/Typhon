@@ -128,6 +128,7 @@ class BypassGenerator:
         allow_unicode_bypass: bool,
         local_scope: dict,
         _allow_after_tagging_bypassers: bool = True,
+        search_depth: Union[int, None] = None,
     ):
         """
         Initialize the bypass generator with a payload.
@@ -143,6 +144,9 @@ class BypassGenerator:
         self.local_scope = local_scope
         self.bypass_methods, self.after_tagging_bypassers = [], []
         self._allow_after_tagging_bypassers = _allow_after_tagging_bypassers
+        if search_depth is None:
+            from Typhon import search_depth
+        self.search_depth = search_depth
         for method_name in dir(self):
             method = getattr(self, method_name)
             if callable(method):
@@ -158,63 +162,66 @@ class BypassGenerator:
         Returns:
             list: List of unique transformed payloads
         """
-        bypassed = [self.payload]
+        try:
+            output = []
+            bypassed = [self.payload]
 
-        from Typhon import (
-            search_depth,
-        )  # The maximum search depth for combined bypassing
+            # Generate combinations of dmultiple bypasses
+            combined = self.combine_bypasses([self.payload, []], self.payload, self.search_depth)
+            bypassed.extend(combined)
+            bypassed = remove_duplicate(bypassed)  # Remove duplicates
+            output.extend(bypassed)
+            # bypassed.sort(key=len)
+            for i in bypassed:
+                for j in self.tags:
+                    tag_unicode_1 = self.unicode_bypasses(
+                        j, "𝒶𝒷𝒸𝒹ℯ𝒻ℊ𝒽𝒾𝒿𝓀𝓁𝓂𝓃ℴ𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏𝒜ℬ𝒞𝒟ℰℱ𝒢ℋℐ𝒥𝒦ℒℳ𝒩𝒪𝒫𝒬ℛ𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵"
+                    )
+                    tag_unicode_2 = self.unicode_bypasses(
+                        j, "𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡"
+                    )
+                    if (
+                        j not in i
+                        and tag_unicode_1 not in i
+                        and tag_unicode_2 not in i
+                        and self._allow_after_tagging_bypassers
+                    ):
+                        raise ValueError(f"Tag {j} not found in payload {i}")
+                    i = i.replace(j, self.tags[j])
+                    i = i.replace(tag_unicode_1, self.tags[j])
+                    i = i.replace(tag_unicode_2, self.tags[j])
+                output.append(i)
+            if self._allow_after_tagging_bypassers:
+                from utils import find_object
 
-        # Generate combinations of multiple bypasses
-        combined = self.combine_bypasses([self.payload, []], self.payload, search_depth)
-        bypassed.extend(combined)
-        bypassed = remove_duplicate(bypassed)  # Remove duplicates
-        output = []
-        # bypassed.sort(key=len)
-        for i in bypassed:
-            for j in self.tags:
-                tag_unicode_1 = self.unicode_bypasses(
-                    j, "𝒶𝒷𝒸𝒹ℯ𝒻ℊ𝒽𝒾𝒿𝓀𝓁𝓂𝓃ℴ𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏𝒜ℬ𝒞𝒟ℰℱ𝒢ℋℐ𝒥𝒦ℒℳ𝒩𝒪𝒫𝒬ℛ𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵"
-                )
-                tag_unicode_2 = self.unicode_bypasses(
-                    j, "𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡"
-                )
-                if (
-                    j not in i
-                    and tag_unicode_1 not in i
-                    and tag_unicode_2 not in i
-                    and self._allow_after_tagging_bypassers
-                ):
-                    raise ValueError(f"Tag {j} not found in payload {i}")
-                i = i.replace(j, self.tags[j])
-                i = i.replace(tag_unicode_1, self.tags[j])
-                i = i.replace(tag_unicode_2, self.tags[j])
-            output.append(i)
-        if self._allow_after_tagging_bypassers:
-            from utils import find_object
-
-            if find_object(exec, self.local_scope):
-                output.extend(
-                    BypassGenerator(
-                        [self.repr_to_exec(i), {}],
-                        self.allow_unicode_bypass,
-                        self.local_scope,
-                        _allow_after_tagging_bypassers=False,
-                    ).generate_bypasses()
-                )
-            if find_object(eval, self.local_scope):
-                output.extend(
-                    BypassGenerator(
-                        [self.repr_to_eval(i), {}],
-                        self.allow_unicode_bypass,
-                        self.local_scope,
-                        _allow_after_tagging_bypassers=False,
-                    ).generate_bypasses()
-                )
-            output.append(self.numbers_to_binary_base(i))
-            output.append(self.numbers_to_hex_base(i))
-            output.append(self.numbers_to_oct_base(i))
-            output = remove_duplicate(output)
-        return output
+                if find_object(exec, self.local_scope):
+                    output.extend(
+                        BypassGenerator(
+                            [self.repr_to_exec(i), {}],
+                            self.allow_unicode_bypass,
+                            self.local_scope,
+                            _allow_after_tagging_bypassers=False,
+                            search_depth=self.search_depth//2
+                        ).generate_bypasses()
+                    )
+                if find_object(eval, self.local_scope):
+                    output.extend(
+                        BypassGenerator(
+                            [self.repr_to_eval(i), {}],
+                            self.allow_unicode_bypass,
+                            self.local_scope,
+                            _allow_after_tagging_bypassers=False,
+                            search_depth=self.search_depth//2
+                        ).generate_bypasses()
+                    )
+                output.append(self.numbers_to_binary_base(i))
+                output.append(self.numbers_to_hex_base(i))
+                output.append(self.numbers_to_oct_base(i))  
+        except RecursionError:
+            logger.debug(f"RecursionError in {self.payload}")
+        finally:
+            output = remove_duplicate(output) 
+            return output
 
     def combine_bypasses(
         self, payload: List[Union[str, list]], initial_payload: str, depth: int
