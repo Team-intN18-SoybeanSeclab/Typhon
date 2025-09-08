@@ -249,7 +249,13 @@ Try to bypass blacklist with them. Please be paitent.",
     }
     obj_list = [i for i in tagged_scope]
     obj_list.sort(key=len)
-    for i in obj_list:
+    for i in range(32, 127):
+        if not is_blacklisted(f"'{chr(i)}'", banned_chr, banned_ast, banned_re, max_length):
+            string_dict[chr(i)] = f"'{chr(i)}'"
+        elif not is_blacklisted(f"'{chr(i)}'", banned_chr, banned_ast, banned_re, max_length):
+            string_dict[chr(i)] = f'"{chr(i)}"'
+    for index_, i in enumerate(obj_list):
+        progress_bar(index_+1, len(obj_list))
         obj = tagged_scope[i][0]
         doc = getattr(obj, "__doc__", None)
         if doc:
@@ -268,6 +274,7 @@ Try to bypass blacklist with them. Please be paitent.",
                             f"index {index} of {payload} must match the string literal {j}."
                         )
                         break
+    print()
     logger.debug("[*] string literals found: %s", string_dict)
 
     # Step2: Try to exec directly with simple paths
@@ -670,7 +677,7 @@ def bypassRCE(
     allow_unicode_bypass: bool = False,
     print_all_payload: bool = False,
     interactive: bool = True,
-    depth: int = 5,
+    depth: int = 3,
     log_level: str = "INFO",
 ):
     """

@@ -16,7 +16,6 @@ class TestTyphon(unittest.TestCase):
                 case1 = Typhon.bypassMAIN(
                     banned_chr=["__builtins__", "__subclasses__"],
                     banned_re=".*import.*",
-                    local_scope={"__builtins__": None},
                     allow_unicode_bypass=True,
                     max_length=150,
                     log_level="TESTING",
