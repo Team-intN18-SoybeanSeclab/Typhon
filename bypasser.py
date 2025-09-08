@@ -214,7 +214,6 @@ class BypassGenerator:
             output.append(self.numbers_to_hex_base(i))
             output.append(self.numbers_to_oct_base(i))
             output = remove_duplicate(output)
-        output.sort(key=len)
         return output
 
     def combine_bypasses(
