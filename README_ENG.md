@@ -58,17 +58,17 @@ Typhon.bypassRCE(cmd: str,
     log_level:str='INFO')
 ```
 
-`cmd`: bash command used by RCE
-`local_scope`: Global variable space in the sandbox
-`banned_chr`: Forbidden characters
-`banned_ast`: Prohibited AST node
-`banned_re`: Forbidden regular expression (list or string)
-`max_length`: Maximum length of payload
-`allow_unicode_bypass`: Whether to allow unicode to bypass
-`print_all_payload`: Whether to print all payloads
-`interaceive`: if the pyjail is a interactive shell that allows stdin. 
-`depth`: Maximum recursion depth (the default value is recommended)
-`log_level`: Output level (only `info` and `debug` are meaningful, no change is recommended)
+`cmd`: bash command used by RCE   
+`local_scope`: Global variable space in the sandbox   
+`banned_chr`: Forbidden characters   
+`banned_ast`: Prohibited AST node   
+`banned_re`: Forbidden regular expression (list or string)   
+`max_length`: Maximum length of payload   
+`allow_unicode_bypass`: Whether to allow unicode to bypass   
+`print_all_payload`: Whether to print all payloads   
+`interaceive`: if the pyjail is a interactive shell that allows stdin.    
+`depth`: Maximum recursion depth (the default value is recommended)   
+`log_level`: Output level (only `info` and `debug` are meaningful, no change is recommended)   
 
 **Command Line Interface**
 
