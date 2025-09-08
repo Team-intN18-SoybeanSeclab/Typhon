@@ -449,7 +449,6 @@ def try_bypasses(
             continue
     if pathlist and log_level_ != "DEBUG":
         sys.stdout.write("\n")
-    successful_payloads.sort(key=len)
     return successful_payloads
 
 
