@@ -167,7 +167,9 @@ class BypassGenerator:
             bypassed = [self.payload]
 
             # Generate combinations of dmultiple bypasses
-            combined = self.combine_bypasses([self.payload, []], self.payload, self.search_depth)
+            combined = self.combine_bypasses(
+                [self.payload, []], self.payload, self.search_depth
+            )
             bypassed.extend(combined)
             bypassed = remove_duplicate(bypassed)  # Remove duplicates
             # bypassed.sort(key=len)
@@ -193,6 +195,9 @@ class BypassGenerator:
             if self._allow_after_tagging_bypassers:
                 from utils import find_object
 
+                output.append(self.numbers_to_binary_base(i))
+                output.append(self.numbers_to_hex_base(i))
+                output.append(self.numbers_to_oct_base(i))
                 if find_object(exec, self.local_scope):
                     output.extend(
                         BypassGenerator(
@@ -200,7 +205,7 @@ class BypassGenerator:
                             self.allow_unicode_bypass,
                             self.local_scope,
                             _allow_after_tagging_bypassers=False,
-                            search_depth=self.search_depth//2
+                            search_depth=self.search_depth // 2,
                         ).generate_bypasses()
                     )
                 if find_object(eval, self.local_scope):
@@ -210,16 +215,13 @@ class BypassGenerator:
                             self.allow_unicode_bypass,
                             self.local_scope,
                             _allow_after_tagging_bypassers=False,
-                            search_depth=self.search_depth//2
+                            search_depth=self.search_depth // 2,
                         ).generate_bypasses()
                     )
-                output.append(self.numbers_to_binary_base(i))
-                output.append(self.numbers_to_hex_base(i))
-                output.append(self.numbers_to_oct_base(i))  
         except RecursionError:
             logger.debug(f"RecursionError in {self.payload}")
         finally:
-            output = remove_duplicate(output) 
+            output = remove_duplicate(output)
             return output
 
     def combine_bypasses(
