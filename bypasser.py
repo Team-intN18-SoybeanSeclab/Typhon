@@ -214,6 +214,7 @@ class BypassGenerator:
             output.append(self.numbers_to_hex_base(i))
             output.append(self.numbers_to_oct_base(i))
             output = remove_duplicate(output)
+        output.sort(key=len)
         return output
 
     def combine_bypasses(
@@ -274,6 +275,31 @@ class BypassGenerator:
         tree = ast.parse(payload, mode="eval")
         new_tree = Transformer().visit(tree)
         return unescape_double_backslash(ast.unparse(new_tree))
+
+    @general_bypasser
+    def transform_attribute_to_getattr(self, payload: str) -> str:
+        """
+        'a.b' -> 'getattr(a, "b")'
+        """
+        from utils import find_object
+
+        name = find_object(getattr, self.local_scope)
+        if name is None:
+            return payload
+        tree = ast.parse(payload, mode="eval")
+
+        class Transformer(ast.NodeTransformer):
+            def visit_Attribute(self, node):
+                return ast.Call(
+                    func=ast.Name(id=name, ctx=ast.Load()),
+                    args=[self.visit(node.value), ast.Constant(value=node.attr)],
+                    keywords=[],
+                )
+
+        transformer = Transformer()
+        transformed_tree = transformer.visit(tree)
+        ast.fix_missing_locations(transformed_tree)
+        return ast.unparse(transformed_tree)
 
     @general_bypasser
     def switch_quotes(self, payload):
