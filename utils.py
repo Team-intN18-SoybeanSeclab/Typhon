@@ -199,14 +199,9 @@ def parse_payload_list(
     :param cmd: the final RCE command to execute, default None
     :return: filtered list of payloads, with its tags e.g. ['TYPE.__base__', {'TYPE': 'int.__class__'}]
     """
-    from Typhon import generated_path
+    from Typhon import generated_path, allowed_letters
 
     output = []
-    allowed_letters = [
-        i
-        for i in ascii_letters + "_"
-        if i not in char_blacklist and i not in local_scope
-    ]
     allowed_builtin_obj = [
         i for i in ["[]", "()", "{}", "''", '""'] if i not in char_blacklist
     ]  # list, tuple, dict, string

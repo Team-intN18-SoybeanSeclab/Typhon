@@ -323,7 +323,7 @@ class BypassGenerator:
         return ast.unparse(transformed_tree)
 
     @general_bypasser
-    def switch_quotes(self, payload):
+    def switch_quotes(self, payload: str) -> str:
         """
         Change " to ' and ' to "
         """
@@ -375,7 +375,7 @@ class BypassGenerator:
     #     return ast.unparse(new_tree)
 
     # @after_tagging_bypasser
-    def numbers_to_binary_base(self, payload):
+    def numbers_to_binary_base(self, payload: str) -> str:
         """
         Convert numbers to binary base (e.g., 42 → 0b101010).
         """
@@ -403,7 +403,7 @@ class BypassGenerator:
             return payload
 
     # @after_tagging_bypasser
-    def numbers_to_oct_base(self, payload):
+    def numbers_to_oct_base(self, payload: str) -> str:
         """
         Convert numbers to oct base.
         """
@@ -431,7 +431,7 @@ class BypassGenerator:
             return payload
 
     # @after_tagging_bypasser
-    def numbers_to_hex_base(self, payload):
+    def numbers_to_hex_base(self, payload: str) -> str:
         """
         Convert numbers to hex base.
         """
@@ -458,43 +458,52 @@ class BypassGenerator:
         except (SyntaxError, AttributeError):
             return payload
 
-    # @general_bypasser
-    # def obfuscate_func_call(self, payload):
-    #     """
-    #     Obfuscate function calls using lambda wrappers.
-    #     """
-    #     class Transformer(ast.NodeTransformer):
-    #         def visit_Call(self, node):
-    #             if isinstance(node.func, ast.Lambda):
-    #                 return node
-    #             try:
-    #                 return ast.Call(
-    #                     func=ast.Lambda(
-    #                         args=ast.arguments(
-    #                             posonlyargs=[],
-    #                             args=[ast.arg(arg='a'), ast.arg(arg='b')],
-    #                             kwonlyargs=[],
-    #                             kw_defaults=[],
-    #                             defaults=[]
-    #                         ),
-    #                         body=ast.Call(
-    #                             func=ast.Name(id='a', ctx=ast.Load()),
-    #                             args=[ast.Name(id='b', ctx=ast.Load())],
-    #                             keywords=[]
-    #                         )
-    #                     ),
-    #                     args=[node.func, node.args[0]],
-    #                     keywords=[]
-    #                 )
-    #             except IndexError:
-    #                 return node
+    @general_bypasser
+    def obfuscate_func_call(self, payload: str) -> str:
+        """
+        Obfuscate function calls using lambda wrappers with support for multiple arguments.
+        """
+        from Typhon import allowed_letters
 
-    #     tree = ast.parse(payload, mode='eval')
-    #     new_tree = Transformer().visit(tree)
-    #     return ast.unparse(new_tree)
+        class Transformer(ast.NodeTransformer):
+            def visit_Call(self, node):
+                if isinstance(node.func, ast.Lambda):
+                    return node
+                num_args = len(node.args)
+                try:
+                    param_names = [
+                        allowed_letters[i] for i in range(num_args + 1)
+                    ]  # a, b, c, ...
+                except IndexError:
+                    return node  # Too many arguments
+                lambda_args = [ast.arg(arg=name) for name in param_names]
+                call_args = [
+                    ast.Name(id=name, ctx=ast.Load()) for name in param_names[1:]
+                ]
+                lambda_func = ast.Lambda(
+                    args=ast.arguments(
+                        posonlyargs=[],
+                        args=lambda_args,
+                        kwonlyargs=[],
+                        kw_defaults=[],
+                        defaults=[],
+                    ),
+                    body=ast.Call(
+                        func=ast.Name(id=param_names[0], ctx=ast.Load()),
+                        args=call_args,
+                        keywords=[],
+                    ),
+                )
+                call_args_with_func = [node.func] + node.args
+
+                return ast.Call(func=lambda_func, args=call_args_with_func, keywords=[])
+
+        tree = ast.parse(payload, mode="eval")
+        new_tree = Transformer().visit(tree)
+        return ast.unparse(new_tree).replace(": ", ":")
 
     @bypasser_not_work_with(["string_reversing"])
-    def string_slicing(self, payload):
+    def string_slicing(self, payload: str) -> str:
         """
         Break strings into concatenated parts or use slicing.
         """

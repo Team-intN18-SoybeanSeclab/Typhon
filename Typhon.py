@@ -83,7 +83,7 @@ def bypassMAIN(
     :param log_level: is the logging level, default is INFO, change it to
     DEBUG for more details.
     """
-    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict
+    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters
     string_dict = (
         {}
     )  # The dictionary of string literals found in the scope (e.g. {'b': bytes.__doc__[0]})
@@ -247,6 +247,9 @@ Try to bypass blacklist with them. Please be paitent.",
         for item in useful_modules
         if item not in get_module_from_tagged_scope(tagged_scope)
     }
+    allowed_letters = [
+        i for i in ascii_letters + "_" if i not in banned_chr and i not in local_scope
+    ]
     obj_list = [i for i in tagged_scope]
     obj_list.sort(key=len)
     for i in range(32, 127):

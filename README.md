@@ -24,6 +24,7 @@
 
 ## Highlights
 
+- 完全开源，免费的一把梭工具  
 - 不需要大脑就能完成pyjail题目，爱护您的脑细胞和眼球
 - 拥有上千条gadgets和几乎所有主流的bypass方法
 - 支持多种函数以达成不同功能，如RCE用`bypassRCE()`, 读文件用`bypassRead()`等等

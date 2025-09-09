@@ -24,6 +24,7 @@ So this is Typhon, a tool dedicated to solve pyjails without having to a brain.
 
 ## Highlights
 
+- Open source
 - You can complete pyjail challenges without a brain, take care of your brain cells and eyeballs
 - Have thousands of gadgets and almost all mainstream bypass methods
 - Supports multiple functions to achieve different functions, such as RCE `bypassRCE()`, for reading files `bypassRead()` etc.
