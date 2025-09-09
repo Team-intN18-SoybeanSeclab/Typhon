@@ -295,6 +295,7 @@ class BypassGenerator:
 
         tree = ast.parse(payload, mode="eval")
         new_tree = Transformer().visit(tree)
+        ast.fix_missing_locations(new_tree)
         return unescape_double_backslash(ast.unparse(new_tree))
 
     @general_bypasser
@@ -394,6 +395,7 @@ class BypassGenerator:
         try:
             tree = ast.parse(payload, mode="eval")
             new_tree = Transformer().visit(tree)
+            ast.fix_missing_locations(new_tree)
             return (
                 ast.unparse(new_tree)
                 .replace(f"'0b{placeholder}", "0b")
@@ -422,6 +424,7 @@ class BypassGenerator:
         try:
             tree = ast.parse(payload, mode="eval")
             new_tree = Transformer().visit(tree)
+            ast.fix_missing_locations(new_tree)
             return (
                 ast.unparse(new_tree)
                 .replace(f"'0o{placeholder}", "0o")
@@ -450,6 +453,7 @@ class BypassGenerator:
         try:
             tree = ast.parse(payload, mode="eval")
             new_tree = Transformer().visit(tree)
+            ast.fix_missing_locations(new_tree)
             return (
                 ast.unparse(new_tree)
                 .replace(f"'0x{placeholder}", "0x")
@@ -500,6 +504,7 @@ class BypassGenerator:
 
         tree = ast.parse(payload, mode="eval")
         new_tree = Transformer().visit(tree)
+        ast.fix_missing_locations(new_tree)
         return ast.unparse(new_tree).replace(": ", ":")
 
     @bypasser_not_work_with(["string_reversing"])
@@ -521,6 +526,7 @@ class BypassGenerator:
 
         tree = ast.parse(payload, mode="eval")
         new_tree = Transformer().visit(tree)
+        ast.fix_missing_locations(new_tree)
         return ast.unparse(new_tree)
 
     @bypasser_not_work_with(["string_slicing"])
@@ -549,7 +555,68 @@ class BypassGenerator:
 
         tree = ast.parse(payload, mode="eval")
         new_tree = Transformer().visit(tree)
+        ast.fix_missing_locations(new_tree)
         return ast.unparse(new_tree)
+
+    @general_bypasser
+    def list_to_getitem(self, payload: str) -> str:
+        """
+        list[0] -> list.__getitem__(0)
+        """
+
+        class Transformer(ast.NodeTransformer):
+            def visit_Subscript(self, node):
+                if isinstance(node.slice, ast.Slice):
+                    slice_args = [
+                        (
+                            node.slice.lower
+                            if node.slice.lower
+                            else ast.Constant(value=None)
+                        ),
+                        (
+                            node.slice.upper
+                            if node.slice.upper
+                            else ast.Constant(value=None)
+                        ),
+                    ]
+                    slice_call = ast.Call(
+                        func=ast.Name(id="slice", ctx=ast.Load()),
+                        args=slice_args,
+                        keywords=[],
+                    )
+                    slice_arg = slice_call
+                elif isinstance(node.slice, ast.Tuple):
+                    dims = []
+                    for dim in node.slice.dims:
+                        if isinstance(dim, ast.Slice):
+                            slice_args = [
+                                dim.lower if dim.lower else ast.Constant(value=None),
+                                dim.upper if dim.upper else ast.Constant(value=None),
+                            ]
+                            dims.append(
+                                ast.Call(
+                                    func=ast.Name(id="slice", ctx=ast.Load()),
+                                    args=slice_args,
+                                    keywords=[],
+                                )
+                            )
+                        else:
+                            dims.append(self.visit(dim))
+                    slice_arg = ast.Tuple(elts=dims, ctx=ast.Load())
+                else:
+                    slice_arg = self.visit(node.slice)
+                return ast.Call(
+                    func=ast.Attribute(
+                        value=self.visit(node.value), attr="__getitem__", ctx=ast.Load()
+                    ),
+                    args=[slice_arg],
+                    keywords=[],
+                )
+
+        tree = ast.parse(payload, mode="eval")
+        new_tree = Transformer().visit(tree)
+        ast.fix_missing_locations(new_tree)
+        return ast.unparse(new_tree).replace(", ", ",")
 
     @general_bypasser
     def replace_semicolon_newlines(self, payload: str) -> str:
@@ -1000,4 +1067,5 @@ class BypassGenerator:
 
         tree = ast.parse(payload, mode="eval")
         new_tree = Transformer().visit(tree)
+        ast.fix_missing_locations(new_tree)
         return ast.unparse(new_tree)
