@@ -185,7 +185,7 @@ You can add the parameters `print_all_payload=True` , Typhon will print all the 
 
 - This WEB challenge doesn't seem to have stdin open, my `exec(input())` didn't work.
 
-You can add `intercative=False` to the argument and Typhon will disable all payloads involving `stdin`.
+You can add `interactive=False` to the argument and Typhon will disable all payloads involving `stdin`.
 
 
 ## Proof of Concept

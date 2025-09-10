@@ -185,7 +185,7 @@ Pyjail中存在一些通过索引寻找对应object的gadgets（如继承链）�
 
 - 这个WEB题好像没开放stdin，我`exec(input())`没用
 
-你可以在参数中加上`intercative=False`，Typhon就会禁止使用所有涉及`stdin`的payload。
+你可以在参数中加上`interactive=False`，Typhon就会禁止使用所有涉及`stdin`的payload。
 
 ## Proof of Concept
 
