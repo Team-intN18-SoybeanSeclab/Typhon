@@ -63,7 +63,7 @@ def general_bypasser(func):
             if i == func.__name__:
                 return None  # Do not do the same bypass
         try:
-            return func(self, payload[0]).replace(" + ", "+").replace(", ", ",")
+            return func(self, payload[0]).replace(" + ", "+").replace(", ", ",").replace(": ", ":")
         except RecursionError:
             logger.debug(
                 f"Bypasser {func.__name__} got recurrence error on {payload[0]}"
@@ -91,7 +91,7 @@ def bypasser_not_work_with(bypasser_list: List[str]):
                     if i == j:
                         return None  # Do not work with this
             try:
-                return func(self, payload[0]).replace(" + ", "+").replace(", ", ",")
+                return func(self, payload[0]).replace(" + ", "+").replace(", ", ",").replace(": ", ":")
             except RecursionError:
                 logger.debug(
                     f"Bypasser {func.__name__} got recurrence error on {payload[0]}"
@@ -111,7 +111,7 @@ def recursion_protection(func):
     @wraps(func)
     def check(self, payload):
         try:
-            return func(self, payload).replace(" + ", "+").replace(", ", ",")
+            return func(self, payload).replace(" + ", "+").replace(", ", ",").replace(": ", ":")
         except RecursionError:
             logger.debug(
                 f"Bypasser {func.__name__} got recurrence error on {payload[0]}"
@@ -526,7 +526,7 @@ class BypassGenerator:
         tree = ast.parse(payload, mode="eval")
         new_tree = Transformer().visit(tree)
         ast.fix_missing_locations(new_tree)
-        return ast.unparse(new_tree).replace(": ", ":")
+        return ast.unparse(new_tree)
 
     @bypasser_not_work_with(["string_reversing"])
     def string_slicing(self, payload: str) -> str:
