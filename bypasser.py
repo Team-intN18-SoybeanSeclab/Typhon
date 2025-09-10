@@ -103,6 +103,24 @@ def bypasser_not_work_with(bypasser_list: List[str]):
     return _
 
 
+def recursion_protection(func):
+    """
+    Decorator for bypassers which may cause recursion error.
+    """
+
+    @wraps(func)
+    def check(self, payload):
+        try:
+            return func(self, payload).replace(" + ", "+").replace(", ", ",")
+        except RecursionError:
+            logger.debug(
+                f"Bypasser {func.__name__} got recurrence error on {payload[0]}"
+            )
+            return None
+
+    return check
+
+
 def bypasser_must_work_with(bypasser_list: List[str]):
     """
     Decorator for bypassers which must work with at least one bypasser in the list.
@@ -376,6 +394,7 @@ class BypassGenerator:
     #     return ast.unparse(new_tree)
 
     # @after_tagging_bypasser
+    @recursion_protection
     def numbers_to_binary_base(self, payload: str) -> str:
         """
         Convert numbers to binary base (e.g., 42 → 0b101010).
@@ -405,6 +424,7 @@ class BypassGenerator:
             return payload
 
     # @after_tagging_bypasser
+    @recursion_protection
     def numbers_to_oct_base(self, payload: str) -> str:
         """
         Convert numbers to oct base.
@@ -434,6 +454,7 @@ class BypassGenerator:
             return payload
 
     # @after_tagging_bypasser
+    @recursion_protection
     def numbers_to_hex_base(self, payload: str) -> str:
         """
         Convert numbers to hex base.
@@ -997,6 +1018,7 @@ class BypassGenerator:
         return payload
 
     # @after_tagging_bypasser
+    @recursion_protection
     def repr_to_exec(self, payload: str) -> str:
         """
         wraps the payload with exec()
@@ -1018,6 +1040,7 @@ class BypassGenerator:
         return f"{name}({quote}{payload}{quote})"
 
     # @after_tagging_bypasser
+    @recursion_protection
     def repr_to_eval(self, payload: str) -> str:
         """
         wraps the payload with exec()

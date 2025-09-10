@@ -56,6 +56,7 @@ Typhon.bypassRCE(cmd: str,
     print_all_payload:bool=False,
     interactive:bool=True,
     depth:int=5,
+    recursion_limit:int=100,
     log_level:str='INFO')
 ```
 
@@ -67,8 +68,9 @@ Typhon.bypassRCE(cmd: str,
 `max_length`: Maximum length of payload   
 `allow_unicode_bypass`: Whether to allow unicode to bypass   
 `print_all_payload`: Whether to print all payloads   
-`interaceive`: if the pyjail is a interactive shell that allows stdin.    
-`depth`: Maximum recursion depth (the default value is recommended)   
+`interaceive`: if the pyjail is a interactive shell that allows stdin.   
+`depth`: is the depth that combined bypassing being generarted.   
+`recursion_limit`: is the maximum recursion depth for bypassers.   
 `log_level`: Output level (only `info` and `debug` are meaningful, no change is recommended)   
 
 **Command Line Interface**

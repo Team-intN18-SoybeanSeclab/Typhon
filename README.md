@@ -56,6 +56,7 @@ Typhon.bypassRCE(cmd: str,
     print_all_payload:bool=False,
     interactive:bool=True,
     depth:int=5,
+    recursion_limit:int=100,
     log_level:str='INFO')
 ```
 
@@ -68,8 +69,9 @@ Typhon.bypassRCE(cmd: str,
 `allow_unicode_bypass`: 是否允许unicode绕过  
 `print_all_payload`: 是否打印所有payload   
 `interactive`: 当前pyjail是否允许`stdin`（即如`breakpoint()`等payload是否成立）  
-`depth`: 最大递归深度（建议使用默认值）   
-`log_level`: 输出级别（只有`info`和`debug`有意义，不建议更改）    
+`depth`: 组合bypasser的最大深度（建议使用默认值）  
+`recursion_limit`: 最大递归深度（建议使用默认值）  
+`log_level`: 输出级别（只有`info`和`debug`有意义，不建议更改）  
 
 **Command Line Interface**
 

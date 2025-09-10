@@ -25,7 +25,12 @@ log_level_ = "INFO"  # changable in bypassMAIN()
 search_depth = 5  # changable in bypassMAIN()
 logging.basicConfig(level=log_level_, format="%(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
-
+logging.basicConfig(
+    format="%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s",
+    level=logging.DEBUG,
+    filename="test.log",
+    filemode="a",
+)
 # get current global scope
 current_frame = currentframe()
 while current_frame.f_globals["__name__"] != "__main__":
@@ -46,7 +51,7 @@ BANNER = (
     + sys.version.split()[0]
     + r"""
    / _{    \__/ '--.  //       [Github]: https://github.com/Team-intN18-SoybeanSeclab/Typhon
-   \_> \_\  >__/    \((        [Author]: LamentXU <1372449351@qq.com>
+   \_> \_\  >__/    \((        [Author]: LamentXU <lamentxu644@gmail.com>
         _/ /` _\_   |))       
 """
 )
@@ -64,6 +69,7 @@ def bypassMAIN(
     print_all_payload: bool = False,
     interactive: bool = True,
     depth: int = 5,
+    recursion_limit: int = 100,
     log_level: str = "INFO",
 ) -> None:
     """
@@ -77,13 +83,16 @@ def bypassMAIN(
     :param banned_ast: is a list of banned AST.
     :param banned_re: is a banned regex.
     :param allow_unicode_bypass: if unicode bypasses are allowed.
-    :param depth: is the depth that combined bypassing being generarted
+    :param depth: is the depth that combined bypassing being generarted.
+    :param recursion_limit: is the maximum recursion depth for bypassers.
     :param print_all_payload: if all payloads should be printed.
     :param interactive: if the pyjail is a interactive shell that allows stdin.
     :param log_level: is the logging level, default is INFO, change it to
     DEBUG for more details.
     """
     global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters
+    sys.setrecursionlimit(recursion_limit)
+    logger.debug("[*] current recursion limit: %d", sys.getrecursionlimit())
     string_dict = (
         {}
     )  # The dictionary of string literals found in the scope (e.g. {'b': bytes.__doc__[0]})
@@ -269,18 +278,19 @@ Try to bypass blacklist with them. Please be paitent.",
             for index, j in enumerate(doc):
                 if j not in string_dict:
                     payload = i + ".__doc__[" + str(index) + "]"
-                    for _ in BypassGenerator(
-                        [payload, []], allow_unicode_bypass, tagged_scope
-                    ).generate_bypasses():
-                        if is_blacklisted(
-                            _, banned_chr, banned_ast, banned_re, max_length
-                        ):
-                            pass
-                        string_dict[j] = _
-                        reminder[_] = (
-                            f"index {index} of {payload} must match the string literal {j}."
-                        )
-                        break
+                    for depth in range(1, search_depth + 1):
+                        for _ in BypassGenerator(
+                            [payload, []], allow_unicode_bypass, tagged_scope
+                        ).generate_bypasses():
+                            if is_blacklisted(
+                                _, banned_chr, banned_ast, banned_re, max_length
+                            ):
+                                pass
+                            string_dict[j] = _
+                            reminder[_] = (
+                                f"index {index} of {payload} must match the string literal {j}."
+                            )
+                            break
     print()
     logger.debug("[*] string literals found: %s", string_dict)
 
@@ -685,6 +695,7 @@ def bypassRCE(
     print_all_payload: bool = False,
     interactive: bool = True,
     depth: int = 5,
+    recursion_limit: int = 100,
     log_level: str = "INFO",
 ):
     """
@@ -695,9 +706,9 @@ def bypassRCE(
     :param banned_chr: is a list of blacklisted characters.
     :param banned_ast: is a list of banned AST.
     :param banned_re: is a banned regex.
-    :param max_length: is the maximum length of the payload.
     :param allow_unicode_bypass: if unicode bypasses are allowed.
-    :param depth: is the depth that combined bypassing being generarted
+    :param depth: is the depth that combined bypassing being generarted.
+    :param recursion_limit: is the maximum recursion depth for bypassers.
     :param print_all_payload: if all payloads should be printed.
     :param interactive: if the pyjail is a interactive shell that allows stdin.
     :param log_level: is the logging level, default is INFO, change it to
@@ -716,6 +727,7 @@ def bypassRCE(
         interactive=interactive,
         print_all_payload=print_all_payload,
         depth=depth,
+        recursion_limit=recursion_limit,
         log_level=log_level,
     )
     try_to_restore("__import__2RCE", end_of_prog=True, cmd=cmd)
