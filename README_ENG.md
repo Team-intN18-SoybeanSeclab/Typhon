@@ -12,16 +12,6 @@ So this is Typhon, a tool dedicated to solve pyjails without having to a brain.
 
 **Please be sure to finish reading this readme before using the Typhon tool.**
 
-```
-    .-')          _           
-   (`_^ (    .----`/          
-    ` )  \_/`   __/     __,   
-    __{   |`  __/      /_/       Typhon: a pyjail bypassing tool
-   / _{    \__/ '--.  //      
-   \_> \_\  >__/    \((       
-        _/ /` _\_   |))       
-```
-
 ## Highlights
 
 - Open source

@@ -114,9 +114,9 @@ def recursion_protection(func):
             return func(self, payload).replace(" + ", "+").replace(", ", ",").replace(": ", ":")
         except RecursionError:
             logger.debug(
-                f"Bypasser {func.__name__} got recurrence error on {payload[0]}"
+                f"Bypasser {func.__name__} got recurrence error on {payload}"
             )
-            return None
+            return payload
 
     return check
 
@@ -356,42 +356,43 @@ class BypassGenerator:
                 output += char
         return output
 
-    # def encode_string_base64(self, payload):
-    #     """
-    #     Encode strings using base64 decoding.
+    @general_bypasser
+    def encode_string_base64(self, payload):
+        """
+        Encode strings using base64 decoding.
 
-    #     Args:
-    #         payload (str): Input payload
+        Args:
+            payload (str): Input payload
 
-    #     Returns:
-    #         str: Transformed payload
-    #     """
-    #     from utils import find_object
-    #     base_64_name = find_object(base64, self.local_scope)
-    #     if base_64_name is None:
-    #         return payload
-    #     class Transformer(ast.NodeTransformer):
-    #         def visit_Constant(self, node):
-    #             if isinstance(node.value, str):
-    #                 encoded = base64.b64encode(node.value.encode()).decode()
-    #                 return ast.Call(
-    #                     func=ast.Attribute(
-    #                         value=ast.Call(
-    #                             func=ast.Name(id=base_64_name+'.b64decode', ctx=ast.Load()),
-    #                             args=[ast.Constant(value=encoded)],
-    #                             keywords=[]
-    #                         ),
-    #                         attr='decode',
-    #                         ctx=ast.Load()
-    #                     ),
-    #                     args=[],
-    #                     keywords=[]
-    #                 )
-    #             return node
+        Returns:
+            str: Transformed payload
+        """
+        from utils import find_object
+        base_64_name = find_object(base64, self.local_scope)
+        if base_64_name is None:
+            return payload
+        class Transformer(ast.NodeTransformer):
+            def visit_Constant(self, node):
+                if isinstance(node.value, str):
+                    encoded = base64.b64encode(node.value.encode()).decode()
+                    return ast.Call(
+                        func=ast.Attribute(
+                            value=ast.Call(
+                                func=ast.Name(id=base_64_name+'.b64decode', ctx=ast.Load()),
+                                args=[ast.Constant(value=encoded)],
+                                keywords=[]
+                            ),
+                            attr='decode',
+                            ctx=ast.Load()
+                        ),
+                        args=[],
+                        keywords=[]
+                    )
+                return node
 
-    #     tree = ast.parse(payload, mode='eval')
-    #     new_tree = Transformer().visit(tree)
-    #     return ast.unparse(new_tree)
+        tree = ast.parse(payload, mode='eval')
+        new_tree = Transformer().visit(tree)
+        return ast.unparse(new_tree)
 
     # @after_tagging_bypasser
     @recursion_protection
