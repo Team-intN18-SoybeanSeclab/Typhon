@@ -5,7 +5,7 @@
 # suggestions, please raise an issue or pull request on the github
 # repository https://github.com/Team-intN18-SoybeanSeclab/Typhon.
 # If you have any questions, please feel free to contact me.
-# Weilin Du <1372449351@qq.com>, 2025.
+# Weilin Du <lamentxu644@gmail.com>, 2025.
 
 import json
 import logging

@@ -637,7 +637,10 @@ class BypassGenerator:
         tree = ast.parse(payload, mode="eval")
         new_tree = Transformer().visit(tree)
         ast.fix_missing_locations(new_tree)
-        return ast.unparse(new_tree).replace(", ", ",")
+        ret = ast.unparse(new_tree).replace(", ", ",")
+        if "slice(None,None)" in ret:
+            return payload
+        return ret
 
     @general_bypasser
     def replace_semicolon_newlines(self, payload: str) -> str:
@@ -1087,6 +1090,42 @@ class BypassGenerator:
             def visit_Expr(self, node):
                 self.generic_visit(node)
                 return node
+
+        tree = ast.parse(payload, mode="eval")
+        new_tree = Transformer().visit(tree)
+        ast.fix_missing_locations(new_tree)
+        return ast.unparse(new_tree)
+    
+    @general_bypasser
+    def dict_to_get(self, payload: str) -> str:
+        """
+        a['b'] -> a.get('b')
+        """
+        def _const_str_from_slice(slice_node):
+            node = slice_node
+
+            if isinstance(node, ast.Constant) and isinstance(node.value, str):
+                return node
+            return None
+
+        class Transformer(ast.NodeTransformer):
+            def visit_Subscript(self, node: ast.Subscript):
+                self.generic_visit(node)
+
+                key_const = _const_str_from_slice(node.slice)
+                if key_const is None:
+                    return node
+
+                return ast.Call(
+                    func=ast.Attribute(
+                        value=node.value,
+                        attr='get',
+                        ctx=ast.Load()
+                    ),
+                    args=[key_const],
+                    keywords=[]
+                )
+
 
         tree = ast.parse(payload, mode="eval")
         new_tree = Transformer().visit(tree)
