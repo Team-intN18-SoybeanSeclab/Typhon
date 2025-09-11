@@ -63,12 +63,7 @@ def general_bypasser(func):
             if i == func.__name__:
                 return None  # Do not do the same bypass
         try:
-            return (
-                func(self, payload[0])
-                .replace(" + ", "+")
-                .replace(", ", ",")
-                .replace(": ", ":")
-            )
+            return func(self, payload[0]).replace(" + ", "+").replace(", ", ",").replace(": ", ":")
         except RecursionError:
             logger.debug(
                 f"Bypasser {func.__name__} got recurrence error on {payload[0]}"
@@ -96,12 +91,7 @@ def bypasser_not_work_with(bypasser_list: List[str]):
                     if i == j:
                         return None  # Do not work with this
             try:
-                return (
-                    func(self, payload[0])
-                    .replace(" + ", "+")
-                    .replace(", ", ",")
-                    .replace(": ", ":")
-                )
+                return func(self, payload[0]).replace(" + ", "+").replace(", ", ",").replace(": ", ":")
             except RecursionError:
                 logger.debug(
                     f"Bypasser {func.__name__} got recurrence error on {payload[0]}"
@@ -121,14 +111,11 @@ def recursion_protection(func):
     @wraps(func)
     def check(self, payload):
         try:
-            return (
-                func(self, payload)
-                .replace(" + ", "+")
-                .replace(", ", ",")
-                .replace(": ", ":")
-            )
+            return func(self, payload).replace(" + ", "+").replace(", ", ",").replace(": ", ":")
         except RecursionError:
-            logger.debug(f"Bypasser {func.__name__} got recurrence error on {payload}")
+            logger.debug(
+                f"Bypasser {func.__name__} got recurrence error on {payload}"
+            )
             return payload
 
     return check
@@ -188,11 +175,9 @@ class BypassGenerator:
             :param local_scope: tagged local scope
         """
         from Typhon import max_length_
-
         if max_length_ is None:
             from utils import is_blacklisted
             from Typhon import banned_chr_, banned_ast_, banned_re_
-
             self.is_blacklisted = is_blacklisted
             self.banned_chr = banned_chr_
             self.banned_ast = banned_ast_
@@ -294,14 +279,11 @@ class BypassGenerator:
             list: Combined transformed payloads
         """
         from Typhon import max_length_
-
         if max_length_ is not None:
             return self.combine_bypasses_best_effort(payload, initial_payload, depth)
         return self.combine_bypasses_best_performance(payload, initial_payload, depth)
-
-    def combine_bypasses_best_effort(
-        self, payload: List[Union[str, list]], initial_payload: str, depth: int
-    ):
+    
+    def combine_bypasses_best_effort(self, payload: List[Union[str, list]], initial_payload: str, depth: int):
         if depth == 0:
             return [payload[0]]
 
@@ -326,22 +308,14 @@ class BypassGenerator:
             _[1].append(method.__name__)
             variants.append(new_payload)
             variants.extend(
-                self.combine_bypasses_best_effort(
-                    [new_payload, _[1]], initial_payload, depth - 1
-                )
+                self.combine_bypasses_best_effort([new_payload, _[1]], initial_payload, depth - 1)
             )
         return variants
-
-    def combine_bypasses_best_performance(
-        self, payload: List[Union[str, list]], initial_payload: str, depth: int
-    ):
-        for depth_ in range(0, depth + 1):
-            for i in self.combine_bypasses_best_effort(
-                payload, initial_payload, depth_
-            ):
-                if not self.is_blacklisted(
-                    i, self.banned_chr, self.banned_ast, self.banned_re, None
-                ):
+    
+    def combine_bypasses_best_performance(self, payload: List[Union[str, list]], initial_payload: str, depth: int):
+        for depth_ in range(0, depth+1):
+            for i in self.combine_bypasses_best_effort(payload, initial_payload, depth_):
+                if not self.is_blacklisted(i, self.banned_chr, self.banned_ast, self.banned_re, None):
                     return [i]
         return []
 
@@ -415,11 +389,9 @@ class BypassGenerator:
             str: Transformed payload
         """
         from utils import find_object
-
         base_64_name = find_object(base64, self.local_scope)
         if base_64_name is None:
             return payload
-
         class Transformer(ast.NodeTransformer):
             def visit_Constant(self, node):
                 if isinstance(node.value, str):
@@ -427,21 +399,19 @@ class BypassGenerator:
                     return ast.Call(
                         func=ast.Attribute(
                             value=ast.Call(
-                                func=ast.Name(
-                                    id=base_64_name + ".b64decode", ctx=ast.Load()
-                                ),
+                                func=ast.Name(id=base_64_name+'.b64decode', ctx=ast.Load()),
                                 args=[ast.Constant(value=encoded)],
-                                keywords=[],
+                                keywords=[]
                             ),
-                            attr="decode",
-                            ctx=ast.Load(),
+                            attr='decode',
+                            ctx=ast.Load()
                         ),
                         args=[],
-                        keywords=[],
+                        keywords=[]
                     )
                 return node
 
-        tree = ast.parse(payload, mode="eval")
+        tree = ast.parse(payload, mode='eval')
         new_tree = Transformer().visit(tree)
         return ast.unparse(new_tree)
 
@@ -1147,13 +1117,12 @@ class BypassGenerator:
         new_tree = Transformer().visit(tree)
         ast.fix_missing_locations(new_tree)
         return ast.unparse(new_tree)
-
+    
     @general_bypasser
     def dict_to_get(self, payload: str) -> str:
         """
         a['b'] -> a.get('b')
         """
-
         def _const_str_from_slice(slice_node):
             node = slice_node
 
@@ -1170,10 +1139,15 @@ class BypassGenerator:
                     return node
 
                 return ast.Call(
-                    func=ast.Attribute(value=node.value, attr="get", ctx=ast.Load()),
+                    func=ast.Attribute(
+                        value=node.value,
+                        attr='get',
+                        ctx=ast.Load()
+                    ),
                     args=[key_const],
-                    keywords=[],
+                    keywords=[]
                 )
+
 
         tree = ast.parse(payload, mode="eval")
         new_tree = Transformer().visit(tree)
