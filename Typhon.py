@@ -265,7 +265,9 @@ Try to bypass blacklist with them. Please be paitent.",
     ]
     obj_list = [i for i in tagged_scope]
     obj_list.sort(key=len)
-    for i in range(32, 127):
+    string_ords = [i for i in range(32, 127)]
+    string_ords.append(10) # ord('\n') == 10
+    for i in string_ords:
         if not is_blacklisted(f"'{chr(i)}'"):
             string_dict[chr(i)] = f"'{chr(i)}'"
         elif not is_blacklisted(f"'{chr(i)}'"):
