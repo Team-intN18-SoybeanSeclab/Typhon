@@ -91,6 +91,8 @@ def bypassMAIN(
     DEBUG for more details.
     """
     global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters, banned_ast_, banned_chr_, banned_re_, max_length_
+    if isinstance(banned_re, str):
+        banned_re = [banned_re]  # convert to list if it's a string
     banned_chr_ = banned_chr
     banned_ast_ = banned_ast
     banned_re_ = banned_re
@@ -152,8 +154,6 @@ def bypassMAIN(
         logger.debug("[*] current global scope: %s", current_global_scope)
         local_scope = current_global_scope
         local_scope["__builtins__"] = __builtins__
-    if isinstance(banned_re, str):
-        banned_re = [banned_re]  # convert to list if it's a string
     achivements = {}  # The progress we've gone so far. Being output in the end
     generated_path = (
         {}
