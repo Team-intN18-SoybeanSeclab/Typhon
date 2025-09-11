@@ -198,6 +198,9 @@ class BypassGenerator:
         Returns:
             list: List of unique transformed payloads
         """
+        from utils import is_blacklisted
+        if not is_blacklisted(self.payload):
+            return [self.payload] # in case of the challenge is so easy
         output = []
         bypassed = [self.payload]
 

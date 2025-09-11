@@ -367,7 +367,7 @@ def filter_path_list(path_list: list, tagged_scope: dict) -> List[list]:
     return filtered_list
 
 
-def is_blacklisted(payload, banned_char, banned_AST, banned_re, max_length) -> bool:
+def is_blacklisted(payload) -> bool:
     """
     Check if a payload is blacklisted
 
@@ -377,24 +377,26 @@ def is_blacklisted(payload, banned_char, banned_AST, banned_re, max_length) -> b
     :param max_length: max length of the payload
     :return: True if the payload is blacklisted, False otherwise
     """
+    from Typhon import banned_ast_, banned_chr_, banned_re_, max_length_
     ast_banned = False
     re_banned = False
-    if max_length == None:
+    if max_length_ == None:
         length_check = False
         max_length = 0
     else:
         length_check = True
-    for bAST in banned_AST:
+        max_length = max_length_
+    for bAST in banned_ast_:
         if any(isinstance(node, bAST) for node in ast.walk(ast.parse(payload))):
             ast_banned = True
             break
-    if banned_re:
-        for b_re in banned_re:
+    if banned_re_:
+        for b_re in banned_re_:
             if re.search(b_re, payload):
                 re_banned = True
                 break
     return (
-        any(i in payload for i in banned_char)  # banned character check
+        any(i in payload for i in banned_chr_)  # banned character check
         or ast_banned  # AST check
         or re_banned  # regex check
         or (len(payload) > max_length and length_check)
@@ -439,7 +441,7 @@ def try_bypasses(
         for _ in BypassGenerator(
             path, allow_unicode_bypass=allow_unicode_bypass, local_scope=local_scope
         ).generate_bypasses():
-            if not is_blacklisted(_, banned_chars, banned_AST, banned_re, max_length):
+            if not is_blacklisted(_):
                 successful_payloads.append(_)
             continue
     if pathlist and log_level_ != "DEBUG":

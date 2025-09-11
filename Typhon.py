@@ -90,7 +90,11 @@ def bypassMAIN(
     :param log_level: is the logging level, default is INFO, change it to
     DEBUG for more details.
     """
-    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters
+    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters, banned_ast_, banned_chr_, banned_re_, max_length_
+    banned_chr_ = banned_chr
+    banned_ast_ = banned_ast
+    banned_re_ = banned_re
+    max_length_ = max_length
     sys.setrecursionlimit(recursion_limit)
     logger.debug("[*] current recursion limit: %d", sys.getrecursionlimit())
     string_dict = (
@@ -262,13 +266,9 @@ Try to bypass blacklist with them. Please be paitent.",
     obj_list = [i for i in tagged_scope]
     obj_list.sort(key=len)
     for i in range(32, 127):
-        if not is_blacklisted(
-            f"'{chr(i)}'", banned_chr, banned_ast, banned_re, max_length
-        ):
+        if not is_blacklisted(f"'{chr(i)}'"):
             string_dict[chr(i)] = f"'{chr(i)}'"
-        elif not is_blacklisted(
-            f"'{chr(i)}'", banned_chr, banned_ast, banned_re, max_length
-        ):
+        elif not is_blacklisted(f"'{chr(i)}'"):
             string_dict[chr(i)] = f'"{chr(i)}"'
     for index_, i in enumerate(obj_list):
         progress_bar(index_ + 1, len(obj_list))
@@ -282,9 +282,7 @@ Try to bypass blacklist with them. Please be paitent.",
                         for _ in BypassGenerator(
                             [payload, []], allow_unicode_bypass, tagged_scope
                         ).generate_bypasses():
-                            if is_blacklisted(
-                                _, banned_chr, banned_ast, banned_re, max_length
-                            ):
+                            if is_blacklisted(_):
                                 pass
                             string_dict[j] = _
                             reminder[_] = (
@@ -512,6 +510,10 @@ Try to bypass blacklist with them. Please be paitent.",
         else:
             logger.info("[-] no paths found to restore builtins in other namespaces.")
 
+    if ("BUILTINS_SET" in tags or "MODULE_BUILTINS" in tags) and interactive:
+        logger.info("[*] try to RCE directly with builtins.")
+        try_to_restore("builtins2RCEinput", end_of_prog=True)
+
     # Step8: Try inheritance chain
     if "OBJECT" in tags:
         logger.info("[*] Trying to find inheritance chains.")
@@ -533,9 +535,7 @@ Try to bypass blacklist with them. Please be paitent.",
                             allow_unicode_bypass=allow_unicode_bypass,
                             local_scope=tagged_scope,
                         ).generate_bypasses():
-                            if not is_blacklisted(
-                                _, banned_chr, banned_ast, banned_re, max_length
-                            ):
+                            if not is_blacklisted(_):
                                 result = exec_with_returns(_, original_scope)
                                 original_scope.pop("__return__", None)
                                 if not result is None:
@@ -582,7 +582,7 @@ Try to bypass blacklist with them. Please be paitent.",
                 allow_unicode_bypass=allow_unicode_bypass,
                 local_scope=tagged_scope,
             ).generate_bypasses():
-                if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
+                if not is_blacklisted(_):
                     result = exec_with_returns(_, original_scope)
                     original_scope.pop("__return__", None)
                     if not result is None:
@@ -605,7 +605,7 @@ Try to bypass blacklist with them. Please be paitent.",
                 allow_unicode_bypass=allow_unicode_bypass,
                 local_scope=tagged_scope,
             ).generate_bypasses():
-                if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
+                if not is_blacklisted(_):
                     result = exec_with_returns(_, original_scope)
                     original_scope.pop("__return__", None)
                     if not result is None:
@@ -628,7 +628,7 @@ Try to bypass blacklist with them. Please be paitent.",
                 allow_unicode_bypass=allow_unicode_bypass,
                 local_scope=tagged_scope,
             ).generate_bypasses():
-                if not is_blacklisted(_, banned_chr, banned_ast, banned_re, max_length):
+                if not is_blacklisted(_):
                     result = exec_with_returns(_, original_scope)
                     original_scope.pop("__return__", None)
                     if not result is None:
