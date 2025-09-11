@@ -90,12 +90,7 @@ def bypassMAIN(
     :param log_level: is the logging level, default is INFO, change it to
     DEBUG for more details.
     """
-    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters, max_length_, banned_chr_, banned_re_, banned_ast_
-    max_length_ = max_length
-    banned_chr_ = banned_chr
-    banned_re_ = banned_re
-    banned_ast_ = banned_ast
-    # set recursion limit
+    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters
     sys.setrecursionlimit(recursion_limit)
     logger.debug("[*] current recursion limit: %d", sys.getrecursionlimit())
     string_dict = (
@@ -126,7 +121,9 @@ def bypassMAIN(
     if log_level_ == "TESTING":
         log_level_ = "CRITICAL"  # for test scripts
     if log_level_ != "DEBUG":
-        __import__('warnings').filterwarnings("ignore")
+        from warnings import filterwarnings
+
+        filterwarnings("ignore")
     logger.setLevel(log_level_)
     reminder = (
         {}
