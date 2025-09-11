@@ -174,6 +174,14 @@ class BypassGenerator:
             :param allow_unicode_bypass: if unicode bypasses are allowed
             :param local_scope: tagged local scope
         """
+        from Typhon import max_length_
+        if max_length_ is None:
+            from utils import is_blacklisted
+            from Typhon import banned_chr_, banned_ast_, banned_re_
+            self.is_blacklisted = is_blacklisted
+            self.banned_chr = banned_chr_
+            self.banned_ast = banned_ast_
+            self.banned_re = banned_re_
         self.payload = payload[0]
         self.tags = payload[1]
         self.allow_unicode_bypass = allow_unicode_bypass
@@ -270,6 +278,12 @@ class BypassGenerator:
         Returns:
             list: Combined transformed payloads
         """
+        from Typhon import max_length_
+        if max_length_ is not None:
+            return self.combine_bypasses_best_effort(payload, initial_payload, depth)
+        return self.combine_bypasses_best_performance(payload, initial_payload, depth)
+    
+    def combine_bypasses_best_effort(self, payload: List[Union[str, list]], initial_payload: str, depth: int):
         if depth == 0:
             return [payload[0]]
 
@@ -294,9 +308,16 @@ class BypassGenerator:
             _[1].append(method.__name__)
             variants.append(new_payload)
             variants.extend(
-                self.combine_bypasses([new_payload, _[1]], initial_payload, depth - 1)
+                self.combine_bypasses_best_effort([new_payload, _[1]], initial_payload, depth - 1)
             )
         return variants
+    
+    def combine_bypasses_best_performance(self, payload: List[Union[str, list]], initial_payload: str, depth: int):
+        for depth_ in range(0, depth+1):
+            for i in self.combine_bypasses_best_effort(payload, initial_payload, depth_):
+                if not self.is_blacklisted(i, self.banned_chr, self.banned_ast, self.banned_re, None):
+                    return [i]
+        return []
 
     @general_bypasser
     def encode_string_hex(self, payload):

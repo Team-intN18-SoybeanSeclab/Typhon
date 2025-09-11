@@ -377,6 +377,8 @@ def is_blacklisted(payload, banned_char, banned_AST, banned_re, max_length) -> b
     :param max_length: max length of the payload
     :return: True if the payload is blacklisted, False otherwise
     """
+    if payload == None:
+        return True
     ast_banned = False
     re_banned = False
     if max_length == None:
