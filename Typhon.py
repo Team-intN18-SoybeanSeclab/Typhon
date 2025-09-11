@@ -126,7 +126,7 @@ def bypassMAIN(
     if log_level_ == "TESTING":
         log_level_ = "CRITICAL"  # for test scripts
     if log_level_ != "DEBUG":
-        __import__('warnings').filterwarnings("ignore")
+        __import__("warnings").filterwarnings("ignore")
     logger.setLevel(log_level_)
     reminder = (
         {}
