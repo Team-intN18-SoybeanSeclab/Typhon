@@ -1,6 +1,12 @@
 # Test file
 tests.py
 
+# unfinished translations
+README_ENG.md
+
+# pip deloyment
+/pip
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -1,7 +1,7 @@
 import ast
 import base64
 
-from Typhon import logger
+from .Typhon import logger
 from typing import Union, List
 from copy import copy, deepcopy
 from string import ascii_letters
@@ -194,7 +194,7 @@ class BypassGenerator:
         self.bypass_methods, self.after_tagging_bypassers = [], []
         self._allow_after_tagging_bypassers = _allow_after_tagging_bypassers
         if search_depth is None:
-            from Typhon import search_depth
+            from .Typhon import search_depth
         self.search_depth = search_depth
         for method_name in dir(self):
             method = getattr(self, method_name)
@@ -211,7 +211,7 @@ class BypassGenerator:
         Returns:
             list: List of unique transformed payloads
         """
-        from utils import is_blacklisted
+        from .utils import is_blacklisted
 
         true_paylaod = copy(self.payload)
         for i in self.tags:
@@ -248,7 +248,7 @@ class BypassGenerator:
                 i = i.replace(tag_unicode_2, self.tags[j])
             output.append(i)
         if self._allow_after_tagging_bypassers:
-            from utils import find_object
+            from .utils import find_object
 
             output.append(self.numbers_to_binary_base(i))
             output.append(self.numbers_to_hex_base(i))
@@ -341,7 +341,7 @@ class BypassGenerator:
         """
         'a.b' -> 'getattr(a, "b")'
         """
-        from utils import find_object
+        from .utils import find_object
 
         name = find_object(getattr, self.local_scope)
         if name is None:
@@ -387,7 +387,7 @@ class BypassGenerator:
         Returns:
             str: Transformed payload
         """
-        from utils import find_object
+        from .utils import find_object
 
         base_64_name = find_object(base64, self.local_scope)
         if base_64_name is None:
@@ -513,7 +513,7 @@ class BypassGenerator:
         """
         Obfuscate function calls using lambda wrappers with support for multiple arguments.
         """
-        from Typhon import allowed_letters
+        from .Typhon import allowed_letters
 
         class Transformer(ast.NodeTransformer):
             def visit_Call(self, node):
@@ -742,7 +742,7 @@ class BypassGenerator:
         """
         'a'+'b'+'c' -> chr(97)+chr(98)+chr(99)'
         """
-        from utils import find_object
+        from .utils import find_object
 
         name = find_object(chr, self.local_scope)
         if name is None:
@@ -814,7 +814,7 @@ class BypassGenerator:
         """
         'a'+'b'+'c' -> bytes([97])+bytes([98])+bytes([99])
         """
-        from utils import find_object
+        from .utils import find_object
 
         name = find_object(bytes, self.local_scope)
         if name is None:
@@ -891,7 +891,7 @@ class BypassGenerator:
         This bypasser replaces string constants with their corresponding values in the globals dict.
         'b' -> bytes.__doc__[0]
         """
-        from Typhon import string_dict
+        from .Typhon import string_dict
 
         class Transformer(ast.NodeTransformer):
             def visit_Constant(self, node):
@@ -909,7 +909,7 @@ class BypassGenerator:
         """
         'abc' -> bytes([97, 98, 99])
         """
-        from utils import find_object
+        from .utils import find_object
 
         name = find_object(bytes, self.local_scope)
         if name is None:
@@ -1052,7 +1052,7 @@ class BypassGenerator:
         wraps the payload with exec()
         __import__('os').system('ls') -> exec("__import__('os').popen('ls').read()")
         """
-        from utils import find_object
+        from .utils import find_object
 
         name = find_object(exec, self.local_scope)
         if name is None:
@@ -1076,7 +1076,7 @@ class BypassGenerator:
         """
         if ";" in payload or "\n" in payload:
             return payload
-        from utils import find_object
+        from .utils import find_object
 
         name = find_object(eval, self.local_scope)
         if name is None:
@@ -1096,7 +1096,7 @@ class BypassGenerator:
         """
         "".join([]) -> chr().join([])
         """
-        from utils import find_object
+        from .utils import find_object
 
         string_name = find_object(str, self.local_scope)
         if string_name is None:

@@ -3,7 +3,7 @@ import sys
 import inspect
 import builtins
 
-from bypasser import *
+from .bypasser import *
 from string import ascii_letters, digits
 from types import FunctionType, ModuleType
 
@@ -199,7 +199,7 @@ def parse_payload_list(
     :param cmd: the final RCE command to execute, default None
     :return: filtered list of payloads, with its tags e.g. ['TYPE.__base__', {'TYPE': 'int.__class__'}]
     """
-    from Typhon import generated_path, allowed_letters
+    from .Typhon import generated_path, allowed_letters
 
     output = []
     allowed_builtin_obj = [
@@ -383,7 +383,7 @@ def is_blacklisted(payload) -> bool:
     :param max_length: max length of the payload
     :return: True if the payload is blacklisted, False otherwise
     """
-    from Typhon import banned_ast_, banned_chr_, banned_re_, max_length_
+    from .Typhon import banned_ast_, banned_chr_, banned_re_, max_length_
 
     ast_banned = False
     re_banned = False
@@ -433,7 +433,7 @@ def try_bypasses(
     :param cmd: command to RCE (in the final step, otherwise None)
     :return: list of successful payloads
     """
-    from Typhon import log_level_
+    from .Typhon import log_level_
 
     successful_payloads = []
     pathlist = parse_payload_list(
@@ -492,7 +492,7 @@ def bypasses_output(
     :param generated_path: the generated path
     :return: None
     """
-    from Typhon import achivements, reminder
+    from .Typhon import achivements, reminder
 
     print("\n")
     bypassed_path, printed_reminder = [], []

@@ -39,16 +39,16 @@ while current_frame.f_globals["__name__"] != "__main__":
     current_frame = current_frame.f_back
 current_global_scope = current_frame.f_globals
 
-from utils import *
+from .utils import *
 
 # The RCE data including RCE functions and their parameters.
-with open("RCE_data.json", "r") as f:
-    RCE_data = json.load(f)
+from .RCE_data import *
+
 BANNER = (
     r"""
     .-')          _                 Typhon: a pyjail bypassing tool
    (`_^ (    .----`/                
-    ` )  \_/`   __/     __,    [Typhon Version]: v0.1
+    ` )  \_/`   __/     __,    [Typhon Version]: v1.0
     __{   |`  __/      /_/     [Python Version]: v"""
     + sys.version.split()[0]
     + r"""
