@@ -7,6 +7,8 @@
 # If you have any questions, please feel free to contact me.
 # Weilin Du <lamentxu644@gmail.com>, 2025.
 
+subclasses = object.__subclasses__()[:-1]  # delete ast.AST
+
 import json
 import logging
 
@@ -520,7 +522,6 @@ Try to bypass blacklist with them. Please be paitent.",
     # Step8: Try inheritance chain
     if "OBJECT" in tags:
         logger.info("[*] Trying to find inheritance chains.")
-        subclasses = ().__class__.__bases__[0].__subclasses__()
         subclasses_len = len(subclasses)
         searched_modules_tmp = deepcopy(searched_modules)
         for index, i in enumerate(subclasses):
@@ -796,6 +797,5 @@ def bypassREAD(
         try_to_restore("filecontentstring", cmd=filepath, end_of_prog=True)
     elif mode == "exec":
         try_to_restore("filecontentstring", cmd=filepath)
-        # try_to_restore("print_filecontent", cmd=filepath, end_of_prog=True)
-        print('[!] exec mode is not supported yet.')
+        try_to_restore("print_filecontent", cmd=filepath, end_of_prog=True)
     return bypasses_output(generated_path=generated_path)
