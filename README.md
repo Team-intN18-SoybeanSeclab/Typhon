@@ -1,8 +1,13 @@
 # Typhon: Lets solve pyjail without brain
 
-简体中文 | [English](./README_ENG.md)
-
-**本工具目前处于PoC阶段，尚不具备实战能力，也没有在任何平台发布版本（pip，github，etc.）。然而由于基本功能已经实现，我们欢迎各位尝试使用并提供反馈。目前，你可以尝试使用`bypassRCE`函数来体验本工具的功能。当前阶段，你可以通过阅读[Proof of Concept](#proof-of-concept)部分来了解本工具的核心思路。**
+[Highlights](#Highlights)  
+[How to Use](#How-to-Use)  
+[Proof of Concept](#Proof-of-Concept)  
+[Limitations](#Limitations)  
+[Milestones](#Milestones)  
+[Contributing](#contributing-提供typhon无法解出的题目)  
+[Credits](#credits)  
+[License](#license)  
 
 听着，我已经受够那些愚蠢的CTF pyjail题目了——每次我都要浪费时间在又臭又长的黑名单和各种pyjail总结之间找哪个链子没被过滤，或者在命名空间里一个一个运行`dir()`去找能用的东西。这简直就是一种折磨。
 
@@ -16,7 +21,7 @@
 
 - 完全开源，免费的一把梭工具  
 - 不需要大脑就能完成pyjail题目，爱护您的脑细胞和眼球
-- 拥有上千条gadgets和几乎所有主流的bypass方法
+- 拥有数百条gadgets和几乎所有主流的bypass方法
 - 支持多种函数以达成不同功能，如RCE用`bypassRCE()`, 读文件用`bypassRead()`等等
 - 不依赖任何第三方库，使用纯python3实现
 
@@ -24,7 +29,7 @@
 
 ### Install
 
-等功能实现完成，Typhon将会在pypi发布。那时你可以使用pip进行安装：
+你可以使用pip进行安装：
 
 ```
 pip install TyphonBreaker
@@ -262,18 +267,37 @@ Typhon的workflow顺序如下：
   - 将结果传递给下级函数
 - 下级函数拿到`bypassMAIN`的结果后，会根据该函数所实现的需求，选择对应的gadgets进行处理（如`bypassRCE`专注于RCE，`bypassREAD`专注于文件读取，`bypassENV`专注于读取环境变量）。其过程与上述相似。
 
-## Remaining Work to the first release
+## Limitations
 
-- [ ] 完善bypass*的终点函数（`bypassRCE`, `bypassREAD`, etc.）
-- [ ] 更好的bypasser逻辑
-- [ ] 更多的gadgets
-- [ ] 更多绕过方法（`techniques`）
+- 目前Typhon只支持python 3.9及以上版本。
+- 目前Typhon只支持linux沙箱。
+- 目前Typhon尚无法绕过audithook沙箱。
+- 由于Typhon采用局部最优的递归策略，对于一些简单的题目，反而需要耗时更久（约1min）。
+- 目前已知的不支持的bypass方法：
 
-## Future Work
+  - Typhon不支持以`list.pop(0)`代替`list[0]`，这是因为Typhon所生成的payload都需要经过本地执行验证才能成立，而`pop`方法在验证时会将元素从列表中删除，从而破坏后续环境。
 
-- [ ] 支持低于python3.9的版本
-- [ ] 支持audit hook绕过
-- [ ] 支持eval模式
+## Milestones
+
+### v1.0 （已发布）
+
+- [x] 实现基本框架
+
+### v1.1
+
+- [ ] 实现`audithook`沙箱的绕过
+- [ ] 实现`list.pop`绕过器
+
+### v1.2
+
+- [ ] 在没有长度限制的情况下，不使用局部长度最优的递归算法
+- [ ] 实现`bypassENV`函数，用于环境变量的读取
+
+## Contributing: 提供Typhon无法解出的题目
+
+我们将长期收集Typhon无法解出的题目。这对提升工具性能及其重要！如果你碰到无法一把梭的题目，请与本仓库打开issue，并写明题目来源（最好有对应的题解），我们会尽可能实现对该题目的自动求解。
+
+作为回报，我们会在每个release版本中囊括您的github ID。
 
 ## Credits
 
@@ -296,6 +320,8 @@ Typhon的workflow顺序如下：
 Copyright (c) 2024 ProbiusOfficial.
 
 下游项目（若有）请务必涵盖此。
+
+另：当前版本中尚未添加此功能。此copyright信息为预先保留。
 
 **Speical Thanks**
 
