@@ -1,4 +1,4 @@
-# Typhon: Lets solve pyjail without brain
+# Typhon: Lets solve pyjail without brain  
 
 听着，我已经受够那些愚蠢的CTF pyjail题目了——每次我都要浪费时间在又臭又长的黑名单和各种pyjail总结之间找哪个链子没被过滤，或者在命名空间里一个一个运行`dir()`去找能用的东西。这简直就是一种折磨。
 
@@ -13,9 +13,9 @@
 - [Proof of Concept](#Proof-of-Concept)  
 - [Limitations](#Limitations)  
 - [Milestones](#Milestones)  
-- [Contributing](#contributing-提供typhon无法解出的题目)  
-- [Credits](#credits)  
-- [License](#license)  
+- [Contributing](#Contributing)  
+- [Credits](#Credits)  
+- [License](#License)  
 
 ## Highlights
 
@@ -293,11 +293,13 @@ Typhon的workflow顺序如下：
 - [ ] 在没有长度限制的情况下，不使用局部长度最优的递归算法
 - [ ] 实现`bypassENV`函数，用于环境变量的读取
 
-## Contributing: 提供Typhon无法解出的题目
+## Contributing
 
-我们将长期收集Typhon无法解出的题目。这对提升工具性能及其重要！如果你碰到无法一把梭的题目，请与本仓库打开issue，并写明题目来源（最好有对应的题解），我们会尽可能实现对该题目的自动求解。
+### 提供Typhon无法解出的题目
 
-作为回报，我们会在每个release版本中囊括您的github ID。
+我们将长期收集Typhon无法解出的题目。这对提升工具性能及其重要！如果你碰到无法一把梭的题目，请于本仓库打开issue，并写明题目来源（最好有对应的题解），我们会尽可能实现对该题目的自动求解。
+
+作为回报，我们会在下一个release版本中囊括您的github ID。
 
 ## Credits
 
