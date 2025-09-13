@@ -1,4 +1,4 @@
-# Typhon: Lets solve pyjail without brain
+# Typhon: Lets solve pyjail without brain  
 
 听着，我已经受够那些愚蠢的CTF pyjail题目了——每次我都要浪费时间在又臭又长的黑名单和各种pyjail总结之间找哪个链子没被过滤，或者在命名空间里一个一个运行`dir()`去找能用的东西。这简直就是一种折磨。
 
