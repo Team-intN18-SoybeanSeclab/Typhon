@@ -63,7 +63,12 @@ def general_bypasser(func):
             if i == func.__name__:
                 return None  # Do not do the same bypass
         try:
-            return func(self, payload[0]).replace(" + ", "+").replace(", ", ",").replace(": ", ":")
+            return (
+                func(self, payload[0])
+                .replace(" + ", "+")
+                .replace(", ", ",")
+                .replace(": ", ":")
+            )
         except RecursionError:
             logger.debug(
                 f"Bypasser {func.__name__} got recurrence error on {payload[0]}"
@@ -91,7 +96,12 @@ def bypasser_not_work_with(bypasser_list: List[str]):
                     if i == j:
                         return None  # Do not work with this
             try:
-                return func(self, payload[0]).replace(" + ", "+").replace(", ", ",").replace(": ", ":")
+                return (
+                    func(self, payload[0])
+                    .replace(" + ", "+")
+                    .replace(", ", ",")
+                    .replace(": ", ":")
+                )
             except RecursionError:
                 logger.debug(
                     f"Bypasser {func.__name__} got recurrence error on {payload[0]}"
@@ -111,11 +121,14 @@ def recursion_protection(func):
     @wraps(func)
     def check(self, payload):
         try:
-            return func(self, payload).replace(" + ", "+").replace(", ", ",").replace(": ", ":")
-        except RecursionError:
-            logger.debug(
-                f"Bypasser {func.__name__} got recurrence error on {payload}"
+            return (
+                func(self, payload)
+                .replace(" + ", "+")
+                .replace(", ", ",")
+                .replace(": ", ":")
             )
+        except RecursionError:
+            logger.debug(f"Bypasser {func.__name__} got recurrence error on {payload}")
             return payload
 
     return check
@@ -199,8 +212,12 @@ class BypassGenerator:
             list: List of unique transformed payloads
         """
         from utils import is_blacklisted
-        if not is_blacklisted(self.payload):
-            return [self.payload] # in case of the challenge is so easy
+
+        true_paylaod = copy(self.payload)
+        for i in self.tags:
+            true_paylaod = true_paylaod.replace(i, self.tags[i])
+        if not is_blacklisted(true_paylaod):
+            return [true_paylaod]  # in case of the challenge is so easy
         output = []
         bypassed = [self.payload]
 
@@ -371,9 +388,11 @@ class BypassGenerator:
             str: Transformed payload
         """
         from utils import find_object
+
         base_64_name = find_object(base64, self.local_scope)
         if base_64_name is None:
             return payload
+
         class Transformer(ast.NodeTransformer):
             def visit_Constant(self, node):
                 if isinstance(node.value, str):
@@ -381,19 +400,21 @@ class BypassGenerator:
                     return ast.Call(
                         func=ast.Attribute(
                             value=ast.Call(
-                                func=ast.Name(id=base_64_name+'.b64decode', ctx=ast.Load()),
+                                func=ast.Name(
+                                    id=base_64_name + ".b64decode", ctx=ast.Load()
+                                ),
                                 args=[ast.Constant(value=encoded)],
-                                keywords=[]
+                                keywords=[],
                             ),
-                            attr='decode',
-                            ctx=ast.Load()
+                            attr="decode",
+                            ctx=ast.Load(),
                         ),
                         args=[],
-                        keywords=[]
+                        keywords=[],
                     )
                 return node
 
-        tree = ast.parse(payload, mode='eval')
+        tree = ast.parse(payload, mode="eval")
         new_tree = Transformer().visit(tree)
         return ast.unparse(new_tree)
 
@@ -1099,12 +1120,13 @@ class BypassGenerator:
         new_tree = Transformer().visit(tree)
         ast.fix_missing_locations(new_tree)
         return ast.unparse(new_tree)
-    
+
     @general_bypasser
     def dict_to_get(self, payload: str) -> str:
         """
         a['b'] -> a.get('b')
         """
+
         def _const_str_from_slice(slice_node):
             node = slice_node
 
@@ -1121,15 +1143,10 @@ class BypassGenerator:
                     return node
 
                 return ast.Call(
-                    func=ast.Attribute(
-                        value=node.value,
-                        attr='get',
-                        ctx=ast.Load()
-                    ),
+                    func=ast.Attribute(value=node.value, attr="get", ctx=ast.Load()),
                     args=[key_const],
-                    keywords=[]
+                    keywords=[],
                 )
-
 
         tree = ast.parse(payload, mode="eval")
         new_tree = Transformer().visit(tree)

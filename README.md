@@ -63,6 +63,37 @@ Typhon.bypassRCE(cmd: str,
 `recursion_limit`: 最大递归深度（建议使用默认值）  
 `log_level`: 输出级别（只有`info`和`debug`有意义，不建议更改）  
 
+```python
+import Typhon
+Typhon.bypassREAD(filepath: str,
+    mode:str='eval',
+    local_scope:dict={},
+    banned_chr:list=[],
+    banned_ast:list=[],
+    banned_re:list=[],
+    max_length:int=None,
+    allow_unicode_bypass:bool=False,
+    print_all_payload:bool=False,
+    interactive:bool=True,
+    depth:int=5,
+    recursion_limit:int=100,
+    log_level:str='INFO')
+```
+
+`filepath`: 所读取的文件路径  
+`mode`: 沙箱内RCE的模式，可选`eval`或`exec`，关系到最后外带输出的逻辑  
+`local_scope`: 沙箱内的全局变量空间  
+`banned_chr`: 禁止的字符  
+`banned_ast`: 禁止的AST节点  
+`banned_re`: 禁止的正则表达式（列表或字符串）  
+`max_length`: payload的最大长度  
+`allow_unicode_bypass`: 是否允许unicode绕过  
+`print_all_payload`: 是否打印所有payload   
+`interactive`: 当前pyjail是否允许`stdin`（即如`breakpoint()`等payload是否成立）  
+`depth`: 组合bypasser的最大深度（建议使用默认值）  
+`recursion_limit`: 最大递归深度（建议使用默认值）  
+`log_level`: 输出级别（只有`info`和`debug`有意义，不建议更改）  
+
 **Command Line Interface**
 
 这部分不是本工具的重点，但是PR welcome. 
@@ -257,6 +288,14 @@ Typhon的workflow顺序如下：
 <a href="https://github.com/eryajf/learn-github/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=Team-intN18-SoybeanSeclab/Typhon" />
 </a>
+
+**Copyright**
+
+针对bash绕过的内置绕过器，感谢[bashFuck](https://github.com/ProbiusOfficial/bashFuck)项目的作者@ [ProbiusOfficial](https://github.com/ProbiusOfficial)，其[License](https://github.com/ProbiusOfficial/bashFuck/blob/main/README.md)于此。
+
+Copyright (c) 2024 ProbiusOfficial.
+
+下游项目（若有）请务必涵盖此。
 
 **Speical Thanks**
 

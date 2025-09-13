@@ -63,6 +63,37 @@ Typhon.bypassRCE(cmd: str,
 `recursion_limit`: is the maximum recursion depth for bypassers.   
 `log_level`: Output level (only `info` and `debug` are meaningful, no change is recommended)   
 
+```python
+import Typhon
+Typhon.bypassREAD(filepath: str,
+    mode:str='eval',
+    local_scope:dict={},
+    banned_chr:list=[],
+    banned_ast:list=[],
+    banned_re:list=[],
+    max_length:int=None,
+    allow_unicode_bypass:bool=False,
+    print_all_payload:bool=False,
+    interactive:bool=True,
+    depth:int=5,
+    recursion_limit:int=100,
+    log_level:str='INFO')
+```
+
+`filepath`: file path to be read  
+`mode`: RCE function, chose from `eval` and `exec`   
+`local_scope`: Global variable space in the sandbox   
+`banned_chr`: Forbidden characters   
+`banned_ast`: Prohibited AST node   
+`banned_re`: Forbidden regular expression (list or string)   
+`max_length`: Maximum length of payload   
+`allow_unicode_bypass`: Whether to allow unicode to bypass   
+`print_all_payload`: Whether to print all payloads   
+`interaceive`: if the pyjail is a interactive shell that allows stdin.   
+`depth`: is the depth that combined bypassing being generarted.   
+`recursion_limit`: is the maximum recursion depth for bypassers.   
+`log_level`: Output level (only `info` and `debug` are meaningful, no change is recommended)   
+
 **Command Line Interface**
 
 This part is not the focus of this tool, but PR welcome.
@@ -257,6 +288,14 @@ Thanks to all the contributors who have helped improve this project.
 <a href="https://github.com/eryajf/learn-github/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=Team-intN18-SoybeanSeclab/Typhon" />
 </a>
+
+**Copyright**
+
+For bash bypassers, thanks to [bashFuck](https://github.com/ProbiusOfficial/bashFuck) and its contributors @ [ProbiusOfficial](https://github.com/ProbiusOfficial). Its [License](https://github.com/ProbiusOfficial/bashFuck/blob/main/README.md) here.
+
+Copyright (c) 2024 ProbiusOfficial.
+
+If any project built based on Typhon, please refer to this copyright.
 
 **Speical Thanks**
 
