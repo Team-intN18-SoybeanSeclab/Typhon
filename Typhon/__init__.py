@@ -2,10 +2,10 @@
 
 __version__ = '1.0'
 
-from .Typhon import bypassMAIN,bypassREAD
+from .Typhon import bypassRCE,bypassREAD
 
 
 __all__ = [
-    "bypassMAIN",
+    "bypassRCE",
     "bypassREAD"
 ]

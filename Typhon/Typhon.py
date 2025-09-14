@@ -9,7 +9,6 @@
 
 subclasses = object.__subclasses__()[:-1]  # delete ast.AST
 
-import json
 import logging
 
 from inspect import currentframe
