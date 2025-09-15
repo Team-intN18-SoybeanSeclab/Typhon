@@ -1152,3 +1152,45 @@ class BypassGenerator:
         new_tree = Transformer().visit(tree)
         ast.fix_missing_locations(new_tree)
         return ast.unparse(new_tree)
+    
+    @general_bypasser
+    def binop_to_method(self, payload: str) -> str:
+        """
+        a+b -> a.__add__(b)
+        """
+        class Transformer(ast.NodeTransformer):
+            def visit_BinOp(self, node):
+                method_map = {
+                    ast.Add: '__add__',
+                    ast.Sub: '__sub__',
+                    ast.Mult: '__mul__',
+                    ast.Div: '__truediv__',
+                    ast.FloorDiv: '__floordiv__',
+                    ast.Mod: '__mod__',
+                    ast.Pow: '__pow__',
+                    ast.LShift: '__lshift__',
+                    ast.RShift: '__rshift__',
+                    ast.BitOr: '__or__',
+                    ast.BitXor: '__xor__',
+                    ast.BitAnd: '__and__',
+                    ast.MatMult: '__matmul__',
+                }
+                
+                if type(node.op) in method_map:
+                    method_name = method_map[type(node.op)]
+                    return ast.Call(
+                        func=ast.Attribute(
+                            value=self.visit(node.left),
+                            attr=method_name,
+                            ctx=ast.Load()
+                        ),
+                        args=[self.visit(node.right)],
+                        keywords=[]
+                    )
+                
+                return self.generic_visit(node)
+        
+        tree = ast.parse(payload, mode="eval")
+        new_tree = Transformer().visit(tree)
+        ast.fix_missing_locations(new_tree)
+        return ast.unparse(new_tree)
