@@ -56,7 +56,7 @@ print(BANNER)
 
 
 def bypassMAIN(
-    local_scope: Dict[str, Any] = {},
+    local_scope: Dict[str, Any] = None,
     banned_chr: list = [],
     banned_ast: List[ast.AST] = [],
     banned_re: Union[str, List[str]] = [],
@@ -86,7 +86,7 @@ def bypassMAIN(
     :param log_level: is the logging level, default is INFO, change it to
     DEBUG for more details.
     """
-    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters, banned_ast_, banned_chr_, banned_re_, max_length_
+    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters, banned_ast_, banned_chr_, banned_re_, max_length_, original_scope
     if isinstance(banned_re, str):
         banned_re = [banned_re]  # convert to list if it's a string
     banned_chr_ = banned_chr
@@ -116,6 +116,9 @@ def bypassMAIN(
         "linecache",
         "pty",
         "io",
+        "ctypes",
+        "profile",
+        "timeit"
     ]
     log_level_ = log_level.upper()
     if log_level_ not in ["DEBUG", "INFO", "TESTING"]:
@@ -145,7 +148,7 @@ def bypassMAIN(
                 "[!] Please, change a better shell to enable the unicode feature."
             )
             allow_unicode_bypass = False
-    if local_scope == {}:
+    if local_scope == None:
         # If the local scope is not specified, raise a warning.
         logger.info("[*] local scope not specified, using the global scope.")
         logger.debug("[*] current global scope: %s", current_global_scope)
@@ -674,7 +677,11 @@ Try to bypass blacklist with them. Please be paitent.",
     logger.info("[*] modules we have found:")
     logger.info(get_module_from_tagged_scope(tagged_scope))
 
-    # Step11: Try to RCE directly with builtins
+    # Step11: Try to restore exec functions
+    if not find_object(exec, tagged_scope):
+        try_to_restore("exec")
+
+    # Step12: Try to RCE directly with builtins
     if ("BUILTINS_SET" in tags or "MODULE_BUILTINS" in tags) and interactive:
         logger.info("[*] try to RCE directly with builtins.")
         try_to_restore("builtins2RCEinput", end_of_prog=True)

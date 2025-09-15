@@ -207,24 +207,9 @@ RCE_data = {
             "multiprocessing",
         ],
     ],
-    "RCE_exec_functions": [
-        ["eval(CMD)", "eval"],
-        [
-            "multiprocessing.Process(target=lambda: CMD_NO_QUOTES).start()",
-            "multiprocessing",
-        ],
-        ["functools.partial(lambda: CMD_NO_QUOTES)()", "functools"],
-        ["threading.Thread(target=lambda: CMD_NO_QUOTES).start()", "threading"],
-        ["exec(CMD)", "exec"],
-        ["profile.run(CMD)", "profile"],
-        ["timeit.main(['-r','1','-n','1',CMD]", "timeit"],
-        ["timeit.timeit(CMD)", "timeit"],
-        ["codecs.IncrementalEncoder", "codecs"],
-        ["codecs.IncrementalDecoder"],
-        ["codecs.StreamReaderWriter"],
-        ["os._wrap_close"],
-        ["reprlib.Repr"],
-        ["weakref.finalize"],
+    "exec": [
+        ["profile.run", "profile"],
+        ["timeit.timeit", "timeit"],
     ],
     "filecontentstring": [
         ["linecache.getline(COMMAND,1)", "linecache"],

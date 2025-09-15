@@ -42,7 +42,7 @@ pip install TyphonBreaker
 ```python
 import Typhon
 Typhon.bypassRCE(cmd: str,
-    local_scope:dict={},
+    local_scope:dict=None,
     banned_chr:list=[],
     banned_ast:list=[],
     banned_re:list=[],
@@ -72,7 +72,7 @@ Typhon.bypassRCE(cmd: str,
 import Typhon
 Typhon.bypassREAD(filepath: str,
     mode:str='eval',
-    local_scope:dict={},
+    local_scope:dict=None,
     banned_chr:list=[],
     banned_ast:list=[],
     banned_re:list=[],
