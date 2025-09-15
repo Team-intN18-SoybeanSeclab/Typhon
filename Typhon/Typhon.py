@@ -26,12 +26,7 @@ log_level_ = "INFO"  # changable in bypassMAIN()
 search_depth = 5  # changable in bypassMAIN()
 logging.basicConfig(level=log_level_, format="%(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    format="%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s",
-    level=logging.DEBUG,
-    filename="test.log",
-    filemode="a",
-)
+
 # get current global scope
 current_frame = currentframe()
 while current_frame.f_globals["__name__"] != "__main__":
