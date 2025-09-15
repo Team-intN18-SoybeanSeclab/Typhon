@@ -286,7 +286,10 @@ Typhon的workflow顺序如下：
 ### v1.1
 
 - [ ] 实现`audithook`沙箱的绕过
-- [ ] 实现`list.pop`绕过器
+- [ ] 实现更多绕过器
+    - [x] 使用魔术方法替换二元运算符
+    - [ ] `list.pop(0)`替换`list[0]`
+- [ ] 实现内置的bash bypasser 
 
 ### v1.2
 

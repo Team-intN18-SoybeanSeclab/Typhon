@@ -42,11 +42,13 @@ def find_object(object: object, tagged_scope: dict):
     :return: name of the object, None if not found
     """
     from .Typhon import original_scope
+
     for i in tagged_scope:
         if eval(i, original_scope) == object:
             return i
-            
+
     return None
+
 
 def exec_with_returns(code: str, scope: dict):
     """
