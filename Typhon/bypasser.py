@@ -247,6 +247,8 @@ class BypassGenerator:
                 i = i.replace(tag_unicode_1, self.tags[j])
                 i = i.replace(tag_unicode_2, self.tags[j])
             output.append(i)
+            # if not is_blacklisted(i):
+            #     return bypassed  # in case of the challenge is so easy
         if self._allow_after_tagging_bypassers:
             from .utils import find_object
 
@@ -1190,6 +1192,65 @@ class BypassGenerator:
                     )
 
                 return self.generic_visit(node)
+
+        tree = ast.parse(payload, mode="eval")
+        new_tree = Transformer().visit(tree)
+        ast.fix_missing_locations(new_tree)
+        return ast.unparse(new_tree)
+
+    @general_bypasser
+    def string_to_dict_list(self, payload: str) -> str:
+        """
+        'whoami' → list(dict(whoami=1))[0]
+        """
+        from .utils import find_object
+
+        dictname = find_object(dict, self.local_scope)
+        if dictname is None:
+            return payload
+        listname = find_object(list, self.local_scope)
+        if listname is None:
+            return payload
+
+        class Transformer(ast.NodeTransformer):
+            def visit_Constant(self, node):
+                if not isinstance(node.value, str):
+                    return node
+                if not node.value:
+                    return node
+                if " " in node.value:
+                    return node
+                if any(
+                    [
+                        i
+                        for i in ["-", '"', "'", ".", "/", "\\", ";", "\n"]
+                        if i in node.value
+                    ]
+                ):
+                    return node
+                if all([i.isdigit() for i in node.value]):
+                    return node
+                if isinstance(node.value, str):
+                    dict_keyword = ast.keyword(
+                        arg=node.value, value=ast.Constant(value=1)
+                    )
+
+                    dict_call = ast.Call(
+                        func=ast.Name(id=dictname, ctx=ast.Load()),
+                        args=[],
+                        keywords=[dict_keyword],
+                    )
+                    list_call = ast.Call(
+                        func=ast.Name(id=listname, ctx=ast.Load()),
+                        args=[dict_call],
+                        keywords=[],
+                    )
+                    subscript = ast.Subscript(
+                        value=list_call, slice=ast.Constant(value=0), ctx=ast.Load()
+                    )
+
+                    return subscript
+                return node
 
         tree = ast.parse(payload, mode="eval")
         new_tree = Transformer().visit(tree)

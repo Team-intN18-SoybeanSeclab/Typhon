@@ -56,7 +56,7 @@ Typhon.bypassRCE(cmd: str,
 ```
 
 `cmd`: RCE所使用的bash command  
-`local_scope`: 沙箱内的全局变量空间  
+`local_scope`: 沙箱内的全局变量空间，若无限制则忽略此参数  
 `banned_chr`: 禁止的字符  
 `banned_ast`: 禁止的AST节点  
 `banned_re`: 禁止的正则表达式（列表或字符串）  
@@ -87,7 +87,7 @@ Typhon.bypassREAD(filepath: str,
 
 `filepath`: 所读取的文件路径  
 `mode`: 沙箱内RCE的模式，可选`eval`或`exec`，关系到最后外带输出的逻辑  
-`local_scope`: 沙箱内的全局变量空间  
+`local_scope`: 沙箱内的全局变量空间，若无限制则忽略此参数  
 `banned_chr`: 禁止的字符  
 `banned_ast`: 禁止的AST节点  
 `banned_re`: 禁止的正则表达式（列表或字符串）  
@@ -207,6 +207,10 @@ Pyjail中存在一些通过索引寻找对应object的gadgets（如继承链）�
 
 这种情况下往往需要CTF选手自己去找题目环境中该gadgets需要的索引值。  
 
+- 题目的`exec`和`eval`没有限制命名空间
+
+假设题目没有限制命名空间，则不必填写`local_scope`参数。Typhon会自动使用`import Typhon`时的当前命名空间进行绕过
+
 - 这个payload我用不了能不能换一个
 
 你可以在参数中加上`print_all_payload=True`，Typhon就会打印其生成的所有payload。
@@ -287,8 +291,9 @@ Typhon的workflow顺序如下：
 
 - [ ] 实现`audithook`沙箱的绕过
 - [ ] 实现更多绕过器
-    - [x] 使用魔术方法替换二元运算符
+    - [x] 使用魔术方法替换二元运算符 (`a.__add__(b)`替换`a+b`)
     - [ ] `list.pop(0)`替换`list[0]`
+    - [x] `list(dict(a=1))[0]`替换`'a'`
 - [ ] 实现内置的bash bypasser 
 
 ### v1.2
