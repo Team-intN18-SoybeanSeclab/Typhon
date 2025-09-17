@@ -42,7 +42,7 @@ BANNER = (
     r"""
     .-')          _                 Typhon: a pyjail bypassing tool
    (`_^ (    .----`/                
-    ` )  \_/`   __/     __,    [Typhon Version]: v1.0.3
+    ` )  \_/`   __/     __,    [Typhon Version]: v1.0.3.2
     __{   |`  __/      /_/     [Python Version]: v"""
     + sys.version.split()[0]
     + r"""
@@ -89,6 +89,10 @@ def bypassMAIN(
     global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters, banned_ast_, banned_chr_, banned_re_, max_length_, original_scope, int_dict
     if isinstance(banned_re, str):
         banned_re = [banned_re]  # convert to list if it's a string
+    if '__builtins__' in local_scope:
+        is_builtins_rewrited = True
+    else:
+        is_builtins_rewrited = False
     banned_chr_ = banned_chr
     banned_ast_ = banned_ast
     banned_re_ = banned_re
@@ -305,7 +309,7 @@ Try to bypass blacklist with them. Please be paitent.",
     # Step2: Try to exec directly with simple paths
     simple_path = (
         filter_path_list(RCE_data["directly_getshell"], tagged_scope)
-        if interactive
+        if interactive and not is_builtins_rewrited
         else []
     )
     if simple_path:
@@ -429,7 +433,7 @@ Try to bypass blacklist with them. Please be paitent.",
                         "[-] no way to find a bypass method to restore builtins."
                     )
                 else:
-                    if interactive:
+                    if interactive and not is_builtins_rewrited:
                         try_to_restore(
                             "builtins2RCEinput", end_of_prog=True
                         )  # try to RCE directly with builtins
@@ -520,7 +524,7 @@ Try to bypass blacklist with them. Please be paitent.",
         else:
             logger.info("[-] no paths found to restore builtins in other namespaces.")
 
-    if ("BUILTINS_SET" in tags or "MODULE_BUILTINS" in tags) and interactive:
+    if ("BUILTINS_SET" in tags or "MODULE_BUILTINS" in tags) and interactive and not is_builtins_rewrited:
         logger.info("[*] try to RCE directly with builtins.")
         try_to_restore("builtins2RCEinput", end_of_prog=True)
 
@@ -690,7 +694,7 @@ Try to bypass blacklist with them. Please be paitent.",
         try_to_restore("exec")
 
     # Step12: Try to RCE directly with builtins
-    if ("BUILTINS_SET" in tags or "MODULE_BUILTINS" in tags) and interactive:
+    if ("BUILTINS_SET" in tags or "MODULE_BUILTINS" in tags) and (interactive and not is_builtins_rewrited):
         logger.info("[*] try to RCE directly with builtins.")
         try_to_restore("builtins2RCEinput", end_of_prog=True)
 
