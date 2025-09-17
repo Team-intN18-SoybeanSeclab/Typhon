@@ -224,7 +224,7 @@ Pyjail中存在一些通过索引寻找对应object的gadgets（如继承链）�
 
 - 最后输出的payload没回显怎么办？
 
-对于`bypassRCE`，我们认为：**只要命令得到了执行，就是RCE成功。**至于回显问题，你可以选择反弹shell，时间盲注，或者：添加`print_all_payload=True`参数，查看所有payload，其中可能含有能够成功回显的payload。
+对于`bypassRCE`，我们认为：**只要命令得到了执行，就是RCE成功。** 至于回显问题，你可以选择反弹shell，时间盲注，或者：添加`print_all_payload=True`参数，查看所有payload，其中可能含有能够成功回显的payload。
 
 ## Proof of Concept
 
