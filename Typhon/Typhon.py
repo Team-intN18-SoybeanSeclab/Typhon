@@ -299,7 +299,6 @@ Try to bypass blacklist with them. Please be paitent.",
         if not is_blacklisted(str(i)):
             int_dict.update({i: str(i)})
         # TODO: bypassers to get ints
-
     print()
     logger.debug("[*] int literals found: %s", string_dict)
 
