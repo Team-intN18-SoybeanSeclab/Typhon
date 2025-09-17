@@ -6,10 +6,11 @@
 
 ![image](./image/usage_example.gif)
 
-**请务必看完本readme后再使用Typhon工具。**
+**请务必看完本readme后再使用Typhon工具，尤其是[Q&A](#QA)部分。**
 
 - [Highlights](#Highlights)  
 - [How to Use](#How-to-Use)  
+- [Q&A](#QA)
 - [Proof of Concept](#Proof-of-Concept)  
 - [Limitations](#Limitations)  
 - [Milestones](#Milestones)  
@@ -170,9 +171,11 @@ safe_run(input("Enter command: "))
 
 ![image](./image/step-by-step-tutorial.png)
 
-## Important Note
+# Q&A
 
-- 一定要将行`import Typhon`放在`Typhon`内置绕过函数的上一行（即使你患有PEP-8强迫症）。否则，`Typhon`将无法通过栈帧获取当前的全局变量空间。
+- 何时`import Typhon`？
+
+一定要将行`import Typhon`放在`Typhon`内置绕过函数的上一行（即使你患有PEP-8强迫症）。否则，`Typhon`将无法通过栈帧获取当前的全局变量空间。
 
 **Do:**
 ```python
@@ -195,7 +198,7 @@ def safe_run(cmd):
 safe_run('cat /f*')
 ```
 
-- 使用与题目相同的python版本
+- 为什么需要使用与题目相同的python版本？
 
 Pyjail中存在一些通过索引寻找对应object的gadgets（如继承链）。继承链的利用随着索引变化很大。因此，请务必确保Typhon的运行环境与题目相同。
 
@@ -207,17 +210,21 @@ Pyjail中存在一些通过索引寻找对应object的gadgets（如继承链）�
 
 这种情况下往往需要CTF选手自己去找题目环境中该gadgets需要的索引值。  
 
-- 题目的`exec`和`eval`没有限制命名空间
+- 如果题目的`exec`和`eval`没有限制命名空间怎么办？
 
 假设题目没有限制命名空间，则不必填写`local_scope`参数。Typhon会自动使用`import Typhon`时的当前命名空间进行绕过
 
-- 这个payload我用不了能不能换一个
+- 这个payload我用不了能不能换一个？
 
 你可以在参数中加上`print_all_payload=True`，Typhon就会打印其生成的所有payload。
 
-- 这个WEB题好像没开放stdin，我`exec(input())`没用
+- 这个WEB题好像没开放stdin，我`exec(input())`没用怎么办？
 
 你可以在参数中加上`interactive=False`，Typhon就会禁止使用所有涉及`stdin`的payload。
+
+- 最后输出的payload没回显怎么办？
+
+对于`bypassRCE`，我们认为：**只要命令得到了执行，就是RCE成功。**至于回显问题，你可以选择反弹shell，时间盲注，或者：添加`print_all_payload=True`参数，查看所有payload，其中可能含有能够成功回显的payload。
 
 ## Proof of Concept
 
