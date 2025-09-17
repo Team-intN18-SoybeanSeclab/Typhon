@@ -1204,6 +1204,18 @@ class BypassGenerator:
         'whoami' → list(dict(whoami=1))[0]
         """
         from .utils import find_object
+        from .Typhon import int_dict
+
+        if int_dict == {}:
+            return payload
+        else:
+            for i in int_dict:
+                using_int = int_dict[i]
+            if isinstance(using_int, str):
+                try:
+                    using_int = int(using_int)
+                except ValueError:
+                    pass
 
         dictname = find_object(dict, self.local_scope)
         if dictname is None:
@@ -1232,7 +1244,7 @@ class BypassGenerator:
                     return node
                 if isinstance(node.value, str):
                     dict_keyword = ast.keyword(
-                        arg=node.value, value=ast.Constant(value=1)
+                        arg=node.value, value=ast.Constant(value=using_int)
                     )
 
                     dict_call = ast.Call(

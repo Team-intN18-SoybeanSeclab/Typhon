@@ -42,7 +42,7 @@ BANNER = (
     r"""
     .-')          _                 Typhon: a pyjail bypassing tool
    (`_^ (    .----`/                
-    ` )  \_/`   __/     __,    [Typhon Version]: v1.0.3 dev
+    ` )  \_/`   __/     __,    [Typhon Version]: v1.0.3
     __{   |`  __/      /_/     [Python Version]: v"""
     + sys.version.split()[0]
     + r"""
@@ -86,7 +86,7 @@ def bypassMAIN(
     :param log_level: is the logging level, default is INFO, change it to
     DEBUG for more details.
     """
-    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters, banned_ast_, banned_chr_, banned_re_, max_length_, original_scope
+    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters, banned_ast_, banned_chr_, banned_re_, max_length_, original_scope, int_dict
     if isinstance(banned_re, str):
         banned_re = [banned_re]  # convert to list if it's a string
     banned_chr_ = banned_chr
@@ -98,6 +98,7 @@ def bypassMAIN(
     string_dict = (
         {}
     )  # The dictionary of string literals found in the scope (e.g. {'b': bytes.__doc__[0]})
+    int_dict = {}  # The dictionary of integer literals found in the scope
     useful_modules = [
         "os",
         "subprocess",
@@ -293,6 +294,14 @@ Try to bypass blacklist with them. Please be paitent.",
                             break
     print()
     logger.debug("[*] string literals found: %s", string_dict)
+
+    for i in digits:
+        if not is_blacklisted(str(i)):
+            int_dict.update({i: str(i)})
+        # TODO: bypassers to get ints
+    
+    print()
+    logger.debug("[*] int literals found: %s", string_dict)
 
     # Step2: Try to exec directly with simple paths
     simple_path = (
