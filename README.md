@@ -105,6 +105,8 @@ Typhon.bypassREAD(filepath: str,
 `recursion_limit`: 最大递归深度（建议使用默认值）  
 `log_level`: 输出级别（只有`info`和`debug`有意义，不建议更改）  
 
+**此处注：此工具目前对`bypassREAD`函数的处理很不严谨。该函数将在后面的版本中得到大幅度的改善和细化。**
+
 **Command Line Interface**
 
 这部分不是本工具的重点，但是PR welcome. 
@@ -301,15 +303,16 @@ Typhon的workflow顺序如下：
 
 ### v1.1
 
-- [ ] 实现`audithook`沙箱的绕过
 - [ ] 实现更多绕过器
     - [x] 使用魔术方法替换二元运算符 (`a.__add__(b)`替换`a+b`)
     - [ ] `list.pop(0)`替换`list[0]`
     - [x] `list(dict(a=1))[0]`替换`'a'`
 - [ ] 实现内置的bash bypasser 
+- [ ] 更好的`bypassREAD`函数  
 
 ### v1.2
 
+- [ ] 实现`audithook`沙箱的绕过  
 - [ ] 在没有长度限制的情况下，不使用局部长度最优的递归算法
 - [ ] 实现`bypassENV`函数，用于环境变量的读取
 
