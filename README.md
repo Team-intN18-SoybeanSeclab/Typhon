@@ -57,7 +57,7 @@ Typhon.bypassRCE(cmd: str,
     print_all_payload:bool=False,
     interactive:bool=True,
     depth:int=5,
-    recursion_limit:int=100,
+    recursion_limit:int=200,
     log_level:str='INFO')
 ```
 
@@ -87,7 +87,7 @@ Typhon.bypassREAD(filepath: str,
     print_all_payload:bool=False,
     interactive:bool=True,
     depth:int=5,
-    recursion_limit:int=100,
+    recursion_limit:int=200,
     log_level:str='INFO')
 ```
 
