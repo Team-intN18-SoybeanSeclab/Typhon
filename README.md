@@ -1,5 +1,11 @@
 # Typhon: Lets solve pyjail without brain  
 
+[![PyPI Downloads](https://static.pepy.tech/personalized-badge/typhonbreaker?period=total&units=ABBREVIATION&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/typhonbreaker)
+![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
+![Python_version](https://img.shields.io/badge/Python-3.9+-purple.svg)
+![GitHub Repo stars](https://img.shields.io/github/stars/Team-intN18-SoybeanSeclab/Typhon?style=social)
+![Tests](https://github.com/Team-intN18-SoybeanSeclab/Typhon/actions/workflows/test.yml/badge.svg)
+
 听着，我已经受够那些愚蠢的CTF pyjail题目了——每次我都要浪费时间在又臭又长的黑名单和各种pyjail总结之间找哪个链子没被过滤，或者在命名空间里一个一个运行`dir()`去找能用的东西。这简直就是一种折磨。
 
 所以这就是Typhon（提丰），一个致力于让你不需要脑子也能做pyjail的一把梭工具。
