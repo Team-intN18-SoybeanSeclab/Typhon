@@ -247,8 +247,9 @@ class BypassGenerator:
                 i = i.replace(tag_unicode_1, self.tags[j])
                 i = i.replace(tag_unicode_2, self.tags[j])
             output.append(i)
-            # if not is_blacklisted(i):
-            #     return bypassed  # in case of the challenge is so easy
+        for i in output:
+            if not is_blacklisted(i):
+                return output  # in case of the challenge is easy
         if self._allow_after_tagging_bypassers:
             from .utils import find_object
 
@@ -510,50 +511,51 @@ class BypassGenerator:
         except (SyntaxError, AttributeError):
             return payload
 
-    @general_bypasser
-    def obfuscate_func_call(self, payload: str) -> str:
-        """
-        Obfuscate function calls using lambda wrappers with support for multiple arguments.
-        """
-        from .Typhon import allowed_letters
+    # deprecated
+    # @general_bypasser
+    # def obfuscate_func_call(self, payload: str) -> str:
+    #     """
+    #     Obfuscate function calls using lambda wrappers with support for multiple arguments.
+    #     """
+    #     from .Typhon import allowed_letters
 
-        class Transformer(ast.NodeTransformer):
-            def visit_Call(self, node):
-                if isinstance(node.func, ast.Lambda):
-                    return node
-                num_args = len(node.args)
-                try:
-                    param_names = [
-                        allowed_letters[i] for i in range(num_args + 1)
-                    ]  # a, b, c, ...
-                except IndexError:
-                    return node  # Too many arguments
-                lambda_args = [ast.arg(arg=name) for name in param_names]
-                call_args = [
-                    ast.Name(id=name, ctx=ast.Load()) for name in param_names[1:]
-                ]
-                lambda_func = ast.Lambda(
-                    args=ast.arguments(
-                        posonlyargs=[],
-                        args=lambda_args,
-                        kwonlyargs=[],
-                        kw_defaults=[],
-                        defaults=[],
-                    ),
-                    body=ast.Call(
-                        func=ast.Name(id=param_names[0], ctx=ast.Load()),
-                        args=call_args,
-                        keywords=[],
-                    ),
-                )
-                call_args_with_func = [node.func] + node.args
+    #     class Transformer(ast.NodeTransformer):
+    #         def visit_Call(self, node):
+    #             if isinstance(node.func, ast.Lambda):
+    #                 return node
+    #             num_args = len(node.args)
+    #             try:
+    #                 param_names = [
+    #                     allowed_letters[i] for i in range(num_args + 1)
+    #                 ]  # a, b, c, ...
+    #             except IndexError:
+    #                 return node  # Too many arguments
+    #             lambda_args = [ast.arg(arg=name) for name in param_names]
+    #             call_args = [
+    #                 ast.Name(id=name, ctx=ast.Load()) for name in param_names[1:]
+    #             ]
+    #             lambda_func = ast.Lambda(
+    #                 args=ast.arguments(
+    #                     posonlyargs=[],
+    #                     args=lambda_args,
+    #                     kwonlyargs=[],
+    #                     kw_defaults=[],
+    #                     defaults=[],
+    #                 ),
+    #                 body=ast.Call(
+    #                     func=ast.Name(id=param_names[0], ctx=ast.Load()),
+    #                     args=call_args,
+    #                     keywords=[],
+    #                 ),
+    #             )
+    #             call_args_with_func = [node.func] + node.args
 
-                return ast.Call(func=lambda_func, args=call_args_with_func, keywords=[])
+    #             return ast.Call(func=lambda_func, args=call_args_with_func, keywords=[])
 
-        tree = ast.parse(payload, mode="eval")
-        new_tree = Transformer().visit(tree)
-        ast.fix_missing_locations(new_tree)
-        return ast.unparse(new_tree)
+    #     tree = ast.parse(payload, mode="eval")
+    #     new_tree = Transformer().visit(tree)
+    #     ast.fix_missing_locations(new_tree)
+    #     return ast.unparse(new_tree)
 
     @bypasser_not_work_with(["string_reversing"])
     def string_slicing(self, payload: str) -> str:
