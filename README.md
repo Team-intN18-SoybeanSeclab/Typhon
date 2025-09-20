@@ -52,6 +52,7 @@ import Typhon
 Typhon.bypassRCE(cmd: str,
     local_scope:dict=None,
     banned_chr:list=[],
+    allowed_chr:list=[],
     banned_ast:list=[],
     banned_re:list=[],
     max_length:int=None,
@@ -66,6 +67,7 @@ Typhon.bypassRCE(cmd: str,
 `cmd`: RCE所使用的bash command  
 `local_scope`: 沙箱内的全局变量空间，若无限制则忽略此参数  
 `banned_chr`: 禁止的字符  
+`allowed_chr`: 允许的字符（`[]`为全部允许）  
 `banned_ast`: 禁止的AST节点  
 `banned_re`: 禁止的正则表达式（列表或字符串）  
 `max_length`: payload的最大长度  
@@ -82,6 +84,7 @@ Typhon.bypassREAD(filepath: str,
     mode:str='eval',
     local_scope:dict=None,
     banned_chr:list=[],
+    allowed_chr:list=[],
     banned_ast:list=[],
     banned_re:list=[],
     max_length:int=None,
@@ -97,6 +100,7 @@ Typhon.bypassREAD(filepath: str,
 `mode`: 沙箱内RCE的模式，可选`eval`或`exec`，关系到最后外带输出的逻辑  
 `local_scope`: 沙箱内的全局变量空间，若无限制则忽略此参数  
 `banned_chr`: 禁止的字符  
+`allowed_chr`: 允许的字符（`[]`为全部允许）  
 `banned_ast`: 禁止的AST节点  
 `banned_re`: 禁止的正则表达式（列表或字符串）  
 `max_length`: payload的最大长度  
