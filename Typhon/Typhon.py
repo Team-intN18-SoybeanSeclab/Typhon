@@ -58,6 +58,7 @@ print(BANNER)
 def bypassMAIN(
     local_scope: Dict[str, Any] = None,
     banned_chr: list = [],
+    allowed_chr: list = [],
     banned_ast: List[ast.AST] = [],
     banned_re: Union[str, List[str]] = [],
     max_length: int = None,
@@ -76,6 +77,7 @@ def bypassMAIN(
 
     :param local_scope: is a list of local variables in the sandbox environment.
     :param banned_chr: is a list of blacklisted characters.
+    :param allowed_chr: is a list of allowed characters.
     :param banned_ast: is a list of banned AST.
     :param banned_re: is a banned regex.
     :param allow_unicode_bypass: if unicode bypasses are allowed.
@@ -86,7 +88,7 @@ def bypassMAIN(
     :param log_level: is the logging level, default is INFO, change it to
     DEBUG for more details.
     """
-    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters, banned_ast_, banned_chr_, banned_re_, max_length_, original_scope, int_dict
+    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters, banned_ast_, banned_chr_, banned_re_, max_length_, original_scope, int_dict, allowed_chr_
     if isinstance(banned_re, str):
         banned_re = [banned_re]  # convert to list if it's a string
     if "__builtins__" in local_scope:
@@ -97,6 +99,7 @@ def bypassMAIN(
     banned_ast_ = banned_ast
     banned_re_ = banned_re
     max_length_ = max_length
+    allowed_chr_ = allowed_chr
     sys.setrecursionlimit(recursion_limit)
     logger.debug("[*] current recursion limit: %d", sys.getrecursionlimit())
     string_dict = (
@@ -268,6 +271,10 @@ Try to bypass blacklist with them. Please be paitent.",
     allowed_letters = [
         i for i in ascii_letters + "_" if i not in banned_chr and i not in local_scope
     ]
+    if allowed_chr != []:
+        for i in allowed_letters:
+            if i not in allowed_chr:
+                allowed_letters.remove(i)
     obj_list = [i for i in tagged_scope]
     obj_list.sort(key=len)
     string_ords = [i for i in range(32, 127)]
@@ -711,6 +718,7 @@ def bypassRCE(
     cmd,
     local_scope: dict = {},
     banned_chr: list = [],
+    allowed_chr: list = [],
     banned_ast: list = [],
     banned_re: list = [],
     max_length: int = None,
@@ -727,6 +735,7 @@ def bypassRCE(
     :param cmd: is the command to execute.
     :param local_scope: is a list of local variables in the sandbox environment.
     :param banned_chr: is a list of blacklisted characters.
+    :param allowed_chr: is a list of allowed characters.
     :param banned_ast: is a list of banned AST.
     :param banned_re: is a banned regex.
     :param allow_unicode_bypass: if unicode bypasses are allowed.
@@ -743,14 +752,15 @@ def bypassRCE(
     generated_path = bypassMAIN(
         local_scope,
         banned_chr=banned_chr,
+        allowed_chr=allowed_chr,
         banned_ast=banned_ast,
         banned_re=banned_re,
         max_length=max_length,
         allow_unicode_bypass=allow_unicode_bypass,
-        interactive=interactive,
-        print_all_payload=print_all_payload,
         depth=depth,
         recursion_limit=recursion_limit,
+        interactive=interactive,
+        print_all_payload=print_all_payload,
         log_level=log_level,
     )
     try_to_restore("__import__2RCE", end_of_prog=True, cmd=cmd)
@@ -763,6 +773,7 @@ def bypassREAD(
     mode: str = "eval",
     local_scope: dict = {},
     banned_chr: list = [],
+    allowed_chr: list = [],
     banned_ast: list = [],
     banned_re: list = [],
     max_length: int = None,
@@ -780,6 +791,7 @@ def bypassREAD(
     :param mode: eval & exec. Based on the execution function used by the targeted sandbox.
     :param local_scope: is a list of local variables in the sandbox environment.
     :param banned_chr: is a list of blacklisted characters.
+    :param allowed_chr: is a list of allowed characters.
     :param banned_ast: is a list of banned AST.
     :param banned_re: is a banned regex.
     :param allow_unicode_bypass: if unicode bypasses are allowed.
@@ -796,6 +808,7 @@ def bypassREAD(
     generated_path = bypassMAIN(
         local_scope,
         banned_chr=banned_chr,
+        allowed_chr=allowed_chr,
         banned_ast=banned_ast,
         banned_re=banned_re,
         max_length=max_length,
