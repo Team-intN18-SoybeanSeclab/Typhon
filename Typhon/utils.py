@@ -408,7 +408,7 @@ def is_blacklisted(payload) -> bool:
     return (
         any(i in payload for i in banned_chr_)  # banned character check
         or (
-            not all(i in allowed_chr_ for i in payload) or allowed_chr_ == []
+            allowed_chr_ != [] and not all(i in allowed_chr_ for i in payload)
         )  # allowed character check
         or ast_banned  # AST check
         or re_banned  # regex check
