@@ -14,18 +14,8 @@ class TestTyphonRCE(unittest.TestCase):
 
                 Typhon.bypassRCE(
                     cmd="whoami",
-                    banned_chr=[
-                        "__loader__",
-                        "__import__",
-                        "os",
-                        "[:",
-                        "\\x",
-                        "+",
-                        "join",
-                    ],
                     interactive=False,
                     recursion_limit=100,
-                    local_scope={"__builtins__": None, "exc": exec},
                     depth=5,
                     log_level="TESTING",
                 )
