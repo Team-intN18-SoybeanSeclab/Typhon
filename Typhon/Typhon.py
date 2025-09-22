@@ -42,7 +42,7 @@ BANNER = (
     r"""
     .-')          _                 Typhon: a pyjail bypassing tool
    (`_^ (    .----`/                
-    ` )  \_/`   __/     __,    [Typhon Version]: v1.0.6
+    ` )  \_/`   __/     __,    [Typhon Version]: v1.0.6.1
     __{   |`  __/      /_/     [Python Version]: v"""
     + sys.version.split()[0]
     + r"""
@@ -304,14 +304,14 @@ Try to bypass blacklist with them. Please be paitent.",
                             )
                             break
     print()
-    logger.debug("[*] string literals found: %s", string_dict)
+    logger.info("[*] string literals found: %s", string_dict)
 
     for i in digits:
         if not is_blacklisted(str(i)):
             int_dict.update({i: str(i)})
         # TODO: bypassers to get ints
     print()
-    logger.debug("[*] int literals found: %s", string_dict)
+    logger.info("[*] int literals found: %s", string_dict)
 
     # Step2: Try to exec directly with simple paths
     simple_path = (

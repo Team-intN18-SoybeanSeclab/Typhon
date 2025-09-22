@@ -268,22 +268,22 @@ def parse_payload_list(
         if "GENERATOR" in payload:
             if "GENERATOR" in generated_path:
                 tags["GENERATOR"] = generated_path["GENERATOR"]
-            if not generated_path["GENERATOR"]:
+            if 'GENERATOR' not in generated_path:
                 continue
         if "TYPE" in payload:
             if "TYPE" in generated_path:
                 tags["TYPE"] = generated_path["TYPE"]
-            if not generated_path["TYPE"]:
+            if 'TYPE' not in generated_path:
                 continue
         if "OBJECT" in payload:
             if "OBJECT" in generated_path:
                 tags["OBJECT"] = generated_path["OBJECT"]
-            if not generated_path["OBJECT"]:
+            if 'OBJECT' not in generated_path:
                 continue
         if "BUILTINS_SET" in payload:
             if "BUILTINS_SET" in generated_path:
                 tags["BUILTINS_SET"] = generated_path["BUILTINS_SET"]
-            if not generated_path["BUILTINS_SET"]:
+            if "BUILTINS_SET" not in generated_path:
                 continue
         if "MODULE_BUILTINS" in payload:
             if "MODULE_BUILTINS" in generated_path:
