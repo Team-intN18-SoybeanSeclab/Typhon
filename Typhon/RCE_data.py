@@ -251,9 +251,9 @@ RCE_data = {
         ["print(FILECONTENTSTRING)", "print,FILECONTENTSTRING"],
         ["raise Exception(FILECONTENTSTRING)", "Exception,FILECONTENTSTRING"],
     ],
-    "bytes":[
+    "bytes": [
         ["OBJECT.__subclasses__()[6]", "OBJECT"],
-        ["type(RANDOMSTRING.encode())", "type"]
+        ["type(RANDOMSTRING.encode())", "type"],
     ],
     "python2": {
         "RCE_system_functions": [
