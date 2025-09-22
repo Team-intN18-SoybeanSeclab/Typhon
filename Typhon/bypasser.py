@@ -182,11 +182,13 @@ class BypassGenerator:
         """
         Initialize the bypass generator with a payload.
 
-        Args:
-            :param payload: The Python expression/statement to be transformed
-            :param allow_unicode_bypass: if unicode bypasses are allowed
-            :param local_scope: tagged local scope
+        :param payload: The Python expression/statement to be transformed
+        :param allow_unicode_bypass: if unicode bypasses are allowed
+        :param local_scope: tagged local scope
         """
+        from .utils import find_object
+        
+        self.find_object = find_object
         self.payload = payload[0]
         self.tags = payload[1]
         self.allow_unicode_bypass = allow_unicode_bypass
@@ -251,12 +253,12 @@ class BypassGenerator:
             if not is_blacklisted(i):
                 return output  # in case of the challenge is easy
         if self._allow_after_tagging_bypassers:
-            from .utils import find_object
+            
 
             output.append(self.numbers_to_binary_base(i))
             output.append(self.numbers_to_hex_base(i))
             output.append(self.numbers_to_oct_base(i))
-            if find_object(exec, self.local_scope):
+            if self.find_object(exec, self.local_scope):
                 output.extend(
                     BypassGenerator(
                         [self.repr_to_exec(i), {}],
@@ -266,7 +268,7 @@ class BypassGenerator:
                         search_depth=self.search_depth // 2,
                     ).generate_bypasses()
                 )
-            if find_object(eval, self.local_scope):
+            if self.find_object(eval, self.local_scope):
                 output.extend(
                     BypassGenerator(
                         [self.repr_to_eval(i), {}],
@@ -344,9 +346,9 @@ class BypassGenerator:
         """
         'a.b' -> 'getattr(a, "b")'
         """
-        from .utils import find_object
+        
 
-        name = find_object(getattr, self.local_scope)
+        name = self.find_object(getattr, self.local_scope)
         if name is None:
             return payload
         tree = ast.parse(payload, mode="eval")
@@ -390,9 +392,9 @@ class BypassGenerator:
         Returns:
             str: Transformed payload
         """
-        from .utils import find_object
+        
 
-        base_64_name = find_object(base64, self.local_scope)
+        base_64_name = self.find_object(base64, self.local_scope)
         if base_64_name is None:
             return payload
 
@@ -746,9 +748,9 @@ class BypassGenerator:
         """
         'a'+'b'+'c' -> chr(97)+chr(98)+chr(99)'
         """
-        from .utils import find_object
+        
 
-        name = find_object(chr, self.local_scope)
+        name = self.find_object(chr, self.local_scope)
         if name is None:
             return payload
 
@@ -818,9 +820,9 @@ class BypassGenerator:
         """
         'a'+'b'+'c' -> bytes([97])+bytes([98])+bytes([99])
         """
-        from .utils import find_object
+        
 
-        name = find_object(bytes, self.local_scope)
+        name = self.find_object(bytes, self.local_scope)
         if name is None:
             return payload
 
@@ -913,9 +915,9 @@ class BypassGenerator:
         """
         'abc' -> bytes([97, 98, 99])
         """
-        from .utils import find_object
+        
 
-        name = find_object(bytes, self.local_scope)
+        name = self.find_object(bytes, self.local_scope)
         if name is None:
             return payload
 
@@ -1056,9 +1058,9 @@ class BypassGenerator:
         wraps the payload with exec()
         __import__('os').system('ls') -> exec("__import__('os').popen('ls').read()")
         """
-        from .utils import find_object
+        
 
-        name = find_object(exec, self.local_scope)
+        name = self.find_object(exec, self.local_scope)
         if name is None:
             return payload
         single_comma = payload.find("'")
@@ -1080,9 +1082,9 @@ class BypassGenerator:
         """
         if ";" in payload or "\n" in payload:
             return payload
-        from .utils import find_object
+        
 
-        name = find_object(eval, self.local_scope)
+        name = self.find_object(eval, self.local_scope)
         if name is None:
             return payload
         single_comma = payload.find("'")
@@ -1100,9 +1102,9 @@ class BypassGenerator:
         """
         "".join([]) -> chr().join([])
         """
-        from .utils import find_object
+        
 
-        string_name = find_object(str, self.local_scope)
+        string_name = self.find_object(str, self.local_scope)
         if string_name is None:
             return payload
 
@@ -1205,7 +1207,7 @@ class BypassGenerator:
         """
         'whoami' → list(dict(whoami=1))[0]
         """
-        from .utils import find_object
+        
         from .Typhon import int_dict
 
         if int_dict == {}:
@@ -1219,10 +1221,10 @@ class BypassGenerator:
                 except ValueError:
                     pass
 
-        dictname = find_object(dict, self.local_scope)
+        dictname = self.find_object(dict, self.local_scope)
         if dictname is None:
             return payload
-        listname = find_object(list, self.local_scope)
+        listname = self.find_object(list, self.local_scope)
         if listname is None:
             return payload
 
@@ -1276,14 +1278,11 @@ class BypassGenerator:
         """
         '' -> str()
         """
-        from utils import find_object
-
         if not ('""' in payload or "''" in payload):
             return payload
-        str_name = find_object(str, self.local_scope)
+        str_name = self.find_object(str, self.local_scope)
         if str_name is None:
             return payload
-
         class Transformer(ast.NodeTransformer):
             def visit_Constant(self, node):
                 if isinstance(node.value, str) and node.value == "":
