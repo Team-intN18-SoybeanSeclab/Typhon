@@ -304,14 +304,14 @@ Try to bypass blacklist with them. Please be paitent.",
                             )
                             break
     print()
-    logger.debug("[*] string literals found: %s", string_dict)
+    logger.info("[*] string literals found: %s", string_dict)
 
     for i in digits:
         if not is_blacklisted(str(i)):
             int_dict.update({i: str(i)})
         # TODO: bypassers to get ints
     print()
-    logger.debug("[*] int literals found: %s", string_dict)
+    logger.info("[*] int literals found: %s", string_dict)
 
     # Step2: Try to exec directly with simple paths
     simple_path = (
