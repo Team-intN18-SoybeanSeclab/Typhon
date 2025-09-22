@@ -42,7 +42,7 @@ BANNER = (
     r"""
     .-')          _                 Typhon: a pyjail bypassing tool
    (`_^ (    .----`/                
-    ` )  \_/`   __/     __,    [Typhon Version]: v1.0.6.1
+    ` )  \_/`   __/     __,    [Typhon Version]: v1.0.6.2
     __{   |`  __/      /_/     [Python Version]: v"""
     + sys.version.split()[0]
     + r"""

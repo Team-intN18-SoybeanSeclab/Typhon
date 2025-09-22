@@ -1270,3 +1270,30 @@ class BypassGenerator:
         new_tree = Transformer().visit(tree)
         ast.fix_missing_locations(new_tree)
         return ast.unparse(new_tree)
+
+    @general_bypasser
+    def empty_string_to_str(self, payload: str):
+        """
+        '' -> str()
+        """
+        from utils import find_object
+        if not ('""' in payload or "''" in payload):
+            return payload
+        str_name = find_object(str, self.local_scope)
+        if str_name is None:
+            return payload
+        
+        class Transformer(ast.NodeTransformer):
+            def visit_Constant(self, node):
+                if isinstance(node.value, str) and node.value == "":
+                    return ast.Call(
+                        func=ast.Name(id=str_name, ctx=ast.Load()),
+                        args=[],
+                        keywords=[],
+                    )
+                return node
+
+        tree = ast.parse(payload, mode="eval")
+        new_tree = Transformer().visit(tree)
+        ast.fix_missing_locations(new_tree)
+        return ast.unparse(new_tree)
