@@ -116,6 +116,9 @@ def tag_variables(variables, change_in_builtins) -> list:
         if obj.__class__ == (a for a in ()).__class__:
             tagged[name] = "GENERATOR"
             continue
+        if obj == bytes:
+            tagged[name] = "BYTES"
+            continue
         if isinstance(obj, dict) and set(obj.keys()) == set(dir(builtins)):
             if change_in_builtins:
                 tagged[name] = "BUILTINS_SET_CHANGED"

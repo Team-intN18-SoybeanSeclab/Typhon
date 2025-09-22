@@ -283,6 +283,7 @@ Typhon的workflow顺序如下：
   - 尝试获取生成器
   - 尝试获取type
   - 尝试获取object
+  - 尝试获取bytes
   - 如当前空间中的``__builtins__``未被删除，但被修改，尝试恢复（如`id.__self__`）
   - 如当前空间中的``__builtins__``被删除，尝试从其他命名空间恢复
   - 承上，尝试继承链绕过
@@ -316,6 +317,7 @@ Typhon的workflow顺序如下：
 - [ ] 实现内置的bash bypasser 
 - [ ] 更好的`bypassREAD`函数  
 - [x] 实现白名单功能
+- [x] 自动寻找`bytes`
 
 ### v1.2
 

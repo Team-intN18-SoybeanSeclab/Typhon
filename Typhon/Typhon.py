@@ -42,7 +42,7 @@ BANNER = (
     r"""
     .-')          _                 Typhon: a pyjail bypassing tool
    (`_^ (    .----`/                
-    ` )  \_/`   __/     __,    [Typhon Version]: v1.0.5
+    ` )  \_/`   __/     __,    [Typhon Version]: v1.0.6
     __{   |`  __/      /_/     [Python Version]: v"""
     + sys.version.split()[0]
     + r"""
@@ -361,8 +361,9 @@ Try to bypass blacklist with them. Please be paitent.",
     # Step4: Try to restore type
     try_to_restore("type", type.__class__)
 
-    # Step5: Try to restore object
+    # Step5: Try to restore object & bytes
     try_to_restore("object", object.__class__)
+    try_to_restore("bytes", bytes.__class__)
 
     # Step6: Restore builtins (if possible)
     if "BUILTINS_SET" in tags:  # full lovely builtins set ;)

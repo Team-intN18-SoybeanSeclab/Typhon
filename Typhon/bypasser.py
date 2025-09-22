@@ -868,7 +868,7 @@ class BypassGenerator:
                     if parts and all(is_single_char_str_const(p) for p in parts):
                         calls = []
                         for p in parts:
-                            code = ord(p.value)  # 单字符
+                            code = ord(p.value)
                             call = ast.Call(
                                 func=ast.Name(id=name, ctx=ast.Load()),
                                 args=[
