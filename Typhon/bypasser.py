@@ -258,26 +258,29 @@ class BypassGenerator:
                 output.append(self.numbers_to_binary_base(i))
                 output.append(self.numbers_to_hex_base(i))
                 output.append(self.numbers_to_oct_base(i))
-                if self.find_object(exec, self.local_scope):
-                    output.extend(
-                        BypassGenerator(
-                            [self.repr_to_exec(i), {}],
-                            self.allow_unicode_bypass,
-                            self.local_scope,
-                            _allow_after_tagging_bypassers=False,
-                            search_depth=self.search_depth // 2,
-                        ).generate_bypasses()
-                    )
-                if self.find_object(eval, self.local_scope):
-                    output.extend(
-                        BypassGenerator(
-                            [self.repr_to_eval(i), {}],
-                            self.allow_unicode_bypass,
-                            self.local_scope,
-                            _allow_after_tagging_bypassers=False,
-                            search_depth=self.search_depth // 2,
-                        ).generate_bypasses()
-                    )
+                for i in output:
+                    if not is_blacklisted(i):
+                        return output  # in case of the challenge is easy
+                # if self.find_object(exec, self.local_scope):
+                #     output.extend(
+                #         BypassGenerator(
+                #             [self.repr_to_exec(i), {}],
+                #             self.allow_unicode_bypass,
+                #             self.local_scope,
+                #             _allow_after_tagging_bypassers=False,
+                #             search_depth=self.search_depth // 2,
+                #         ).generate_bypasses()
+                #     )
+                # if self.find_object(eval, self.local_scope):
+                #     output.extend(
+                #         BypassGenerator(
+                #             [self.repr_to_eval(i), {}],
+                #             self.allow_unicode_bypass,
+                #             self.local_scope,
+                #             _allow_after_tagging_bypassers=False,
+                #             search_depth=self.search_depth // 2,
+                #         ).generate_bypasses()
+                #     )
         output = remove_duplicate(output)
         return output
 
