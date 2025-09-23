@@ -42,7 +42,7 @@ BANNER = (
     r"""
     .-')          _                 Typhon: a pyjail bypassing tool
    (`_^ (    .----`/                
-    ` )  \_/`   __/     __,    [Typhon Version]: v1.0.6.2
+    ` )  \_/`   __/     __,    [Typhon Version]: v1.0.7.1
     __{   |`  __/      /_/     [Python Version]: v"""
     + sys.version.split()[0]
     + r"""
@@ -251,6 +251,108 @@ Try to bypass blacklist with them. Please be paitent.",
             achivements[data_name] = ["None", 0]
             logger.info("[-] no paths found to obtain %s.", data_name)
 
+    def try_to_import():
+        """
+        try to import modules with different methods
+        """
+        if "IMPORT" in tags:
+            logger.info("[*] try to import modules with IMPORT path.")
+            for i in useful_modules:
+                progress_bar(useful_modules.index(i) + 1, len(useful_modules))
+                module_path = [
+                    "IMPORT('" + i + "')",
+                    {"IMPORT": generated_path["IMPORT"]},
+                ]
+                for _ in BypassGenerator(
+                    module_path,
+                    allow_unicode_bypass=allow_unicode_bypass,
+                    local_scope=tagged_scope,
+                ).generate_bypasses():
+                    if not is_blacklisted(_):
+                        result = exec_with_returns(_, original_scope)
+                        original_scope.pop("__return__", None)
+                        if not result is None:
+                            if result.__name__ == sys.modules[i].__name__:
+                                try:
+                                    searched_modules[i].append(_)
+                                except KeyError:
+                                    pass
+            print()
+        if "LOAD_MODULE" in tags:
+            logger.info("[*] try to import modules with LOAD_MODULE path.")
+            for i in useful_modules:
+                progress_bar(useful_modules.index(i) + 1, len(useful_modules))
+                module_path = [
+                    "LOAD_MODULE('" + i + "')",
+                    {"LOAD_MODULE": generated_path["LOAD_MODULE"]},
+                ]
+                for _ in BypassGenerator(
+                    module_path,
+                    allow_unicode_bypass=allow_unicode_bypass,
+                    local_scope=tagged_scope,
+                ).generate_bypasses():
+                    if not is_blacklisted(_):
+                        result = exec_with_returns(_, original_scope)
+                        original_scope.pop("__return__", None)
+                        if not result is None:
+                            if result.__name__ == sys.modules[i].__name__:
+                                try:
+                                    searched_modules[i].append(_)
+                                except KeyError:
+                                    pass
+            print()
+        if "MODULES" in tags:
+            logger.info("[*] try to import modules with MODULES path.")
+            for i in useful_modules:
+                progress_bar(useful_modules.index(i) + 1, len(useful_modules))
+                module_path = [
+                    "MODULES['" + i + "']",
+                    {"MODULES": generated_path["MODULES"]},
+                ]
+                for _ in BypassGenerator(
+                    module_path,
+                    allow_unicode_bypass=allow_unicode_bypass,
+                    local_scope=tagged_scope,
+                ).generate_bypasses():
+                    if not is_blacklisted(_):
+                        result = exec_with_returns(_, original_scope)
+                        original_scope.pop("__return__", None)
+                        if not result is None:
+                            if result.__name__ == sys.modules[i].__name__:
+                                try:
+                                    searched_modules[i].append(_)
+                                except KeyError:
+                                    pass
+            print()
+        # merge searched_modules to tagged_scope
+        for module in searched_modules:
+            payload_list = searched_modules[module]
+            if payload_list:
+                payload_list.sort(key=len)
+                payload_with_reminder = []
+                payload = None
+                for i in payload_list:
+                    for j in reminder:
+                        if j in i:
+                            payload_with_reminder.append(i)
+                for i in payload_list:
+                    if i not in payload_with_reminder:
+                        payload = i
+                        break
+                if not payload:
+                    payload = payload_with_reminder[0]
+                if module == "__builtins__":
+                    tag = "BUILTINS_SET"
+                else:
+                    tag = "MODULE_" + module.upper()
+                result = exec_with_returns(payload, original_scope)
+                original_scope.pop("__return__", None)
+                if result:
+                    tagged_scope[payload] = [result, tag]
+                    tags.append(tag)
+                    generated_path[tag] = payload
+                    achivements[module] = [payload, len(searched_modules[module])]
+
     # Step1: Analyze and tag the local scope
     if "__builtins__" not in local_scope:
         local_scope["__builtins__"] = __builtins__
@@ -285,33 +387,30 @@ Try to bypass blacklist with them. Please be paitent.",
         elif not is_blacklisted(f"'{chr(i)}'"):
             string_dict[chr(i)] = f'"{chr(i)}"'
     for index_, i in enumerate(obj_list):
-        progress_bar(index_ + 1, len(obj_list))
         obj = tagged_scope[i][0]
         doc = getattr(obj, "__doc__", None)
         if doc:
             for index, j in enumerate(doc):
+                progress_bar(index + 1, len(doc))
                 if j not in string_dict:
                     payload = i + ".__doc__[" + str(index) + "]"
-                    for depth in range(1, search_depth + 1):
-                        for _ in BypassGenerator(
-                            [payload, []], allow_unicode_bypass, tagged_scope
-                        ).generate_bypasses():
-                            if is_blacklisted(_):
-                                pass
-                            string_dict[j] = _
-                            reminder[_] = (
-                                f"index {index} of {payload} must match the string literal {j}."
-                            )
-                            break
-    print()
+                    for _ in BypassGenerator(
+                        [payload, []], allow_unicode_bypass, tagged_scope
+                    ).generate_bypasses():
+                        if is_blacklisted(_):
+                            continue
+                        string_dict[j] = _
+                        reminder[_] = (
+                            f"index {index} of {payload} must match the string literal {j}."
+                        )
+                        break
+            print()
     logger.info("[*] string literals found: %s", string_dict)
-
     for i in digits:
         if not is_blacklisted(str(i)):
             int_dict.update({i: str(i)})
         # TODO: bypassers to get ints
-    print()
-    logger.info("[*] int literals found: %s", string_dict)
+    logger.info("[*] int literals found: %s", int_dict)
 
     # Step2: Try to exec directly with simple paths
     simple_path = (
@@ -597,106 +696,15 @@ Try to bypass blacklist with them. Please be paitent.",
     try_to_restore("modules")
 
     # Step10: Try to import modules
-    if "IMPORT" in tags:
-        logger.info("[*] try to import modules with IMPORT path.")
-        for i in useful_modules:
-            progress_bar(useful_modules.index(i) + 1, len(useful_modules))
-            module_path = ["IMPORT('" + i + "')", {"IMPORT": generated_path["IMPORT"]}]
-            for _ in BypassGenerator(
-                module_path,
-                allow_unicode_bypass=allow_unicode_bypass,
-                local_scope=tagged_scope,
-            ).generate_bypasses():
-                if not is_blacklisted(_):
-                    result = exec_with_returns(_, original_scope)
-                    original_scope.pop("__return__", None)
-                    if not result is None:
-                        if result.__name__ == sys.modules[i].__name__:
-                            try:
-                                searched_modules[i].append(_)
-                            except KeyError:
-                                pass
-        print()
-    if "LOAD_MODULE" in tags:
-        logger.info("[*] try to import modules with LOAD_MODULE path.")
-        for i in useful_modules:
-            progress_bar(useful_modules.index(i) + 1, len(useful_modules))
-            module_path = [
-                "LOAD_MODULE('" + i + "')",
-                {"LOAD_MODULE": generated_path["LOAD_MODULE"]},
-            ]
-            for _ in BypassGenerator(
-                module_path,
-                allow_unicode_bypass=allow_unicode_bypass,
-                local_scope=tagged_scope,
-            ).generate_bypasses():
-                if not is_blacklisted(_):
-                    result = exec_with_returns(_, original_scope)
-                    original_scope.pop("__return__", None)
-                    if not result is None:
-                        if result.__name__ == sys.modules[i].__name__:
-                            try:
-                                searched_modules[i].append(_)
-                            except KeyError:
-                                pass
-        print()
-    if "MODULES" in tags:
-        logger.info("[*] try to import modules with MODULES path.")
-        for i in useful_modules:
-            progress_bar(useful_modules.index(i) + 1, len(useful_modules))
-            module_path = [
-                "MODULES('" + i + "')",
-                {"MODULES": generated_path["MODULES"]},
-            ]
-            for _ in BypassGenerator(
-                module_path,
-                allow_unicode_bypass=allow_unicode_bypass,
-                local_scope=tagged_scope,
-            ).generate_bypasses():
-                if not is_blacklisted(_):
-                    result = exec_with_returns(_, original_scope)
-                    original_scope.pop("__return__", None)
-                    if not result is None:
-                        if result.__name__ == sys.modules[i].__name__:
-                            try:
-                                searched_modules[i].append(_)
-                            except KeyError:
-                                pass
-        print()
-
-    # merge searched_modules to tagged_scope
-    for module in searched_modules:
-        payload_list = searched_modules[module]
-        if payload_list:
-            payload_list.sort(key=len)
-            payload_with_reminder = []
-            payload = None
-            for i in payload_list:
-                for j in reminder:
-                    if j in i:
-                        payload_with_reminder.append(i)
-            for i in payload_list:
-                if i not in payload_with_reminder:
-                    payload = i
-                    break
-            if not payload:
-                payload = payload_with_reminder[0]
-            if module == "__builtins__":
-                tag = "BUILTINS_SET"
-            else:
-                tag = "MODULE_" + module.upper()
-            result = exec_with_returns(payload, original_scope)
-            original_scope.pop("__return__", None)
-            if result:
-                tagged_scope[payload] = [result, tag]
-                tags.append(tag)
-                generated_path[tag] = payload
-                achivements[module] = [payload, len(searched_modules[module])]
+    try_to_import()
 
     # Again, try to restore __import__
     try_to_restore("import")
     try_to_restore("load_module")
     try_to_restore("modules")
+
+    # Again, try to import modules
+    try_to_import()
 
     logger.info("[*] modules we have found:")
     logger.info(get_module_from_tagged_scope(tagged_scope))
