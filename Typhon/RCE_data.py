@@ -254,6 +254,7 @@ RCE_data = {
     "bytes": [
         ["OBJECT.__subclasses__()[6]", "OBJECT"],
         ["type(RANDOMSTRING.encode())", "type"],
+        ["type(''.encode())", "type"],
     ],
     "python2": {
         "RCE_system_functions": [

@@ -103,10 +103,6 @@ def tag_variables(variables, change_in_builtins) -> list:
     builtins_set = set(dir(builtins))
 
     for name, obj in variables.items():
-        # Check if it's a builtin object
-        if name in builtins_set:
-            tagged[name] = f"BUILTINS_{name}"
-            continue
         if obj == object:
             tagged[name] = "OBJECT"
             continue
@@ -118,6 +114,10 @@ def tag_variables(variables, change_in_builtins) -> list:
             continue
         if obj == bytes:
             tagged[name] = "BYTES"
+            continue
+        # Check if it's a builtin object
+        if name in builtins_set:
+            tagged[name] = f"BUILTINS_{name}"
             continue
         if isinstance(obj, dict) and set(obj.keys()) == set(dir(builtins)):
             if change_in_builtins:
