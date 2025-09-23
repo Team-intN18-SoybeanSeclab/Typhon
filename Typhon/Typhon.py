@@ -42,7 +42,7 @@ BANNER = (
     r"""
     .-')          _                 Typhon: a pyjail bypassing tool
    (`_^ (    .----`/                
-    ` )  \_/`   __/     __,    [Typhon Version]: v1.0.7.1
+    ` )  \_/`   __/     __,    [Typhon Version]: v1.0.7.2
     __{   |`  __/      /_/     [Python Version]: v"""
     + sys.version.split()[0]
     + r"""
@@ -379,32 +379,48 @@ Try to bypass blacklist with them. Please be paitent.",
                 allowed_letters.remove(i)
     obj_list = [i for i in tagged_scope]
     obj_list.sort(key=len)
-    string_ords = [i for i in range(32, 127)]
+    string_ords = [ord(i) for i in ascii_letters + digits + "_ [](){}=:;`"]
     string_ords.append(10)  # ord('\n') == 10
+    
+    def check_all_collected():
+        all_colleted = True
+        for i in string_ords:
+            if chr(i) not in string_dict:
+                all_colleted = False
+        return all_colleted
+
     for i in string_ords:
         if not is_blacklisted(f"'{chr(i)}'"):
             string_dict[chr(i)] = f"'{chr(i)}'"
         elif not is_blacklisted(f"'{chr(i)}'"):
             string_dict[chr(i)] = f'"{chr(i)}"'
-    for index_, i in enumerate(obj_list):
-        obj = tagged_scope[i][0]
-        doc = getattr(obj, "__doc__", None)
-        if doc:
-            for index, j in enumerate(doc):
-                progress_bar(index + 1, len(doc))
-                if j not in string_dict:
-                    payload = i + ".__doc__[" + str(index) + "]"
-                    for _ in BypassGenerator(
-                        [payload, []], allow_unicode_bypass, tagged_scope
-                    ).generate_bypasses():
-                        if is_blacklisted(_):
-                            continue
-                        string_dict[j] = _
-                        reminder[_] = (
-                            f"index {index} of {payload} must match the string literal {j}."
-                        )
-                        break
-            print()
+    obj_list.sort(key=len)
+    if not check_all_collected():
+        for i in obj_list:
+            obj = tagged_scope[i][0]
+            doc = getattr(obj, "__doc__", None)
+            if is_blacklisted(i):
+                continue
+            if doc:
+                for index, j in enumerate(doc):
+                    progress_bar(index + 1, len(doc))
+                    if j not in string_dict:
+                        payload = i + ".__doc__[" + str(index) + "]"
+                        for _ in BypassGenerator(
+                            [payload, []], allow_unicode_bypass, tagged_scope
+                        ).generate_bypasses():
+                            if is_blacklisted(_):
+                                continue
+                            string_dict[j] = _
+                            reminder[_] = (
+                                f"index {index} of {payload} must match the string literal {j}."
+                            )
+                            break
+                        if check_all_collected():
+                            break
+                if check_all_collected():
+                    break
+                print()
     logger.info("[*] string literals found: %s", string_dict)
     for i in digits:
         if not is_blacklisted(str(i)):
