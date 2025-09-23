@@ -314,6 +314,7 @@ Typhon的workflow顺序如下：
     - [x] 使用魔术方法替换二元运算符 (`a.__add__(b)`替换`a+b`)
     - [ ] `list.pop(0)`替换`list[0]`
     - [x] `list(dict(a=1))[0]`替换`'a'`
+    - [x] `str()`替换空字符串
 - [ ] 实现内置的bash bypasser 
 - [ ] 更好的`bypassREAD`函数  
 - [x] 实现白名单功能

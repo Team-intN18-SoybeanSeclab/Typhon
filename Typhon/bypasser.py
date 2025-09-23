@@ -1293,7 +1293,7 @@ class BypassGenerator:
     @bypasser_not_work_with(["transform_attribute_to_getattr"])
     def transform_attribute_to_getattr_method(self, payload: str) -> str:
         """
-        'a.b' -> 'a.__getattr__("b")'
+        'a.b' -> 'a.__getattribute__("b")'
         """
         tree = ast.parse(payload, mode="eval")
 
@@ -1301,7 +1301,7 @@ class BypassGenerator:
             def visit_Attribute(self, node):
                 return ast.Call(
                     func=ast.Attribute(
-                        value=self.visit(node.value), attr="__getattr__", ctx=ast.Load()
+                        value=self.visit(node.value), attr="__getattribute__", ctx=ast.Load()
                     ),
                     args=[ast.Constant(value=node.attr)],
                     keywords=[],
