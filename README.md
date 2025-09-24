@@ -1,10 +1,12 @@
 # Typhon: Lets solve pyjail without brain  
 
-[![PyPI Downloads](https://static.pepy.tech/personalized-badge/typhonbreaker?period=total&units=ABBREVIATION&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/typhonbreaker)
-[![codecov](https://codecov.io/gh/LamentXU123/Typhon/graph/badge.svg?token=JCH6XBAORY)](https://codecov.io/gh/LamentXU123/Typhon)
+[![PyPI Downloads](https://static.pepy.tech/personalized-badge/typhonbreaker?period=total&units=ABBREVIATION&left_color=BLACK&right_color=GREEN&left_text=total-downloads)](https://pepy.tech/projects/typhonbreaker)
+[![PyPI Downloads per Week](https://static.pepy.tech/personalized-badge/typhonbreaker?period=week&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=weekly-downloads)](https://pepy.tech/projects/typhonbreaker)
 ![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
-![Python_version](https://img.shields.io/badge/Python-3.9+-purple.svg)
+![Python_version](https://img.shields.io/pypi/pyversions/TyphonBreaker.svg?logo=python&logoColor=FBE072)
+![PyPI Version](https://img.shields.io/pypi/v/TyphonBreaker)
 ![Tests](https://github.com/Team-intN18-SoybeanSeclab/Typhon/actions/workflows/test.yml/badge.svg)
+[![codecov](https://codecov.io/gh/LamentXU123/Typhon/graph/badge.svg?token=JCH6XBAORY)](https://codecov.io/gh/LamentXU123/Typhon)
 
 听着，我已经受够那些愚蠢的CTF pyjail题目了——每次我都要浪费时间在又臭又长的黑名单和各种pyjail总结之间找哪个链子没被过滤，或者在命名空间里一个一个运行`dir()`去找能用的东西。这简直就是一种折磨。
 
