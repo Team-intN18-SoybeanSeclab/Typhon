@@ -379,9 +379,10 @@ Try to bypass blacklist with them. Please be paitent.",
                 allowed_letters.remove(i)
     obj_list = [i for i in tagged_scope]
     obj_list.sort(key=len)
-    string_ords = [ord(i) for i in ascii_letters + digits + "_ [](){}=:;`"]
-    string_ords.append(10)  # ord('\n') == 10
-    
+    string_ords = [
+        ord(i) for i in ascii_letters + digits + "_ [](){}=:;`\n\\+?>*|&~'\".<"
+    ]
+
     def check_all_collected():
         all_colleted = True
         for i in string_ords:
@@ -396,6 +397,7 @@ Try to bypass blacklist with them. Please be paitent.",
             string_dict[chr(i)] = f'"{chr(i)}"'
     obj_list.sort(key=len)
     if not check_all_collected():
+        logger.info("[*] Try to get string literals from docstrings.")
         for i in obj_list:
             obj = tagged_scope[i][0]
             doc = getattr(obj, "__doc__", None)
@@ -404,7 +406,7 @@ Try to bypass blacklist with them. Please be paitent.",
             if doc:
                 for index, j in enumerate(doc):
                     progress_bar(index + 1, len(doc))
-                    if j not in string_dict:
+                    if j not in string_dict and ord(j) in string_ords:
                         payload = i + ".__doc__[" + str(index) + "]"
                         for _ in BypassGenerator(
                             [payload, []], allow_unicode_bypass, tagged_scope
