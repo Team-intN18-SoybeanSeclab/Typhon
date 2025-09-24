@@ -290,7 +290,8 @@ def parse_payload_list(
                 tags["MODULE_BUILTINS"] = generated_path["MODULE_BUILTINS"]
             if not generated_path["MODULE_BUILTINS"]:
                 continue
-        output.append([payload, tags])
+        if len(path) == 3: output.append([payload, tags, path[2]])
+        else: output.append([payload, tags])
 
     return output
 
@@ -352,8 +353,12 @@ def filter_path_list(path_list: list, tagged_scope: dict) -> List[list]:
         return None
 
     filtered_list = []
-    for path in path_list:
-        path, need = path[0], path[1]
+    for pathlist in path_list:
+        path, need = pathlist[0], pathlist[1]
+        try:
+            reminder = pathlist[2]
+        except IndexError:
+            reminder = ''
         if need:  # we need something in this path
             if "," in need:  # we need multiple things in this path
                 need = need.split(",")
@@ -362,20 +367,25 @@ def filter_path_list(path_list: list, tagged_scope: dict) -> List[list]:
                     if path is None:
                         break
                 if path:
+                    if reminder != '': path.append(reminder)
                     filtered_list.append(path)
             elif "|" in need:  # we need one of the things in this path
                 need = need.split("|")
                 for i in need:
                     path_ = check_need(path, tagged_scope, i)
                     if path_:
+                        if reminder != '': path_.append(reminder)
                         filtered_list.append(path_)
                         break
             else:  # we need one thing in this path
                 path = check_need(path, tagged_scope, need)
                 if path:
+                    if reminder != '': path.append(reminder)
                     filtered_list.append(path)
-        else:  # we don't need anything in this path
-            filtered_list.append([path, {}])
+        else: # we don't need anything in this path
+            if reminder == '': filtered_list.append([path, {}])
+            else: filtered_list.append([path, {}, reminder])
+            
     return filtered_list
 
 
@@ -459,7 +469,10 @@ def try_bypasses(
         ).generate_bypasses():
             if not is_blacklisted(_):
                 successful_payloads.append(_)
-            continue
+            if len(path) == 3:
+                from .Typhon import reminder
+                remind = path[2].replace("{}", _)
+                reminder[_] = remind
     if pathlist and log_level_ != "DEBUG":
         sys.stdout.write("\n")
     successful_payloads.sort(key=len)
