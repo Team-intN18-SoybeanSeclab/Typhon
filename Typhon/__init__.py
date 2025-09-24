@@ -1,6 +1,6 @@
 # Licensed under the Apache License: http://www.apache.org/licenses/LICENSE-2.0
 
-__version__ = "1.0.7.2"
+__version__ = "1.0.7.3"
 
 from .Typhon import bypassRCE, bypassREAD, bypassMAIN
 
