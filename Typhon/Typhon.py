@@ -265,8 +265,7 @@ Try to bypass blacklist with them. Please be paitent.",
                             if result.__name__ == sys.modules[i].__name__:
                                 try:
                                     searched_modules[i].append(_)
-                                except KeyError:
-                                    pass
+                                except KeyError: pass
             print()
         if "LOAD_MODULE" in tags:
             logger.info("[*] try to import modules with LOAD_MODULE path.")
@@ -288,8 +287,7 @@ Try to bypass blacklist with them. Please be paitent.",
                             if result.__name__ == sys.modules[i].__name__:
                                 try:
                                     searched_modules[i].append(_)
-                                except KeyError:
-                                    pass
+                                except KeyError: pass
             print()
         if "MODULES" in tags:
             logger.info("[*] try to import modules with MODULES path.")
@@ -311,8 +309,7 @@ Try to bypass blacklist with them. Please be paitent.",
                             if result.__name__ == sys.modules[i].__name__:
                                 try:
                                     searched_modules[i].append(_)
-                                except KeyError:
-                                    pass
+                                except KeyError: pass
             print()
         # merge searched_modules to tagged_scope
         for module in searched_modules:
@@ -474,9 +471,7 @@ Try to bypass blacklist with them. Please be paitent.",
     try_to_restore("bytes", bytes.__class__)
 
     # Step6: Restore builtins (if possible)
-    if "BUILTINS_SET" in tags:  # full lovely builtins set ;)
-        logger.info("[*] __builitins__ not deleted, and every builtin is available.")
-    elif "BUILTINS_SET_CHANGED" in tags:  # some thing was missing
+    if not is_builtins_rewrited:  # some thing was missing
         logger.info(
             "[*] builitins not fully available (%d is missing) \
 in the namespace, try to restore them.",
@@ -734,7 +729,7 @@ Try to bypass blacklist with them. Please be paitent.",
 
 def bypassRCE(
     cmd,
-    local_scope: dict = {},
+    local_scope: dict = None,
     banned_chr: list = [],
     allowed_chr: list = [],
     banned_ast: list = [],
@@ -789,7 +784,7 @@ def bypassRCE(
 def bypassREAD(
     filepath,
     mode: str = "eval",
-    local_scope: dict = {},
+    local_scope: dict = None,
     banned_chr: list = [],
     allowed_chr: list = [],
     banned_ast: list = [],
