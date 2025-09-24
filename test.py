@@ -39,9 +39,8 @@ class TestTyphonRCE(unittest.TestCase):
                     Typhon.bypassRCE(
                         cmd="whoami",
                         interactive=True,
-                        banned_chr=[a for a in string.ascii_letters],
-                        allow_unicode_bypass=True,
-                        local_scope={'help':help},
+                        banned_chr=['help', 'breakpoint', 'input'],
+                        banned_re=r'.*import.*',
                         log_level="TESTING",
                     )
                 del Typhon
