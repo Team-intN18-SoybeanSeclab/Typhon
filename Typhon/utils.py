@@ -478,7 +478,6 @@ def try_bypasses(
                 successful_payloads.append(_)
             if len(path) == 3:
                 from .Typhon import reminder
-
                 remind = path[2].replace("{}", _)
                 reminder[_] = remind
     if pathlist and log_level_ != "DEBUG":
