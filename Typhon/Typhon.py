@@ -442,6 +442,33 @@ Try to bypass blacklist with them. Please be paitent.",
             string_dict[chr(i)] = f'"{chr(i)}"'
     obj_list.sort(key=len)
     if not check_all_collected():
+        logger.info("[*] Try to get string literals from __name__.")
+        for i in obj_list:
+            obj = tagged_scope[i][0]
+            string = getattr(obj, "__name__", None)
+            if is_blacklisted(i) and not allow_unicode_bypass:
+                continue
+            if string:
+                for index, j in enumerate(string):
+                    progress_bar(index + 1, len(string))
+                    if j not in string_dict and ord(j) in string_ords:
+                        payload = i + ".__name__[" + str(index) + "]"
+                        for _ in BypassGenerator(
+                            [payload, []], allow_unicode_bypass, tagged_scope
+                        ).generate_bypasses():
+                            if is_blacklisted(_):
+                                continue
+                            string_dict[j] = _
+                            reminder[_] = (
+                                f"index {index} of {payload} must match the string literal {j}."
+                            )
+                            break
+                        if check_all_collected():
+                            break
+                if check_all_collected():
+                    break
+                print()
+    if not check_all_collected():
         logger.info("[*] Try to get string literals from docstrings.")
         for i in obj_list:
             obj = tagged_scope[i][0]
