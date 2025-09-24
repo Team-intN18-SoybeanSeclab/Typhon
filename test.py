@@ -27,7 +27,6 @@ class TestTyphonRCE(unittest.TestCase):
                 )
                 del Typhon
                 mock_exit.assert_called_with(0)
-        with redirect_stdout(StringIO()) as f:
             with patch("builtins.exit") as mock_exit:
                 import string
                 import Typhon
@@ -42,7 +41,6 @@ class TestTyphonRCE(unittest.TestCase):
                 )
                 del Typhon
                 mock_exit.assert_called_with(0)
-        with redirect_stdout(StringIO()) as f:
             with patch("builtins.exit") as mock_exit:
                 import Typhon
 

@@ -237,15 +237,15 @@ class BypassGenerator:
         # bypassed.sort(key=len)
         for i in bypassed:
             for j in self.tags:
+                unicode_tag_found = None
                 if self.allow_unicode_bypass:
                     tag_unicode = self.unicode_bypasses(
                         j, self.charset)
                     if tag_unicode in i:
                         unicode_tag_found = tag_unicode
-                unicode_tag_found = None
                 if (
                     j not in i
-                    and unicode_tag_found
+                    and not unicode_tag_found
                     and self._allow_after_tagging_bypassers
                 ):
                     raise ValueError(f"Tag {j} not found in payload {i}")
