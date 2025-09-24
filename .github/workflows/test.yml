@@ -27,4 +27,10 @@ jobs:
     
     - name: Run tests
       run: |
-        python test.py
+        pip install coverage
+        coverage run --source ../Typhon -m unittest test
+        coverage xml -i
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

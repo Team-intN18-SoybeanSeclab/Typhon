@@ -14,13 +14,6 @@ import logging
 from inspect import currentframe
 from typing import Any, Dict, Union
 
-if __name__ == "__main__":
-    print(
-        "This is the main file of the Typhon package. \
-Please run bypass*() function to bypass the sandbox."
-    )
-    exit(0)
-
 # need to be set before other imports
 log_level_ = "INFO"  # changable in bypassMAIN()
 search_depth = 5  # changable in bypassMAIN()

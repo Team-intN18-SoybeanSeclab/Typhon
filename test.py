@@ -1,3 +1,7 @@
+import sys  # noqa
+
+sys.path.append("..")  # noqa
+
 # test script for Typhon package
 import unittest
 
@@ -15,7 +19,45 @@ class TestTyphonRCE(unittest.TestCase):
                 Typhon.bypassRCE(
                     cmd="whoami",
                     interactive=False,
+                    banned_re=r".*import.*",
                     recursion_limit=100,
+                    depth=5,
+                    log_level="TESTING",
+                )
+                del Typhon
+                mock_exit.assert_called_with(0)
+        with redirect_stdout(StringIO()) as f:
+            with patch("builtins.exit") as mock_exit:
+                import string
+                import Typhon
+
+                Typhon.bypassRCE(
+                    cmd="whoami",
+                    interactive=True,
+                    banned_chr=[a for a in string.ascii_letters],
+                    allow_unicode_bypass=True,
+                    log_level="TESTING",
+                )
+                del Typhon
+                mock_exit.assert_called_with(0)
+        with redirect_stdout(StringIO()) as f:
+            with patch("builtins.exit") as mock_exit:
+                import Typhon
+
+                Typhon.bypassRCE(
+                    cmd="whoami",
+                    local_scope={"__builtins__": None},
+                    banned_chr=[
+                        "__loader__",
+                        "__import__",
+                        "os",
+                        "[:",
+                        "\\x",
+                        "+",
+                        "join",
+                    ],
+                    interactive=True,
+                    recursion_limit=200,
                     depth=5,
                     log_level="TESTING",
                 )
@@ -43,7 +85,7 @@ class TestTyphonREAD(unittest.TestCase):
                     ],
                     interactive=False,
                     recursion_limit=100,
-                    local_scope={"__builtins__": None, "exc": exec},
+                    local_scope={"__builtins__": None},
                     depth=5,
                     log_level="TESTING",
                 )
