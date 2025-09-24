@@ -139,14 +139,14 @@ def tag_variables(variables, change_in_builtins) -> list:
         if isinstance(obj, ModuleType):
             tagged[name] = "MODULE_{}".format(obj.__name__.upper())
             continue
+        # Check if it's an exception
+        if obj == Exception:
+            tagged[name] = "EXCEPTION"
+        if issubclass(obj.__class__, BaseException):
+            tagged[name] = "EXCEPTION_{}".format(obj.__name__.upper())
+            continue
         # Check if it's a class
         if inspect.isclass(obj):
-            # Check if it's an exception
-            if obj == Exception:
-                tagged[name] = "EXCEPTION"
-            if issubclass(obj.__class__, BaseException):
-                tagged[name] = "EXCEPTION_{}".format(obj.__name__.upper())
-                continue
             tagged[name] = "USER_DEFINED_CLASS"
             continue
         # Check for user-defined variables

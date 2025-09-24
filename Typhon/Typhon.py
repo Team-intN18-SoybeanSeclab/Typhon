@@ -81,16 +81,24 @@ def bypassMAIN(
     :param log_level: is the logging level, default is INFO, change it to
     DEBUG for more details.
     """
-    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters, banned_ast_, banned_chr_, banned_re_, max_length_, original_scope, int_dict, allowed_chr_
+    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters, banned_ast_, banned_chr_, banned_re_, max_length_, original_scope, int_dict, allowed_chr_, import_test, modules_test, load_module_test
+    import_test, load_module_test, modules_test = False, False, False
     if isinstance(banned_re, str):
         banned_re = [banned_re]  # convert to list if it's a string
+    if isinstance(banned_chr, str):
+        banned_chr = [i for i in banned_chr]
+        logger.warning(
+            "[!] banned_chr should be a list, converting to list for compatibility."
+        )
     if local_scope == None:
         # If the local scope is not specified, raise a warning.
-        logger.info("[*] local scope not specified, using the global scope.")
+        logger.warning("[!] local scope not specified, using the global scope.")
         logger.debug("[*] current global scope: %s", current_global_scope)
         local_scope = current_global_scope
         local_scope["__builtins__"] = __builtins__
-    is_builtins_rewrited = True if "__builtins__" in local_scope else False
+        is_builtins_rewrited = False
+    else:
+        is_builtins_rewrited = True if "__builtins__" in local_scope else False
     banned_chr_ = banned_chr
     banned_ast_ = banned_ast
     banned_re_ = banned_re
@@ -245,7 +253,9 @@ Try to bypass blacklist with them. Please be paitent.",
         """
         try to import modules with different methods
         """
-        if "IMPORT" in tags:
+        global import_test, load_module_test, modules_test
+        if "IMPORT" in tags and not import_test:
+            import_test = True
             logger.info("[*] try to import modules with IMPORT path.")
             for i in useful_modules:
                 progress_bar(useful_modules.index(i) + 1, len(useful_modules))
@@ -265,9 +275,11 @@ Try to bypass blacklist with them. Please be paitent.",
                             if result.__name__ == sys.modules[i].__name__:
                                 try:
                                     searched_modules[i].append(_)
-                                except KeyError: pass
+                                except KeyError:
+                                    pass
             print()
-        if "LOAD_MODULE" in tags:
+        if "LOAD_MODULE" in tags and not load_module_test:
+            load_module_test = True
             logger.info("[*] try to import modules with LOAD_MODULE path.")
             for i in useful_modules:
                 progress_bar(useful_modules.index(i) + 1, len(useful_modules))
@@ -287,9 +299,11 @@ Try to bypass blacklist with them. Please be paitent.",
                             if result.__name__ == sys.modules[i].__name__:
                                 try:
                                     searched_modules[i].append(_)
-                                except KeyError: pass
+                                except KeyError:
+                                    pass
             print()
-        if "MODULES" in tags:
+        if "MODULES" in tags and not modules_test:
+            modules_test = True
             logger.info("[*] try to import modules with MODULES path.")
             for i in useful_modules:
                 progress_bar(useful_modules.index(i) + 1, len(useful_modules))
@@ -309,7 +323,8 @@ Try to bypass blacklist with them. Please be paitent.",
                             if result.__name__ == sys.modules[i].__name__:
                                 try:
                                     searched_modules[i].append(_)
-                                except KeyError: pass
+                                except KeyError:
+                                    pass
             print()
         # merge searched_modules to tagged_scope
         for module in searched_modules:

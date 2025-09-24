@@ -210,8 +210,6 @@ class BypassGenerator:
             if callable(method):
                 if getattr(method, "_is_bypasser", False):
                     self.bypass_methods.append(method)
-                elif getattr(method, "is_after_tagging_bypasser", False):
-                    self.after_tagging_bypassers.append(method)
 
     def generate_bypasses(self):
         """
@@ -239,8 +237,7 @@ class BypassGenerator:
             for j in self.tags:
                 unicode_tag_found = None
                 if self.allow_unicode_bypass:
-                    tag_unicode = self.unicode_bypasses(
-                        j, self.charset)
+                    tag_unicode = self.unicode_bypasses(j, self.charset)
                     if tag_unicode in i:
                         unicode_tag_found = tag_unicode
                 if (
@@ -1040,54 +1037,52 @@ class BypassGenerator:
     @general_bypasser
     def unicode_replace(self, payload: str) -> str:
         if self.allow_unicode_bypass:
-            payload = self.unicode_bypasses(
-                payload, self.charset
-            )
+            payload = self.unicode_bypasses(payload, self.charset)
         return payload
 
     # @after_tagging_bypasser
-    @recursion_protection
-    def repr_to_exec(self, payload: str) -> str:
-        """
-        wraps the payload with exec()
-        __import__('os').system('ls') -> exec("__import__('os').popen('ls').read()")
-        """
+    # @recursion_protection
+    # def repr_to_exec(self, payload: str) -> str:
+    #     """
+    #     wraps the payload with exec()
+    #     __import__('os').system('ls') -> exec("__import__('os').popen('ls').read()")
+    #     """
 
-        name = self.find_object(exec, self.local_scope)
-        if name is None:
-            return payload
-        single_comma = payload.find("'")
-        double_comma = payload.find('"')
-        if single_comma > double_comma:
-            quote = '"'
-        elif double_comma > single_comma:
-            quote = "'"
-        else:
-            quote = "'"
-        return f"{name}({quote}{payload}{quote})"
+    #     name = self.find_object(exec, self.local_scope)
+    #     if name is None:
+    #         return payload
+    #     single_comma = payload.find("'")
+    #     double_comma = payload.find('"')
+    #     if single_comma > double_comma:
+    #         quote = '"'
+    #     elif double_comma > single_comma:
+    #         quote = "'"
+    #     else:
+    #         quote = "'"
+    #     return f"{name}({quote}{payload}{quote})"
 
-    # @after_tagging_bypasser
-    @recursion_protection
-    def repr_to_eval(self, payload: str) -> str:
-        """
-        wraps the payload with exec()
-        __import__('os').system('ls') -> eval("__import__('os').popen('ls').read()")
-        """
-        if ";" in payload or "\n" in payload:
-            return payload
+    # # @after_tagging_bypasser
+    # @recursion_protection
+    # def repr_to_eval(self, payload: str) -> str:
+    #     """
+    #     wraps the payload with exec()
+    #     __import__('os').system('ls') -> eval("__import__('os').popen('ls').read()")
+    #     """
+    #     if ";" in payload or "\n" in payload:
+    #         return payload
 
-        name = self.find_object(eval, self.local_scope)
-        if name is None:
-            return payload
-        single_comma = payload.find("'")
-        double_comma = payload.find('"')
-        if single_comma > double_comma:
-            quote = '"'
-        elif double_comma > single_comma:
-            quote = "'"
-        else:
-            quote = "'"
-        return f"{name}({quote}{payload}{quote})"
+    #     name = self.find_object(eval, self.local_scope)
+    #     if name is None:
+    #         return payload
+    #     single_comma = payload.find("'")
+    #     double_comma = payload.find('"')
+    #     if single_comma > double_comma:
+    #         quote = '"'
+    #     elif double_comma > single_comma:
+    #         quote = "'"
+    #     else:
+    #         quote = "'"
+    #     return f"{name}({quote}{payload}{quote})"
 
     @bypasser_must_work_with(["string_to_str_join"])
     def empty_string_to_str_object(self, payload: str) -> str:
