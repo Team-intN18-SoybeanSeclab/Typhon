@@ -186,15 +186,22 @@ class BypassGenerator:
         :param allow_unicode_bypass: if unicode bypasses are allowed
         :param local_scope: tagged local scope
         """
-        from .utils import find_object
+        from .utils import find_object, is_blacklisted
 
         self.find_object = find_object
+        self.is_blacklisted = is_blacklisted
         self.payload = payload[0]
         self.tags = payload[1]
         self.allow_unicode_bypass = allow_unicode_bypass
         self.local_scope = local_scope
         self.bypass_methods, self.after_tagging_bypassers = [], []
         self._allow_after_tagging_bypassers = _allow_after_tagging_bypassers
+        if self.allow_unicode_bypass:
+            charset = "𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡"
+            for i in charset:
+                if self.is_blacklisted(i):
+                    charset = "𝒶𝒷𝒸𝒹ℯ𝒻ℊ𝒽𝒾𝒿𝓀𝓁𝓂𝓃ℴ𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏𝒜ℬ𝒞𝒟ℰℱ𝒢ℋℐ𝒥𝒦ℒℳ𝒩𝒪𝒫𝒬ℛ𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵"
+            self.charset = charset
         if search_depth is None:
             from .Typhon import search_depth
         self.search_depth = search_depth
@@ -213,12 +220,10 @@ class BypassGenerator:
         Returns:
             list: List of unique transformed payloads
         """
-        from .utils import is_blacklisted
-
         true_paylaod = copy(self.payload)
         for i in self.tags:
             true_paylaod = true_paylaod.replace(i, self.tags[i])
-        if not is_blacklisted(true_paylaod):
+        if not self.is_blacklisted(true_paylaod):
             return [true_paylaod]  # in case of the challenge is so easy
         output = []
         bypassed = [self.payload]
@@ -232,25 +237,24 @@ class BypassGenerator:
         # bypassed.sort(key=len)
         for i in bypassed:
             for j in self.tags:
-                tag_unicode_1 = self.unicode_bypasses(
-                    j, "𝒶𝒷𝒸𝒹ℯ𝒻ℊ𝒽𝒾𝒿𝓀𝓁𝓂𝓃ℴ𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏𝒜ℬ𝒞𝒟ℰℱ𝒢ℋℐ𝒥𝒦ℒℳ𝒩𝒪𝒫𝒬ℛ𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵"
-                )
-                tag_unicode_2 = self.unicode_bypasses(
-                    j, "𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡"
-                )
+                if self.allow_unicode_bypass:
+                    tag_unicode = self.unicode_bypasses(
+                        j, self.charset)
+                    if tag_unicode in i:
+                        unicode_tag_found = tag_unicode
+                unicode_tag_found = None
                 if (
                     j not in i
-                    and tag_unicode_1 not in i
-                    and tag_unicode_2 not in i
+                    and unicode_tag_found
                     and self._allow_after_tagging_bypassers
                 ):
                     raise ValueError(f"Tag {j} not found in payload {i}")
                 i = i.replace(j, self.tags[j])
-                i = i.replace(tag_unicode_1, self.tags[j])
-                i = i.replace(tag_unicode_2, self.tags[j])
+                if unicode_tag_found:
+                    i = i.replace(tag_unicode, self.tags[j])
             output.append(i)
         for i in output:
-            if not is_blacklisted(i):
+            if not self.is_blacklisted(i):
                 return output  # in case of the challenge is easy
         tmp = copy(output)
         if self._allow_after_tagging_bypassers:
@@ -258,9 +262,9 @@ class BypassGenerator:
                 output.append(self.numbers_to_binary_base(i))
                 output.append(self.numbers_to_hex_base(i))
                 output.append(self.numbers_to_oct_base(i))
-                for i in output:
-                    if not is_blacklisted(i):
-                        return output  # in case of the challenge is easy
+                # for i in output:
+                #     if not self.is_blacklisted(i):
+                #         return output  # in case of the challenge is easy
                 # if self.find_object(exec, self.local_scope):
                 #     output.extend(
                 #         BypassGenerator(
@@ -1033,19 +1037,11 @@ class BypassGenerator:
         ast.fix_missing_locations(new_body)
         return ast.unparse(new_body).replace("__", "_＿")
 
-    @bypasser_not_work_with(["unicode_replace_2"])
-    def unicode_replace_1(self, payload: str) -> str:
+    @general_bypasser
+    def unicode_replace(self, payload: str) -> str:
         if self.allow_unicode_bypass:
             payload = self.unicode_bypasses(
-                payload, "𝒶𝒷𝒸𝒹ℯ𝒻ℊ𝒽𝒾𝒿𝓀𝓁𝓂𝓃ℴ𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏𝒜ℬ𝒞𝒟ℰℱ𝒢ℋℐ𝒥𝒦ℒℳ𝒩𝒪𝒫𝒬ℛ𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵"
-            )
-        return payload
-
-    @bypasser_not_work_with(["unicode_replace_1"])
-    def unicode_replace_2(self, payload: str) -> str:
-        if self.allow_unicode_bypass:
-            payload = self.unicode_bypasses(
-                payload, "𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡"
+                payload, self.charset
             )
         return payload
 

@@ -84,10 +84,7 @@ def bypassMAIN(
     global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters, banned_ast_, banned_chr_, banned_re_, max_length_, original_scope, int_dict, allowed_chr_
     if isinstance(banned_re, str):
         banned_re = [banned_re]  # convert to list if it's a string
-    if "__builtins__" in local_scope:
-        is_builtins_rewrited = True
-    else:
-        is_builtins_rewrited = False
+    is_builtins_rewrited = True if "__builtins__" in local_scope else False
     banned_chr_ = banned_chr
     banned_ast_ = banned_ast
     banned_re_ = banned_re
@@ -652,7 +649,6 @@ Try to bypass blacklist with them. Please be paitent.",
 
     # Step8: Try inheritance chain
     if "OBJECT" in tags and (change_in_builtins or is_builtins_rewrited):
-        print(original_scope)
         logger.info("[*] Trying to find inheritance chains.")
         subclasses_len = len(subclasses)
         searched_modules_tmp = deepcopy(searched_modules)

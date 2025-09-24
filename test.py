@@ -14,14 +14,15 @@ class TestTyphonRCE(unittest.TestCase):
     def test_bypassRCE(self):
         with redirect_stdout(StringIO()) as f:
             with patch("builtins.exit") as mock_exit:
+                import string
                 import Typhon
 
                 Typhon.bypassRCE(
                     cmd="whoami",
-                    interactive=False,
-                    banned_re=r".*import.*",
-                    recursion_limit=100,
-                    depth=5,
+                    interactive=True,
+                    banned_chr=[a for a in string.ascii_letters],
+                    allow_unicode_bypass=True,
+                    local_scope={'help':help},
                     log_level="TESTING",
                 )
                 del Typhon
@@ -36,6 +37,7 @@ class TestTyphonRCE(unittest.TestCase):
                     interactive=True,
                     banned_chr=[a for a in string.ascii_letters],
                     allow_unicode_bypass=True,
+                    local_scope={'help':help},
                     log_level="TESTING",
                 )
                 del Typhon
