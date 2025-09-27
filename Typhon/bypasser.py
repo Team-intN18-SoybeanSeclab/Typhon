@@ -128,7 +128,7 @@ def recursion_protection(func):
             logger.debug(
                 f"Bypasser {func.__name__} got recurrence error on {payload[0]}"
             )
-            return payload
+            return payload[0]
 
     return check
 
@@ -252,6 +252,7 @@ class BypassGenerator:
                 if unicode_tag_found:
                     i = i.replace(tag_unicode, self.tags[j])
             output.append(i)
+        output = remove_duplicate(output)
         for i in output:
             if not self.is_blacklisted(i):
                 return output  # in case of the challenge is easy
