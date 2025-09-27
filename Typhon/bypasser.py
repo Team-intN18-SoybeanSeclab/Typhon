@@ -4,9 +4,9 @@ import base64
 from .Typhon import logger
 from typing import Union, List
 from copy import copy, deepcopy
-from string import ascii_letters
 from random import randint, choice
 from functools import wraps, reduce
+from string import ascii_letters, digits
 
 
 def remove_duplicate(List) -> list:
@@ -51,6 +51,14 @@ def flatten_add_chain(n: ast.AST):
     return parts
 
 
+def replace_redundant_char(string: str) -> str:
+    """
+    Replace redundant characters in a python repr.
+    e.g. 1 + 1 -> 1+1
+    """
+    return string.replace(" + ", "+").replace(", ", ",").replace(": ", ":")
+
+
 def general_bypasser(func):
     """
     Decorator for general bypassers.
@@ -63,12 +71,7 @@ def general_bypasser(func):
             if i == func.__name__:
                 return None  # Do not do the same bypass
         try:
-            return (
-                func(self, payload[0])
-                .replace(" + ", "+")
-                .replace(", ", ",")
-                .replace(": ", ":")
-            )
+            return replace_redundant_char(func(self, payload[0]))
         except RecursionError:
             logger.debug(
                 f"Bypasser {func.__name__} got recurrence error on {payload[0]}"
@@ -96,12 +99,7 @@ def bypasser_not_work_with(bypasser_list: List[str]):
                     if i == j:
                         return None  # Do not work with this
             try:
-                return (
-                    func(self, payload[0])
-                    .replace(" + ", "+")
-                    .replace(", ", ",")
-                    .replace(": ", ":")
-                )
+                return replace_redundant_char(func(self, payload[0]))
             except RecursionError:
                 logger.debug(
                     f"Bypasser {func.__name__} got recurrence error on {payload[0]}"
@@ -121,14 +119,15 @@ def recursion_protection(func):
     @wraps(func)
     def check(self, payload):
         try:
-            return (
-                func(self, payload)
-                .replace(" + ", "+")
-                .replace(", ", ",")
-                .replace(": ", ":")
-            )
+            output = func(self, payload[0])
+            if isinstance(output, str):
+                return replace_redundant_char(func(self, payload[0]))
+            else:
+                return output
         except RecursionError:
-            logger.debug(f"Bypasser {func.__name__} got recurrence error on {payload}")
+            logger.debug(
+                f"Bypasser {func.__name__} got recurrence error on {payload[0]}"
+            )
             return payload
 
     return check
@@ -158,7 +157,7 @@ def bypasser_must_work_with(bypasser_list: List[str]):
             if not success:
                 return None  # Do not work without this
             try:
-                return func(self, payload[0]).replace(" + ", "+").replace(", ", ",")
+                return replace_redundant_char(func(self, payload[0]))
             except RecursionError:
                 logger.debug(
                     f"Bypasser {func.__name__} got recurrence error on {payload[0]}"
@@ -185,7 +184,7 @@ class BypassGenerator:
         :param payload: The Python expression/statement to be transformed
         :param allow_unicode_bypass: if unicode bypasses are allowed
         :param local_scope: tagged local scope
-        
+
         The @after_tagging_bypasser note is only here to tell you that
         the bypasser is used after the recursion step.
         """
@@ -221,11 +220,11 @@ class BypassGenerator:
         Returns:
             list: List of unique transformed payloads
         """
-        true_paylaod = copy(self.payload)
+        true_payload = copy(self.payload)
         for i in self.tags:
-            true_paylaod = true_paylaod.replace(i, self.tags[i])
-        if not self.is_blacklisted(true_paylaod):
-            return [true_paylaod]  # in case of the challenge is so easy
+            true_payload = true_payload.replace(i, self.tags[i])
+        if not self.is_blacklisted(true_payload):
+            return [true_payload]  # in case of the challenge is so easy
         output = []
         bypassed = [self.payload]
 
@@ -259,12 +258,13 @@ class BypassGenerator:
         tmp = copy(output)
         if self._allow_after_tagging_bypassers:
             for i in tmp:
-                output.append(self.numbers_to_binary_base(i))
-                output.append(self.numbers_to_hex_base(i))
-                output.append(self.numbers_to_oct_base(i))
-                for i in output:
-                    if not self.is_blacklisted(i):
-                        return output  # in case of the challenge is easy
+                change_list = self.change_to_bin_hex_oct([i, {}])
+                output.extend(change_list)
+            for j in output:
+                if not self.is_blacklisted(j):
+                    return output  # in case of the challenge is easy
+            tmp = copy(output)
+            for i in tmp:
                 if self.find_object(exec, self.local_scope):
                     output.extend(
                         BypassGenerator(
@@ -272,7 +272,7 @@ class BypassGenerator:
                             self.allow_unicode_bypass,
                             self.local_scope,
                             _allow_after_tagging_bypassers=False,
-                            search_depth=1, # This will occupy too much CPU usage, so 1 depth
+                            search_depth=1,  # This will occupy too much CPU usage, so 1 depth
                         ).generate_bypasses()
                     )
                 if self.find_object(eval, self.local_scope):
@@ -282,7 +282,7 @@ class BypassGenerator:
                             self.allow_unicode_bypass,
                             self.local_scope,
                             _allow_after_tagging_bypassers=False,
-                            search_depth=1, # This will occupy too much CPU usage, so 1 depth
+                            search_depth=1,  # This will occupy too much CPU usage, so 1 depth
                         ).generate_bypasses()
                     )
         output = remove_duplicate(output)
@@ -329,6 +329,17 @@ class BypassGenerator:
                 self.combine_bypasses([new_payload, _[1]], initial_payload, depth - 1)
             )
         return variants
+
+    # @after_tagging_bypasser
+    def change_to_bin_hex_oct(self, payload: list) -> list:
+        """
+        Convert numbers to binary, hex, and oct base.
+        """
+        return [
+            self.numbers_to_binary_base(payload),
+            self.numbers_to_hex_base(payload),
+            self.numbers_to_oct_base(payload),
+        ]
 
     @general_bypasser
     def encode_string_hex(self, payload):

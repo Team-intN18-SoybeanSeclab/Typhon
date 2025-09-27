@@ -205,7 +205,7 @@ def parse_payload_list(
     :param cmd: the final RCE command to execute, default None
     :return: filtered list of payloads, with its tags e.g. ['TYPE.__base__', {'TYPE': 'int.__class__'}]
     """
-    from .Typhon import generated_path, allowed_letters
+    from .Typhon import generated_path, allowed_letters, allowed_int
 
     output = []
     allowed_builtin_obj = [
@@ -258,6 +258,11 @@ def parse_payload_list(
             obj = payload.split(".")[0] + "." + payload.split(".")[1]
             if allowed_builtin_obj:
                 payload = payload.replace("BUILTINOBJ", choice(allowed_builtin_obj))
+            else:
+                continue
+        if "RANDOMINT" in payload:
+            if allowed_int:
+                payload = payload.replace("RANDOMINT", allowed_int[0])
             else:
                 continue
         if "BUILTINtype" in payload:
@@ -416,10 +421,17 @@ def is_blacklisted(payload) -> bool:
     else:
         length_check = True
         max_length = max_length_
-    for bAST in banned_ast_:
-        if any(isinstance(node, bAST) for node in ast.walk(ast.parse(payload))):
-            ast_banned = True
-            break
+    try:
+        ast_nodes = ast.walk(ast.parse(payload))
+        for bAST in banned_ast_:
+            if any(isinstance(node, bAST) for node in ast_nodes):
+                ast_banned = True
+                break
+    except SyntaxError:
+        from .Typhon import logger
+
+        logger.debug("Syntax error in payload when testing for AST: " + payload)
+        ast_banned = True
     if banned_re_:
         for b_re in banned_re_:
             if re.search(b_re, payload):
@@ -459,30 +471,32 @@ def try_bypasses(
     :param cmd: command to RCE (in the final step, otherwise None)
     :return: list of successful payloads
     """
-    from .Typhon import log_level_
-
     successful_payloads = []
+    successful_payloads_with_reminder = []
     pathlist = parse_payload_list(
         pathlist, banned_chars, allow_unicode_bypass, local_scope, cmd
     )
-    if log_level_ == "DEBUG":
-        Total = 0
-    else:
-        Total = len(pathlist)
+    Total = len(pathlist)
     for i, path in enumerate(pathlist):
         progress_bar(i + 1, Total)
         for _ in BypassGenerator(
             path, allow_unicode_bypass=allow_unicode_bypass, local_scope=local_scope
         ).generate_bypasses():
             if not is_blacklisted(_):
-                successful_payloads.append(_)
-            if len(path) == 3:
-                from .Typhon import reminder
-                remind = path[2].replace("{}", _)
-                reminder[_] = remind
-    if pathlist and log_level_ != "DEBUG":
+                if len(path) == 3:
+                    from .Typhon import reminder
+
+                    remind = path[2].replace("{}", _)
+                    reminder[_] = remind
+                    successful_payloads_with_reminder.append(_)
+                else:
+                    successful_payloads.append(_)
+    if pathlist:
         sys.stdout.write("\n")
     successful_payloads.sort(key=len)
+    successful_payloads_with_reminder.sort(key=len)
+    successful_payloads.extend(successful_payloads_with_reminder)
+
     return successful_payloads
 
 

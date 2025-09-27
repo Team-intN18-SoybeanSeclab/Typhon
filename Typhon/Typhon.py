@@ -31,11 +31,14 @@ from .utils import *
 # The RCE data including RCE functions and their parameters.
 from .RCE_data import *
 
+VERSION = "1.0.8"
 BANNER = (
     r"""
     .-')          _                 Typhon: a pyjail bypassing tool
    (`_^ (    .----`/                
-    ` )  \_/`   __/     __,    [Typhon Version]: v1.0.7.3
+    ` )  \_/`   __/     __,    [Typhon Version]: v"""
+    + VERSION
+    + r"""
     __{   |`  __/      /_/     [Python Version]: v"""
     + sys.version.split()[0]
     + r"""
@@ -81,7 +84,7 @@ def bypassMAIN(
     :param log_level: is the logging level, default is INFO, change it to
     DEBUG for more details.
     """
-    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters, banned_ast_, banned_chr_, banned_re_, max_length_, original_scope, int_dict, allowed_chr_, import_test, modules_test, load_module_test
+    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters, allowed_int, banned_ast_, banned_chr_, banned_re_, max_length_, original_scope, int_dict, allowed_chr_, import_test, modules_test, load_module_test
     import_test, load_module_test, modules_test = False, False, False
     if isinstance(banned_re, str):
         banned_re = [banned_re]  # convert to list if it's a string
@@ -375,54 +378,16 @@ Try to bypass blacklist with them. Please be paitent.",
     allowed_letters = [
         i for i in ascii_letters + "_" if i not in banned_chr and i not in local_scope
     ]
+    allowed_int = [i for i in digits if i not in banned_chr and i not in local_scope]
     if allowed_chr != []:
         for i in allowed_letters:
             if i not in allowed_chr:
                 allowed_letters.remove(i)
+        for j in allowed_int:
+            if j not in allowed_chr:
+                allowed_int.remove(j)
     obj_list = [i for i in tagged_scope]
     obj_list.sort(key=len)
-
-    # Step2: Try to exec directly with simple paths
-    simple_path = (
-        filter_path_list(RCE_data["directly_getshell"], tagged_scope)
-        if interactive and not is_builtins_rewrited
-        else []
-    )
-    if simple_path:
-        logger.info(
-            "[*] %d paths found to directly getshell. \
-Try to bypass blacklist with them. Please be paitent.",
-            len(simple_path),
-        )
-        logger.debug("[*] simple paths: %s", str([i[0] for i in simple_path]))
-        _ = try_bypasses(
-            simple_path,
-            banned_chr,
-            banned_ast,
-            banned_re,
-            max_length,
-            allow_unicode_bypass,
-            tagged_scope,
-        )
-        if _:
-            logger.info(
-                "[+] directly getshell success. %d payload(s) in total.", len(_)
-            )
-            logger.debug("[*] payloads to directly getshell: ")
-            logger.debug(_)
-            logger.info(
-                "[+] You now can use this payload to getshell directly with proper input."
-            )
-            achivements["directly input bypass"] = [_[0], len(_)]
-            if print_all_payload:
-                bypasses_output(_)
-            bypasses_output(_[0])
-        else:
-            achivements["directly input bypass"] = ["None", 0]
-            logger.info("[-] no way to bypass blacklist to directly getshell.")
-    else:
-        achivements["directly input bypass"] = ["None", 0]
-        logger.info("[-] no paths found to directly getshell.")
 
     string_ords = [
         ord(i) for i in ascii_letters + digits + "_ [](){}=:;`\n\\+?>*|&~'\".<"
@@ -496,11 +461,54 @@ Try to bypass blacklist with them. Please be paitent.",
                     break
                 print()
     logger.info("[*] string literals found: %s", string_dict)
+    allowed_letters.extend(string_dict.keys())
     for i in digits:
         if not is_blacklisted(str(i)):
             int_dict.update({i: str(i)})
         # TODO: bypassers to get ints
     logger.info("[*] int literals found: %s", int_dict)
+
+    # Step2: Try to exec directly with simple paths
+    simple_path = (
+        filter_path_list(RCE_data["directly_getshell"], tagged_scope)
+        if interactive and not is_builtins_rewrited
+        else []
+    )
+    if simple_path:
+        logger.info(
+            "[*] %d paths found to directly getshell. \
+Try to bypass blacklist with them. Please be paitent.",
+            len(simple_path),
+        )
+        logger.debug("[*] simple paths: %s", str([i[0] for i in simple_path]))
+        _ = try_bypasses(
+            simple_path,
+            banned_chr,
+            banned_ast,
+            banned_re,
+            max_length,
+            allow_unicode_bypass,
+            tagged_scope,
+        )
+        if _:
+            logger.info(
+                "[+] directly getshell success. %d payload(s) in total.", len(_)
+            )
+            logger.debug("[*] payloads to directly getshell: ")
+            logger.debug(_)
+            logger.info(
+                "[+] You now can use this payload to getshell directly with proper input."
+            )
+            achivements["directly input bypass"] = [_[0], len(_)]
+            if print_all_payload:
+                bypasses_output(_)
+            bypasses_output(_[0])
+        else:
+            achivements["directly input bypass"] = ["None", 0]
+            logger.info("[-] no way to bypass blacklist to directly getshell.")
+    else:
+        achivements["directly input bypass"] = ["None", 0]
+        logger.info("[-] no paths found to directly getshell.")
 
     # Step3: Try to find generators
     try_to_restore("generator", (a for a in ()).gi_frame.__class__)

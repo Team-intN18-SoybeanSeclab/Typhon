@@ -1,9 +1,8 @@
 # Licensed under the Apache License: http://www.apache.org/licenses/LICENSE-2.0
 
-__version__ = "1.0.7.3"
+from .Typhon import bypassRCE, bypassREAD, bypassMAIN, VERSION
 
-from .Typhon import bypassRCE, bypassREAD, bypassMAIN
-
+__version__ = VERSION
 
 __all__ = [
     "bypassMAIN",
