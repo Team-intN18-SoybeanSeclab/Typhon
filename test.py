@@ -26,13 +26,13 @@ class TestTyphonRCE(unittest.TestCase):
                     Typhon.bypassRCE(
                         cmd="whoami",
                         interactive=True,
-                        banned_chr=[a for a in string.ascii_letters],
+                        banned_chr=''.join([a for a in string.ascii_letters]),
                         allow_unicode_bypass=True,
                         banned_ast=[ast.Import],
                         local_scope={},
                         log_level="TESTING",
                     )
-                    del Typhon
+                del Typhon
                 mock_exit.assert_called_with(0)
             with patch("builtins.exit") as mock_exit:
                 mock_exit.side_effect = RuntimeError("Test")
@@ -47,7 +47,7 @@ class TestTyphonRCE(unittest.TestCase):
                         local_scope={},
                         log_level="TESTING",
                     )
-                    del Typhon
+                del Typhon
                 mock_exit.assert_called_with(0)
             with patch("builtins.exit") as mock_exit:
                 mock_exit.side_effect = RuntimeError("Test")
@@ -102,8 +102,7 @@ class TestTyphonREAD(unittest.TestCase):
 
                 with self.assertRaises(RuntimeError):
 
-                    def b():
-                        pass
+                    def b(): pass; b()
 
                     Typhon.bypassREAD(
                         filepath="/flag",
