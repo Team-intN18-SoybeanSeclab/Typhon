@@ -84,7 +84,7 @@ def bypassMAIN(
     :param log_level: is the logging level, default is INFO, change it to
     DEBUG for more details.
     """
-    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters, allowed_int, banned_ast_, banned_chr_, banned_re_, max_length_, original_scope, int_dict, allowed_chr_, import_test, modules_test, load_module_test
+    global achivements, log_level_, generated_path, search_depth, tagged_scope, try_to_restore, reminder, string_dict, allowed_letters, is_localscope_set, allowed_int, banned_ast_, banned_chr_, banned_re_, max_length_, original_scope, int_dict, allowed_chr_, import_test, modules_test, load_module_test
     import_test, load_module_test, modules_test = False, False, False
     if isinstance(banned_re, str):
         banned_re = [banned_re]  # convert to list if it's a string
@@ -95,12 +95,14 @@ def bypassMAIN(
         )
     if local_scope == None:
         # If the local scope is not specified, raise a warning.
+        is_localscope_set = False
         logger.warning("[!] local scope not specified, using the global scope.")
         logger.debug("[*] current global scope: %s", current_global_scope)
         local_scope = current_global_scope
-        local_scope["__builtins__"] = __import__('builtins')
+        local_scope["__builtins__"] = __builtins__
         is_builtins_rewrited = False
     else:
+        is_localscope_set = True
         is_builtins_rewrited = True if "__builtins__" in local_scope else False
     banned_chr_ = banned_chr
     banned_ast_ = banned_ast
@@ -363,6 +365,7 @@ Try to bypass blacklist with them. Please be paitent.",
         local_scope["__builtins__"] = __builtins__
     # not using | for backward compatibility
     local_scope = merge_dicts(local_scope["__builtins__"], local_scope)
+    if not is_localscope_set: local_scope["__builtins__"] = __import__("builtins")
     tagged_scope = tag_scope(local_scope, change_in_builtins)
     # check if we got an UNKNOWN tag
     for i in tagged_scope:
