@@ -31,7 +31,7 @@ from .utils import *
 # The RCE data including RCE functions and their parameters.
 from .RCE_data import *
 
-VERSION = "1.0.8"
+VERSION = "1.0.8.1"
 BANNER = (
     r"""
     .-')          _                 Typhon: a pyjail bypassing tool
@@ -98,7 +98,7 @@ def bypassMAIN(
         logger.warning("[!] local scope not specified, using the global scope.")
         logger.debug("[*] current global scope: %s", current_global_scope)
         local_scope = current_global_scope
-        local_scope["__builtins__"] = __builtins__
+        local_scope["__builtins__"] = __import__('builtins')
         is_builtins_rewrited = False
     else:
         is_builtins_rewrited = True if "__builtins__" in local_scope else False
