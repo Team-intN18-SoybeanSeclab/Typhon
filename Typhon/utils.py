@@ -293,7 +293,7 @@ def parse_payload_list(
         if "MODULE_BUILTINS" in payload:
             if "MODULE_BUILTINS" in generated_path:
                 tags["MODULE_BUILTINS"] = generated_path["MODULE_BUILTINS"]
-            if not generated_path["MODULE_BUILTINS"]:
+            if "MODULE_BUILTINS" not in generated_path:
                 continue
         if len(path) == 3:
             output.append([payload, tags, path[2]])

@@ -1,12 +1,11 @@
 import ast
 import base64
-
 from .Typhon import logger
-from typing import Union, List
 from copy import copy, deepcopy
 from random import randint, choice
 from functools import wraps, reduce
 from string import ascii_letters, digits
+from typing import Union, List, Optional
 
 
 def remove_duplicate(List) -> list:
@@ -189,7 +188,9 @@ class BypassGenerator:
         the bypasser is used after the recursion step.
         """
         from .utils import find_object, is_blacklisted
-
+        from .Typhon import banned_ast_
+        
+        self.banned_ast = banned_ast_
         self.find_object = find_object
         self.is_blacklisted = is_blacklisted
         self.payload = payload[0]
@@ -1324,6 +1325,7 @@ class BypassGenerator:
         transformed_tree = transformer.visit(tree)
         ast.fix_missing_locations(transformed_tree)
         return ast.unparse(transformed_tree)
+    
 
 
 # TO BE CONTINUED
