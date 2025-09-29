@@ -189,7 +189,7 @@ class BypassGenerator:
         """
         from .utils import find_object, is_blacklisted
         from .Typhon import banned_ast_
-        
+
         self.banned_ast = banned_ast_
         self.find_object = find_object
         self.is_blacklisted = is_blacklisted
@@ -1325,7 +1325,6 @@ class BypassGenerator:
         transformed_tree = transformer.visit(tree)
         ast.fix_missing_locations(transformed_tree)
         return ast.unparse(transformed_tree)
-    
 
 
 # TO BE CONTINUED

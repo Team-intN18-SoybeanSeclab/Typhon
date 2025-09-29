@@ -26,7 +26,7 @@ class TestTyphonRCE(unittest.TestCase):
                     Typhon.bypassRCE(
                         cmd="whoami",
                         interactive=True,
-                        banned_chr=''.join([a for a in string.ascii_letters]),
+                        banned_chr="".join([a for a in string.ascii_letters]),
                         allow_unicode_bypass=True,
                         banned_ast=[ast.Import],
                         local_scope={},
@@ -102,7 +102,9 @@ class TestTyphonREAD(unittest.TestCase):
 
                 with self.assertRaises(RuntimeError):
 
-                    def b(): pass; b()
+                    def b():
+                        pass
+                        b()
 
                     Typhon.bypassREAD(
                         filepath="/flag",
