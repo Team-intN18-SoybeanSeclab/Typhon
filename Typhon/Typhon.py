@@ -201,7 +201,7 @@ def bypassMAIN(
             tags.append(data_name_tag)
             generated_path[data_name_tag] = current_scope[0][0]
             tagged_scope[current_scope[0][0]] = [current_scope[0][1], data_name_tag]
-            return obj
+            return
         path = filter_path_list(RCE_data[data_name], tagged_scope)
         if path:
             logger.info(
@@ -242,6 +242,7 @@ Try to bypass blacklist with them. Please be paitent.",
                         break
                 if success:
                     logger.info("[+] Success. %d payload(s) in total.", len(_))
+                    logger.info(f"[*] Using {i} as payload of {data_name}")
                     logger.debug(f"[*] payloads: {_}")
                     if end_of_prog:
                         if print_all_payload:
@@ -399,7 +400,7 @@ Try to bypass blacklist with them. Please be paitent.",
     obj_list.sort(key=len)
 
     string_ords = [
-        ord(i) for i in ascii_letters + digits + "_ [](){}=:;`\n\\+?>*|&~'\".<"
+        ord(i) for i in ascii_letters + digits + "_ [](){}=:;`+?>*|&~'\".<"
     ]
 
     def check_all_collected():
@@ -407,26 +408,27 @@ Try to bypass blacklist with them. Please be paitent.",
         for i in string_ords:
             if chr(i) not in string_dict:
                 all_colleted = False
+                break
         return all_colleted
 
     for i in string_ords:
         if not is_blacklisted(f"'{chr(i)}'"):
             string_dict[chr(i)] = f"'{chr(i)}'"
-        elif not is_blacklisted(f"'{chr(i)}'"):
+        elif not is_blacklisted(f'"{chr(i)}"'):
             string_dict[chr(i)] = f'"{chr(i)}"'
     obj_list.sort(key=len)
     if not check_all_collected():
-        logger.info("[*] Try to get string literals from __name__.")
+        logger.info("[*] Try to get string literals from docstrings.")
         for i in obj_list:
             obj = tagged_scope[i][0]
-            string = getattr(obj, "__name__", None)
+            string = getattr(obj, "__doc__", None)
             if is_blacklisted(i) and not allow_unicode_bypass:
                 continue
             if string:
                 for index, j in enumerate(string):
                     progress_bar(index + 1, len(string))
                     if j not in string_dict and ord(j) in string_ords:
-                        payload = i + ".__name__[" + str(index) + "]"
+                        payload = i + ".__doc__[" + str(index) + "]"
                         for _ in BypassGenerator(
                             [payload, []], allow_unicode_bypass, tagged_scope
                         ).generate_bypasses():
@@ -443,17 +445,17 @@ Try to bypass blacklist with them. Please be paitent.",
                     break
                 print()
     if not check_all_collected():
-        logger.info("[*] Try to get string literals from docstrings.")
+        logger.info("[*] Try to get string literals from __name__.")
         for i in obj_list:
             obj = tagged_scope[i][0]
-            doc = getattr(obj, "__doc__", None)
+            doc = getattr(obj, "__name__", None)
             if is_blacklisted(i) and not allow_unicode_bypass:
                 continue
             if doc:
                 for index, j in enumerate(doc):
                     progress_bar(index + 1, len(doc))
                     if j not in string_dict and ord(j) in string_ords:
-                        payload = i + ".__doc__[" + str(index) + "]"
+                        payload = i + ".__name__[" + str(index) + "]"
                         for _ in BypassGenerator(
                             [payload, []], allow_unicode_bypass, tagged_scope
                         ).generate_bypasses():
