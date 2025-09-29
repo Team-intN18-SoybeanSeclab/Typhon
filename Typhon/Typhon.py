@@ -31,7 +31,7 @@ from .utils import *
 # The RCE data including RCE functions and their parameters.
 from .RCE_data import *
 
-VERSION = "1.0.8.1"
+VERSION = "1.0.8.1.3"
 BANNER = (
     r"""
     .-')          _                 Typhon: a pyjail bypassing tool
@@ -190,13 +190,10 @@ def bypassMAIN(
         data_name_tag = data_name.upper()
         current_scope = get_name_and_object_from_tag(data_name_tag, tagged_scope)
         for _ in current_scope:
-            obj = _[1]
-            if obj.__class__ == check:
+            tag = _[1]
+            if tag == data_name.upper():
                 logger.info("[+] %s exists in the original scope.", data_name)
-                achivements[data_name] = [_[0], 1]
-                tags.append(data_name_tag)
-                generated_path[data_name_tag] = _[0]
-                return obj
+                return
         path = filter_path_list(RCE_data[data_name], tagged_scope)
         if path:
             logger.info(
