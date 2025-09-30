@@ -471,11 +471,17 @@ def try_bypasses(
     :param cmd: command to RCE (in the final step, otherwise None)
     :return: list of successful payloads
     """
-    successful_payloads = []
-    successful_payloads_with_reminder = []
     pathlist = parse_payload_list(
         pathlist, banned_chars, allow_unicode_bypass, local_scope, cmd
     )
+    path_list_with_reminder = []
+    for i in pathlist:
+        if len(i) == 3:
+            path_list_with_reminder.append(i)
+            pathlist.pop(i)
+    pathlist.sort(key=lambda x: len(x[0]))
+    path_list_with_reminder.sort(key=lambda x: len(x[0]))
+    pathlist.extend(path_list_with_reminder)
     Total = len(pathlist)
     for i, path in enumerate(pathlist):
         progress_bar(i + 1, Total)
@@ -485,20 +491,9 @@ def try_bypasses(
             if not is_blacklisted(_):
                 if len(path) == 3:
                     from .Typhon import reminder
-
                     remind = path[2].replace("{}", _)
                     reminder[_] = remind
-                    successful_payloads_with_reminder.append(_)
-                else:
-                    successful_payloads.append(_)
-    if pathlist:
-        sys.stdout.write("\n")
-    successful_payloads.sort(key=len)
-    successful_payloads_with_reminder.sort(key=len)
-    successful_payloads.extend(successful_payloads_with_reminder)
-
-    return successful_payloads
-
+                yield [_, Total]
 
 def progress_bar(current, total, bar_length=80):
     """

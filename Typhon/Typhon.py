@@ -31,7 +31,7 @@ from .utils import *
 # The RCE data including RCE functions and their parameters.
 from .RCE_data import *
 
-VERSION = "1.0.8.1.4"
+VERSION = "1.0.8.2"
 BANNER = (
     r"""
     .-')          _                 Typhon: a pyjail bypassing tool
@@ -221,41 +221,44 @@ Try to bypass blacklist with them. Please be paitent.",
                 tagged_scope,
                 cmd,
             )
-            if _:
-                success = False
-                for i in _:
-                    # If end of program, no need to exec to check in case of stucking by RCE function like help()
-                    if end_of_prog:
-                        exec_with_returns_ = lambda _, __: True
-                    else:
-                        exec_with_returns_ = exec_with_returns
-                    result = exec_with_returns_(i, original_scope)
-                    original_scope.pop("__return__", None)
-                    if (result.__class__ == check or check is None) and (
-                        not result is None or end_of_prog
-                    ):
-                        success = True
-                        tagged_scope[i] = [result, data_name_tag]
-                        achivements[data_name] = [i, len(_)]
-                        tags.append(data_name_tag)
-                        generated_path[data_name_tag] = i
-                        break
-                if success:
-                    logger.info("[+] Success. %d payload(s) in total.", len(_))
-                    logger.info(f"[*] Using {i} as payload of {data_name}")
-                    logger.debug(f"[*] payloads: {_}")
-                    if end_of_prog:
-                        if print_all_payload:
-                            bypasses_output(_)
-                        bypasses_output(i)
+            success = False
+            for num, i in enumerate(_, 1):
+                # If end of program, no need to exec to check in case of stucking by RCE function like help()
+                Total = i[1]
+                i = i[0]
+                if end_of_prog:
+                    exec_with_returns_ = lambda _, __: True
                 else:
-                    achivements[data_name] = ["None", 0]
-                    logger.info(
-                        "[-] no way to bypass blacklist to obtain %s.", data_name
-                    )
+                    exec_with_returns_ = exec_with_returns
+                result = exec_with_returns_(i, original_scope)
+                original_scope.pop("__return__", None)
+                if (result.__class__ == check or check is None) and (
+                    not result is None or end_of_prog
+                ):
+                    success = True
+                    tagged_scope[i] = [result, data_name_tag]
+                    achivements[data_name] = [i, num]
+                    tags.append(data_name_tag)
+                    generated_path[data_name_tag] = i
+                    progress_bar(Total, Total)
+                    # print("\033[2A" + ' ' * 80)
+                    break
+            if success:
+                print()
+                logger.info("[+] Success. %d payload(s) in total.", num)
+                logger.info(f"[*] Using {i} as payload of {data_name}")
+                logger.debug(f"[*] payloads: {_}")
+                if end_of_prog:
+                    if print_all_payload:
+                        bypasses_output(_)
+                    bypasses_output(i)
             else:
+                # print("\033[2A" + ' ' * 80)
                 achivements[data_name] = ["None", 0]
-                logger.info("[-] no way to bypass blacklist to obtain %s.", data_name)
+                print()
+                logger.info(
+                    "[-] no way to bypass blacklist to obtain %s.", data_name
+                )
         else:
             achivements[data_name] = ["None", 0]
             logger.info("[-] no paths found to obtain %s.", data_name)
