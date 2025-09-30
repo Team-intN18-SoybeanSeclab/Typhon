@@ -88,7 +88,30 @@ class TestTyphonRCE(unittest.TestCase):
                     )
                 del Typhon
                 mock_exit.assert_called_with(0)
+            with patch("builtins.exit") as mock_exit:
+                mock_exit.side_effect = RuntimeError("Test")
+                import Typhon
 
+                with self.assertRaises(RuntimeError):
+                    Typhon.bypassRCE(
+                        cmd="cat /flag",
+                        local_scope={"__builtins__": None},
+                        banned_chr=[
+                            "__loader__",
+                            "__import__",
+                            "os",
+                            "[:",
+                            "\\x",
+                            "+",
+                            "join",
+                        ],
+                        interactive=True,
+                        recursion_limit=200,
+                        depth=5,
+                        log_level="TESTING",
+                    )
+                del Typhon
+                mock_exit.assert_called_with(0)
 
 class TestTyphonREAD(unittest.TestCase):
     def tearDown(self):

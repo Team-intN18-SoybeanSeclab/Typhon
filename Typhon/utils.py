@@ -194,6 +194,7 @@ def parse_payload_list(
     allow_unicode_bypass: bool,
     local_scope: dict,
     cmd=Union[str, None],
+    bash_cmd = Union[str, None],
 ) -> list:
     """
     Parse a list of payloads (parse tags)
@@ -224,18 +225,18 @@ def parse_payload_list(
         tags = path[1]
         payload = path[0]
         if cmd:
-            if "COMMAND" in payload:
-                payload = payload.replace("COMMAND", f"'{cmd}'")
+            if "COMMAND" in payload and bash_cmd:
+                payload = payload.replace("COMMAND", f"'{bash_cmd}'")
             if "CMD_FILE" in payload:
                 payload = payload.replace(
                     "CMD_FILE", "'/bin/" + cmd.split(" ")[0] + "'"
                 )
             if "UNFOLD_CMD_ARGS" in payload:
                 if " " not in cmd:
-                    payload = payload.replace("UNFOLD_CMD_ARGS", "")
+                    payload = payload.replace("UNFOLD_CMD_ARGS", f"'{cmd}'")
                 payload = payload.replace(
                     "UNFOLD_CMD_ARGS",
-                    ",".join(["'" + i + "'" for i in cmd.split(" ")[1:]]),
+                    ",".join(["'" + i + "'" for i in cmd.split(" ")]),
                 )
         if "RANDOMVARNAME" in payload:
             if allowed_letters:
@@ -401,14 +402,12 @@ def filter_path_list(path_list: list, tagged_scope: dict) -> List[list]:
     return filtered_list
 
 
-def is_blacklisted(payload) -> bool:
+def is_blacklisted(payload, ast_check_enabled = True) -> bool:
     """
     Check if a payload is blacklisted
 
-    :param banned_chars: list of banned chars
-    :param banned_AST: list of banned AST
-    :param banned_re: banned regex
-    :param max_length: max length of the payload
+    :param payload: the payload to check
+    :param ast_check_enabled: if the AST check is enabled
     :return: True if the payload is blacklisted, False otherwise
     """
     from .Typhon import banned_ast_, banned_chr_, banned_re_, max_length_, allowed_chr_
@@ -421,17 +420,18 @@ def is_blacklisted(payload) -> bool:
     else:
         length_check = True
         max_length = max_length_
-    try:
-        ast_nodes = ast.walk(ast.parse(payload))
-        for bAST in banned_ast_:
-            if any(isinstance(node, bAST) for node in ast_nodes):
-                ast_banned = True
-                break
-    except (SyntaxError, TypeError):
-        from .Typhon import logger
+    if ast_check_enabled:
+        try:
+            ast_nodes = ast.walk(ast.parse(payload))
+            for bAST in banned_ast_:
+                if any(isinstance(node, bAST) for node in ast_nodes):
+                    ast_banned = True
+                    break
+        except (SyntaxError, TypeError):
+            from .Typhon import logger
 
-        logger.debug("Syntax error in payload when testing for AST: " + payload)
-        ast_banned = True
+            logger.debug("Syntax error in payload when testing for AST: " + payload)
+            ast_banned = True
     if banned_re_:
         for b_re in banned_re_:
             if re.search(b_re, payload):
@@ -457,6 +457,7 @@ def try_bypasses(
     allow_unicode_bypass,
     local_scope,
     cmd=None,
+    bash_cmd=None
 ) -> list:
     """
     Try to bypass each payload in the pathlist
@@ -474,7 +475,7 @@ def try_bypasses(
     successful_payloads = []
     successful_payloads_with_reminder = []
     pathlist = parse_payload_list(
-        pathlist, banned_chars, allow_unicode_bypass, local_scope, cmd
+        pathlist, banned_chars, allow_unicode_bypass, local_scope, cmd, bash_cmd
     )
     Total = len(pathlist)
     for i, path in enumerate(pathlist):
