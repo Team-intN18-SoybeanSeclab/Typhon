@@ -113,6 +113,7 @@ class TestTyphonRCE(unittest.TestCase):
                 del Typhon
                 mock_exit.assert_called_with(0)
 
+
 class TestTyphonREAD(unittest.TestCase):
     def tearDown(self):
         print(f"✓ Testcase '{self._testMethodName}' done.")

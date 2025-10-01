@@ -31,7 +31,7 @@ from .utils import *
 # The RCE data including RCE functions and their parameters.
 from .RCE_data import *
 
-VERSION = "1.0.9"
+VERSION = "1.0.9.1"
 BANNER = (
     r"""
     .-')          _                 Typhon: a pyjail bypassing tool
@@ -221,7 +221,7 @@ Try to bypass blacklist with them. Please be paitent.",
                 allow_unicode_bypass,
                 tagged_scope,
                 cmd,
-                bash_cmd
+                bash_cmd,
             )
             if _:
                 success = False
@@ -401,9 +401,7 @@ Try to bypass blacklist with them. Please be paitent.",
     obj_list = [i for i in tagged_scope]
     obj_list.sort(key=len)
 
-    string_ords = [
-        ord(i) for i in ascii_letters + digits + "_ [](){}=:;`+?>*|&~'\".<"
-    ]
+    string_ords = [ord(i) for i in ascii_letters + digits + "_ [](){}=:;`+?>*|&~'\".<"]
 
     def check_all_collected():
         all_colleted = True
@@ -416,7 +414,9 @@ Try to bypass blacklist with them. Please be paitent.",
     for i in string_ords:
         if not is_blacklisted(f"'{chr(i)}'", ast_check_enabled=False) and chr(i) != "'":
             string_dict[chr(i)] = f"'{chr(i)}'"
-        elif not is_blacklisted(f'"{chr(i)}"', ast_check_enabled=False) and chr(i) != '"':
+        elif (
+            not is_blacklisted(f'"{chr(i)}"', ast_check_enabled=False) and chr(i) != '"'
+        ):
             string_dict[chr(i)] = f'"{chr(i)}"'
     obj_list.sort(key=len)
     if not check_all_collected():
@@ -535,7 +535,7 @@ Try to bypass blacklist with them. Please be paitent.",
 
     # Step6: Restore builtins (if possible)
     if not is_builtins_rewrited:  # some thing was missing
-        logger.info('[*] Restoring __builtins__ in this namespace.')
+        logger.info("[*] Restoring __builtins__ in this namespace.")
         builtin_path = filter_path_list(
             RCE_data["restore_builtins_in_current_ns"], tagged_scope
         )
@@ -556,9 +556,7 @@ Try to bypass blacklist with them. Please be paitent.",
                 tagged_scope,
             )
             if _:
-                logger.info(
-                    "[+] builtins restored. %d payload(s) in total.", len(_)
-                )
+                logger.info("[+] builtins restored. %d payload(s) in total.", len(_))
                 logger.debug("[*] payloads to restore builtins: ")
                 logger.debug(_)
                 builtin_dict_found_count, builtin_module_found_count = 0, 0
@@ -576,10 +574,7 @@ Try to bypass blacklist with them. Please be paitent.",
                             tags.append("BUILTINS_SET")
                             generated_path["BUILTINS_SET"] = i
                         builtin_dict_found_count += 1
-                    elif (
-                        check_result == builtins
-                        and type(check_result) == ModuleType
-                    ):
+                    elif check_result == builtins and type(check_result) == ModuleType:
                         if not builtin_module_found_count:
                             logger.info(
                                 "[*] Using %s as the restored builtins module.", i
@@ -613,9 +608,7 @@ Try to bypass blacklist with them. Please be paitent.",
                             "builtins2RCEinput", end_of_prog=True
                         )  # try to RCE directly with builtins
             else:
-                logger.info(
-                    "[-] no way to find a bypass method to restore builtins."
-                )
+                logger.info("[-] no way to find a bypass method to restore builtins.")
         else:
             logger.info("[-] no paths found to restore builtins.")
     else:
@@ -852,7 +845,7 @@ def bypassRCE(
                 logger.info("[+] Using %s as the command to execute.", i)
                 bash_cmd = i
                 break
-            
+
     try_to_restore("__import__2RCE", end_of_prog=True, cmd=cmd, bash_cmd=bash_cmd)
 
     return bypasses_output(generated_path=generated_path)

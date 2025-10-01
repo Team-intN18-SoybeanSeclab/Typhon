@@ -194,7 +194,7 @@ def parse_payload_list(
     allow_unicode_bypass: bool,
     local_scope: dict,
     cmd=Union[str, None],
-    bash_cmd = Union[str, None],
+    bash_cmd=Union[str, None],
 ) -> list:
     """
     Parse a list of payloads (parse tags)
@@ -402,7 +402,7 @@ def filter_path_list(path_list: list, tagged_scope: dict) -> List[list]:
     return filtered_list
 
 
-def is_blacklisted(payload, ast_check_enabled = True) -> bool:
+def is_blacklisted(payload, ast_check_enabled=True) -> bool:
     """
     Check if a payload is blacklisted
 
@@ -457,7 +457,7 @@ def try_bypasses(
     allow_unicode_bypass,
     local_scope,
     cmd=None,
-    bash_cmd=None
+    bash_cmd=None,
 ) -> list:
     """
     Try to bypass each payload in the pathlist
