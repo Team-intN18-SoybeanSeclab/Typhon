@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Typhon: 最好的CTF pyjail（python jail）沙箱逃逸自动化解题工具
-=========================
+============================================================
 
 ``Typhon`` 是一款基于python3的开源工具，旨在为CTF选手提供方便的pyjail自动化解决工具。
 
@@ -25,7 +25,7 @@ Typhon: 最好的CTF pyjail（python jail）沙箱逃逸自动化解题工具
 .. toctree::
    :maxdepth: 2
 
-   usage
+   用户指南
    API
 
 链接
