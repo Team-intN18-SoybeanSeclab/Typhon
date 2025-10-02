@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Typhon: pyjail一把梭工具
+Typhon: 最好的pyjail自动化解题工具
 =========================
 
 ``Typhon`` 是一款基于python3的开源工具，旨在为CTF选手提供方便的pyjail自动化解决工具。
