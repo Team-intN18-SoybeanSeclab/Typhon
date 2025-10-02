@@ -138,17 +138,6 @@ def bypassMAIN(
         "profile",
         "timeit",
     ]
-    log_level_ = log_level.upper()
-    if log_level_ not in ["DEBUG", "INFO", "TESTING"]:
-        logger.warning("[!] Invalid log level, using INFO instead.")
-        log_level_ = "INFO"
-    if log_level_ == "TESTING":
-        log_level_ = "CRITICAL"  # for test scripts
-    if log_level_ != "DEBUG":
-        from warnings import filterwarnings
-
-        filterwarnings("ignore")
-    logger.setLevel(log_level_)
     reminder = (
         {}
     )  # The reminder of bypass method that could not be used in remote (like inheritance chain)
@@ -166,6 +155,19 @@ def bypassMAIN(
                 "[!] Please, change a better shell to enable the unicode feature."
             )
             allow_unicode_bypass = False
+    log_level_ = log_level.upper()
+    if log_level_ not in ["DEBUG", "INFO", "QUIET"]:
+        logger.warning("[!] Invalid log level, using INFO instead.")
+        log_level_ = "INFO"
+    if log_level_ == "QUIET":
+        from os import devnull
+        log_level_ = "CRITICAL"  # for test scripts & QUIET mode
+        sys.stdout = open(devnull, "w")  # disable stdout
+    if log_level_ != "DEBUG":
+        from warnings import filterwarnings
+
+        filterwarnings("ignore")
+    logger.setLevel(log_level_)
     achivements = {}  # The progress we've gone so far. Being output in the end
     generated_path = (
         {}
@@ -820,7 +822,7 @@ def bypassRCE(
     """
     if cmd == "":
         logger.critical("[!] command is empty, nothing to execute.")
-        exit(1)
+        quit(1)
 
     generated_path = bypassMAIN(
         local_scope,
@@ -887,7 +889,7 @@ def bypassREAD(
     """
     if filepath == "":
         logger.critical("[!] filepath is empty, nothing to read.")
-        exit(1)
+        quit(1)
     generated_path = bypassMAIN(
         local_scope,
         banned_chr=banned_chr,
@@ -905,7 +907,7 @@ def bypassREAD(
     mode = mode.lower()
     if mode not in ["eval", "exec"]:
         logger.critical('[!] mode must be either "eval" or "exec".')
-        exit(1)
+        quit(1)
     try_to_restore("filecontentsio", cmd=filepath)
     try_to_restore("filecontentstring", cmd=filepath)
     if mode == "eval":

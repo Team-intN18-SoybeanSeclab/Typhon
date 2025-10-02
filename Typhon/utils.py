@@ -536,8 +536,9 @@ def bypasses_output(
     :param generated_path: the generated path
     :return: None
     """
-    from .Typhon import achivements, reminder
-
+    from .Typhon import achivements, reminder, log_level_
+    if log_level_ == 'CRITICAL':
+        sys.stdout = sys.__stdout__
     print("\n")
     bypassed_path, printed_reminder = [], []
     if isinstance(bypassed_payload, str):

@@ -1343,14 +1343,12 @@ class BashBypassGenerator:
     # the below are modified from program bashfuck
     # https://github.com/ProbiusOfficial/bashFuck
     # Copyright @ ProbiusOfficial, 2025
-    
+
     def black_to_ifs_blanket(self, payload: str) -> str:
         """
         'cat /flag' -> 'cat${IFS}/flag'
         """
         return payload.replace(" ", "${IFS}")
-    
-    
 
     def get_oct(
         self, c

@@ -30,7 +30,7 @@ class TestTyphonRCE(unittest.TestCase):
                         allow_unicode_bypass=True,
                         banned_ast=[ast.Import],
                         local_scope={},
-                        log_level="TESTING",
+                        log_level="QUIET",
                     )
                 del Typhon
                 mock_exit.assert_called_with(0)
@@ -45,7 +45,7 @@ class TestTyphonRCE(unittest.TestCase):
                         interactive=False,
                         allow_unicode_bypass=True,
                         local_scope={},
-                        log_level="TESTING",
+                        log_level="QUIET",
                     )
                 del Typhon
                 mock_exit.assert_called_with(0)
@@ -60,7 +60,7 @@ class TestTyphonRCE(unittest.TestCase):
                         interactive=True,
                         banned_chr=["help", "breakpoint", "input"],
                         banned_re=r".*import.*",
-                        log_level="TESTING",
+                        log_level="QUIET",
                     )
                 del Typhon
                 mock_exit.assert_called_with(0)
@@ -84,7 +84,7 @@ class TestTyphonRCE(unittest.TestCase):
                         interactive=True,
                         recursion_limit=200,
                         depth=5,
-                        log_level="TESTING",
+                        log_level="QUIET",
                     )
                 del Typhon
                 mock_exit.assert_called_with(0)
@@ -108,7 +108,7 @@ class TestTyphonRCE(unittest.TestCase):
                         interactive=True,
                         recursion_limit=200,
                         depth=5,
-                        log_level="TESTING",
+                        log_level="QUIET",
                     )
                 del Typhon
                 mock_exit.assert_called_with(0)
@@ -146,7 +146,7 @@ class TestTyphonREAD(unittest.TestCase):
                         recursion_limit=100,
                         local_scope={"__builtins__": None, "a": lambda x: x, "b": b},
                         depth=5,
-                        log_level="TESTING",
+                        log_level="QUIET",
                     )
                 del Typhon
                 mock_exit.assert_called_with(0)
