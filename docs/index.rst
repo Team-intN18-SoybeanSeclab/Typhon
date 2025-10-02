@@ -24,10 +24,9 @@ Typhon: pyjail一把梭工具
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
    usage
-   api
+   API
 
 链接
 ------
