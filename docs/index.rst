@@ -33,4 +33,4 @@ Typhon: pyjail一把梭工具
 
 * `GitHub <https://github.com/Team-intN18-SoybeanSeclab/Typhon>`_
 * `PyPi <https://pypi.org/project/typhonbreaker/>`_
-* `Blog` <https://www.cnblogs.com/LAMENTXU/articles/19101758>`_
+* `Blog <https://www.cnblogs.com/LAMENTXU/articles/19101758>`_
