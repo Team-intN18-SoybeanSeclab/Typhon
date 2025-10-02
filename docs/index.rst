@@ -25,7 +25,7 @@ Typhon: 最好的CTF pyjail（python jail）沙箱逃逸自动化解题工具
 .. toctree::
    :maxdepth: 2
 
-   用户指南
+   USAGE
    API
 
 链接
