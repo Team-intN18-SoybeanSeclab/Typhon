@@ -206,7 +206,7 @@ def parse_payload_list(
     :param cmd: the final RCE command to execute, default None
     :return: filtered list of payloads, with its tags e.g. ['TYPE.__base__', {'TYPE': 'int.__class__'}]
     """
-    from .Typhon import generated_path, allowed_letters, allowed_int
+    from .Typhon import generated_path, allowed_letters, allowed_int, find_object
 
     output = []
     allowed_builtin_obj = [
@@ -265,6 +265,15 @@ def parse_payload_list(
             if allowed_int:
                 payload = payload.replace("RANDOMINT", allowed_int[0])
             else:
+                continue
+        if "TRUE" in payload:
+            for i in allowed_int:
+                if eval(i).__bool__():
+                    payload = payload.replace("TRUE", i)
+            name = find_object(True, local_scope)
+            if name:
+                payload = payload.replace("TRUE", name)
+            if 'TRUE' in payload:
                 continue
         if "BUILTINtype" in payload:
             if allowed_objects:
