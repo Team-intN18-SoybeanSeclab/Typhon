@@ -273,7 +273,7 @@ def parse_payload_list(
             name = find_object(True, local_scope)
             if name:
                 payload = payload.replace("TRUE", name)
-            if 'TRUE' in payload:
+            if "TRUE" in payload:
                 continue
         if "BUILTINtype" in payload:
             if allowed_objects:
@@ -546,7 +546,8 @@ def bypasses_output(
     :return: None
     """
     from .Typhon import achivements, reminder, log_level_
-    if log_level_ == 'CRITICAL':
+
+    if log_level_ == "CRITICAL":
         sys.stdout = sys.__stdout__
     print("\n")
     bypassed_path, printed_reminder = [], []

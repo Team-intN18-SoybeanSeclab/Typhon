@@ -57,7 +57,9 @@ class TestTyphonRCE(unittest.TestCase):
                 with self.assertRaises(RuntimeError):
                     Typhon.bypassRCE(
                         cmd="cat /tmp/flag.txt",
-                        banned_chr=['.', '_', '[', ']', "'", '"'])
+                        banned_chr=[".", "_", "[", "]", "'", '"'],
+                        log_level="QUIET",
+                    )
                 del Typhon
                 mock_exit.assert_called_with(0)
             with patch("builtins.exit") as mock_exit:
