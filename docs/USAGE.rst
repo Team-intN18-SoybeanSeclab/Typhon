@@ -87,6 +87,8 @@ USAGE 用户指南
     .. attribute:: banned_re
 
         禁止使用的正则表达式列表。
+
+        如果只有单个禁止的正则表达式，可以直接传入该正则表达式的字符串。
     .. attribute:: max_length
 
         最大长度限制。
@@ -124,6 +126,6 @@ USAGE 用户指南
         ``"INFO"`` 日志级别会打印出沙箱的简要信息，包括每个步骤的执行时间、返回值等。
         ``QUIET`` 日志级别会关闭所有日志输出。
 
-.. function:: bypass_READ()
+.. function:: bypassREAD(filepath,mode: str = "eval",local_scope: dict = None,banned_chr: list = [],allowed_chr: list = [],banned_ast: list = [],banned_re: list = [],max_length: int = None,allow_unicode_bypass: bool = False,print_all_payload: bool = False,interactive: bool = True,depth: int = 5,recursion_limit: int = 200,log_level: str = "INFO",)
 
     此函数尚未完善。
