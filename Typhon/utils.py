@@ -438,6 +438,7 @@ def is_blacklisted(payload, ast_check_enabled=True) -> bool:
                     break
         except (SyntaxError, TypeError):
             from .Typhon import logger
+
             logger.debug("Syntax error in payload when testing for AST: " + payload)
             ast_banned = True
     if banned_re_:

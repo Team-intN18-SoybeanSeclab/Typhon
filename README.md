@@ -1,6 +1,7 @@
 # Typhon: Lets solve pyjail without brain  
 
-[![PyPI Downloads](https://static.pepy.tech/personalized-badge/typhonbreaker?period=total&units=ABBREVIATION&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/typhonbreaker)
+[![PyPI Downloads](https://static.pepy.tech/personalized-badge/typhonbreaker?period=total&units=ABBREVIATION&left_color=BLACK&right_color=GREEN&left_text=total%20downloads)](https://pepy.tech/projects/typhonbreaker)
+[![PyPI Downloads per Week](https://static.pepy.tech/personalized-badge/typhonbreaker?period=week&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=weekly%20downloads)](https://pepy.tech/projects/typhonbreaker)
 ![License](https://img.shields.io/badge/license-Apache_2.0-cyan.svg)
 ![Python_version](https://img.shields.io/pypi/pyversions/TyphonBreaker.svg?logo=python&logoColor=FBE072)
 ![PyPI Version](https://img.shields.io/pypi/v/TyphonBreaker)
@@ -323,7 +324,7 @@ Typhon的workflow顺序如下：
     - [ ] `list.pop(0)`替换`list[0]`
     - [x] `list(dict(a=1))[0]`替换`'a'`
     - [x] `str()`替换空字符串
-- [x] 实现内置的bash bypasser 
+- [ ] 实现内置的bash bypasser 
 - [ ] 更好的`bypassREAD`函数  
 - [x] 实现白名单功能
 - [x] 自动寻找`bytes`
