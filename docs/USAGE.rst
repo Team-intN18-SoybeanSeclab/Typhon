@@ -28,6 +28,34 @@ USAGE 用户指南
         假如，当前的执行环境为 ``exec(code, {'__builtins__': None'})``,
         则该变量应被设置为 ``{'__builtins__': None}``。
 
+        若没有指定命名空间，则 ``Typhon`` 会通过栈帧获取 ``import Typhon`` 这一行的全局变量空间。 **因此，在这种情况下，请将
+        ``import Typhon`` 语句放在要执行的命令的上一行。**
+
+        要做：
+
+        .. code-block:: python
+
+            def safe_run(cmd):
+                import Typhon
+                Typhon.bypassRCE(cmd,
+                banned_chr=['builtins', 'os', 'exec', 'import'])
+
+            safe_run('cat /f*')
+
+
+        不要做：
+
+        .. code-block:: python
+
+            import Typhon
+
+            def safe_run(cmd):
+                Typhon.bypassRCE(cmd,
+                banned_chr=['builtins', 'os', 'exec', 'import'])
+
+            safe_run('cat /f*')
+
+
         大多数沙箱不会设置执行函数的 ``locals`` 属性（即 ``exec`` 和 ``eval`` 函数的第三个变量）。
         但若有，从 `exec的文档 <https://docs.python.org/3/library/functions.html#exec>`_ 中我们可以得知，当执行空间中既存在
         ``locals`` 又存在 ``globals`` 时，``locals`` 变量将会覆盖 ``globals`` 变量。因此，我们将 ``local_scope`` 设置为

@@ -9,7 +9,7 @@
 project = "typhon"
 copyright = "2025, Weilin Du"
 author = "Weilin Du"
-release = "0.9"
+release = "1.10"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
