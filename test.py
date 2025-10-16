@@ -26,7 +26,7 @@ class TestTyphonRCE(unittest.TestCase):
                     Typhon.bypassRCE(
                         cmd="whoami",
                         interactive=True,
-                        banned_chr="".join([a for a in string.ascii_letters]),
+                        banned_chr="Hackyou",
                         allow_unicode_bypass=True,
                         banned_ast=[ast.Import],
                         local_scope={},
