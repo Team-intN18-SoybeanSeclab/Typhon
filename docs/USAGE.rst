@@ -55,7 +55,7 @@ USAGE 用户指南
 
         禁止使用的语法树节点列表。
 
-        例如： ``banned_ast = ["ast.Attribute"]`` 表示禁止使用 `ast.Attribute <https://docs.python.org/3/library/ast.html#ast.Attribute>`_ 节点。
+        例如： ``banned_ast = [ast.Attribute]`` 表示禁止使用 `ast.Attribute <https://docs.python.org/3/library/ast.html#ast.Attribute>`_ 节点。
     .. attribute:: banned_re
 
         禁止使用的正则表达式列表。
