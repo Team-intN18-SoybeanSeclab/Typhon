@@ -21,9 +21,10 @@ Typhon: 最好的 CTF pyjail 沙箱逃逸自动化解题工具
    def main():
       typhonbreaker.bypass_RCE(
          'pwn_the_world',
-         banned_chr = 'hack',
-         banned_re = 'for',
-         banned_ast = 'fun',
+         local_scope = {'__builtins__' : {'hack_for': fun()}}
+         banned_chr = 'welcome',
+         banned_re = '*.to*.',
+         banned_ast = ast.Typhon,
          max_length = 1337,
       )
 
