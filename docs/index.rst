@@ -28,7 +28,7 @@ Typhon: 最好的 CTF pyjail 沙箱逃逸自动化解题工具
    :maxdepth: 2
 
    USAGE
-   API
+   EXAMPLE
 
 链接
 ------
