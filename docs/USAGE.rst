@@ -28,8 +28,7 @@ USAGE 用户指南
         假如，当前的执行环境为 ``exec(code, {'__builtins__': None'})``,
         则该变量应被设置为 ``{'__builtins__': None}``。
 
-        若没有指定命名空间，则 ``Typhon`` 会通过栈帧获取 ``import Typhon`` 这一行的全局变量空间。 *因此，在这种情况下，请将
-        导入语句放在要执行的命令的上一行。*
+        若没有指定命名空间，则 ``Typhon`` 会通过栈帧获取 ``import Typhon`` 这一行的全局变量空间。 *因此，在这种情况下，请将导入语句放在要执行的命令的上一行。*
 
         要做：
 
@@ -87,6 +86,8 @@ USAGE 用户指南
     .. attribute:: banned_re
 
         禁止使用的正则表达式列表。
+
+        如果只有单个禁止的正则表达式，可以直接传入该正则表达式的字符串。
     .. attribute:: max_length
 
         最大长度限制。
@@ -124,6 +125,6 @@ USAGE 用户指南
         ``"INFO"`` 日志级别会打印出沙箱的简要信息，包括每个步骤的执行时间、返回值等。
         ``QUIET`` 日志级别会关闭所有日志输出。
 
-.. function:: bypass_READ()
+.. function:: bypassREAD(filepath,mode: str = "eval",local_scope: dict = None,banned_chr: list = [],allowed_chr: list = [],banned_ast: list = [],banned_re: list = [],max_length: int = None,allow_unicode_bypass: bool = False,print_all_payload: bool = False,interactive: bool = True,depth: int = 5,recursion_limit: int = 200,log_level: str = "INFO",)
 
     此函数尚未完善。

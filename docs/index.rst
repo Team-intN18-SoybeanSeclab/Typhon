@@ -52,4 +52,4 @@ Typhon: 最好的 CTF pyjail 沙箱逃逸自动化解题工具
 * `GitHub <https://github.com/Team-intN18-SoybeanSeclab/Typhon>`_
 * `PyPi <https://pypi.org/project/typhonbreaker/>`_
 * `Blog <https://www.cnblogs.com/LAMENTXU/articles/19101758>`_
-* `Search Page <https://typhonbreaker.readthedocs.io/zh-cn/latest/search.html>`
+* `Search Page <https://typhonbreaker.readthedocs.io/zh-cn/latest/search.html>`_
