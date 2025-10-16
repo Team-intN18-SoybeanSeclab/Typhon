@@ -34,6 +34,44 @@ class TestTyphonRCE(unittest.TestCase):
                     )
                 del Typhon
                 mock_exit.assert_called_with(0)
+        with redirect_stdout(StringIO()) as f:
+            with patch("builtins.exit") as mock_exit:
+                mock_exit.side_effect = RuntimeError("Test")
+                import string
+                import Typhon
+                import ast
+
+                with self.assertRaises(RuntimeError):
+                    Typhon.bypassRCE(
+                        cmd="whoami",
+                        interactive=False,
+                        allowed_chr=string.printable,
+                        allow_unicode_bypass=True,
+                        banned_ast=[ast.Import],
+                        local_scope={},
+                        log_level="QUIET",
+                    )
+                del Typhon
+                mock_exit.assert_called_with(0)
+        with redirect_stdout(StringIO()) as f:
+            with patch("builtins.exit") as mock_exit:
+                mock_exit.side_effect = RuntimeError("Test")
+                import string
+                import Typhon
+                import ast
+
+                with self.assertRaises(RuntimeError):
+                    Typhon.bypassRCE(
+                        cmd="whoami",
+                        interactive=False,
+                        banned_chr=["'", "\"", "i", "b", "__doc__"],
+                        allow_unicode_bypass=True,
+                        banned_ast=[ast.Import],
+                        local_scope={},
+                        log_level="QUIET",
+                    )
+                del Typhon
+                mock_exit.assert_called_with(0)
             with patch("builtins.exit") as mock_exit:
                 mock_exit.side_effect = RuntimeError("Test")
                 import string
