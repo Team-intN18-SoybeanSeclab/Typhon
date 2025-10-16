@@ -16,7 +16,7 @@ Typhon: 最好的 CTF pyjail 沙箱逃逸自动化解题工具
 
 .. code-block:: python
 
-   import typhonbreaker
+   import typhonbreaker, ast
 
    def main():
       typhonbreaker.bypass_RCE(
@@ -24,7 +24,7 @@ Typhon: 最好的 CTF pyjail 沙箱逃逸自动化解题工具
          local_scope = {'__builtins__' : {'hack_for': fun()}}
          banned_chr = 'welcome',
          banned_re = '*.to*.',
-         banned_ast = ast.Typhon,
+         banned_ast = [ast.Typhon],
          max_length = 1337,
       )
 
@@ -52,3 +52,4 @@ Typhon: 最好的 CTF pyjail 沙箱逃逸自动化解题工具
 * `GitHub <https://github.com/Team-intN18-SoybeanSeclab/Typhon>`_
 * `PyPi <https://pypi.org/project/typhonbreaker/>`_
 * `Blog <https://www.cnblogs.com/LAMENTXU/articles/19101758>`_
+* `Search Page <https://typhonbreaker.readthedocs.io/zh-cn/latest/search.html>`
