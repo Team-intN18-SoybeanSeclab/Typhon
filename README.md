@@ -13,7 +13,8 @@
 
 ![image](./image/usage_example.gif)
 
-blog: https://www.cnblogs.com/LAMENTXU/articles/19101758
+文档：https://typhonbreaker.readthedocs.io/  
+博客: https://www.cnblogs.com/LAMENTXU/articles/19101758
 
 **请务必看完本readme后再使用Typhon工具，尤其是[Q&A](#QA)部分。**
 
