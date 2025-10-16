@@ -28,6 +28,34 @@ USAGE 用户指南
         假如，当前的执行环境为 ``exec(code, {'__builtins__': None'})``,
         则该变量应被设置为 ``{'__builtins__': None}``。
 
+        若没有指定命名空间，则 ``Typhon`` 会通过栈帧获取 ``import Typhon`` 这一行的全局变量空间。 **因此，在这种情况下，请将
+        ``import Typhon`` 语句放在要执行的命令的上一行。**
+
+        要做：
+
+        .. code-block:: python
+
+            def safe_run(cmd):
+                import Typhon
+                Typhon.bypassRCE(cmd,
+                banned_chr=['builtins', 'os', 'exec', 'import'])
+
+            safe_run('cat /f*')
+
+
+        不要做：
+
+        .. code-block:: python
+
+            import Typhon
+
+            def safe_run(cmd):
+                Typhon.bypassRCE(cmd,
+                banned_chr=['builtins', 'os', 'exec', 'import'])
+
+            safe_run('cat /f*')
+
+
         大多数沙箱不会设置执行函数的 ``locals`` 属性（即 ``exec`` 和 ``eval`` 函数的第三个变量）。
         但若有，从 `exec的文档 <https://docs.python.org/3/library/functions.html#exec>`_ 中我们可以得知，当执行空间中既存在
         ``locals`` 又存在 ``globals`` 时，``locals`` 变量将会覆盖 ``globals`` 变量。因此，我们将 ``local_scope`` 设置为
@@ -65,15 +93,21 @@ USAGE 用户指南
     .. attribute:: allow_unicode_bypass
 
         是否允许使用 Unicode 绕过。若为 ``True``，则 ``Typhon`` 会尝试使用 Unicode 字符来绕过沙箱（如： ``__𝓲𝓶𝓹𝓸𝓻𝓽__``）。
+
+        本参数默认为 ``False``。
     .. attribute:: print_all_payload
 
         是否打印所有有效载荷。若为 ``True``，则 ``Typhon`` 会打印所有有效载荷，而非仅打印第一个有效载荷。
+
+        本参数默认为 ``False``。
     .. attribute:: interactive
 
         沙箱环境是否为交互式模式。换句话说，是否允许 ``stdin``，或是否允许用户再执行完命令后再次输入。
         当 ``interactive`` 为 ``True`` 时，``Typhon`` 会尝试使用 ``help()``， ``breakpoint`` 攻击沙箱。
 
         这个参数在面对一些 web 沙箱题目时非常有用。
+
+        本参数默认为 ``False``。
     .. attribute:: depth
 
         最大递归深度。当 ``Typhon`` 无法绕过一个沙箱时，可以尝试增大此值。
