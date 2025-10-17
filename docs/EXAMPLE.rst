@@ -78,6 +78,7 @@ flag位于 ``/flag.txt`` 文件中。
 运行，随意输入使得控制流进入 ``Typhon.bypassRCE()`` 函数，即可得到flag（在 ``input()`` 时直接回车即可）。
 
 .. code-block::
+    :emphasize-lines: 34
 
     You wake up in the jail gym. Your head is still sore from the bonk.
     What do you have to say for yourself?
