@@ -3,13 +3,24 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+import os
+import sys
+
+# Add the source directory to the path
+sys.path.insert(0, os.path.abspath('..'))
+
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "typhon"
-copyright = "2025, Weilin Du"
-author = "Weilin Du"
-release = "1.0.10"
+project = 'Typhon'
+copyright = '2025, Weilin Du'
+author = 'Weilin Du'
+import Typhon
+release = Typhon.__version__
+
+# -- General configuration ---------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
+
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
@@ -17,15 +28,11 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx_autodoc_typehints',
 ]
-# -- General configuration ---------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = []
-
-templates_path = ["_templates"]
+templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
-language = "zh-cn"
+language = 'en'
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
