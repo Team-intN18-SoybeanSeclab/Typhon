@@ -3,7 +3,7 @@ EXAMPLE 示例
 
 此页用于提供关于 ``Typhon`` 的一些实战例题。
 
-PwnyCTF Pyjail 2
+PwnyCTF-Pyjail 2
 -------------------
 
 题目链接： https://ctf.sigpwny.com/challenges#Vault/Pyjail%202-633
@@ -75,9 +75,9 @@ flag位于 ``/flag.txt`` 文件中。
         except:
             print('Sorry, not good enough. Go back to jail.')
 
-运行，随意输入使得控制流进入 ``Typhon.bypassRCE()`` 函数，即可得到flag（在 ``input()`` 时什么都不输入即可）。
+运行，随意输入使得控制流进入 ``Typhon.bypassRCE()`` 函数，即可得到flag（在 ``input()`` 时直接回车即可）。
 
-.. code-block:: bash
+.. code-block::
 
     You wake up in the jail gym. Your head is still sore from the bonk.
     What do you have to say for yourself?
@@ -118,3 +118,4 @@ flag位于 ``/flag.txt`` 文件中。
     +++++++++++Jail broken+++++++++++
 
 此时，我们再远程环境中输入 ``help()`` 再利用 `相应的技术 <https://typhonbreaker.readthedocs.io/zh-cn/latest/FAQ.html#id1>`_ 进行绕过即可 。
+
