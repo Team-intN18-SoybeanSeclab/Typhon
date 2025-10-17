@@ -1,5 +1,5 @@
 USAGE 用户指南
-========
+===============
 
 此页为 ``Typhon`` 项目的使用说明。
 
@@ -17,7 +17,7 @@ USAGE 用户指南
 
         要执行的Linux shell命令。
 
-        ``Typhon`` 会通过内置的 ``bashbypasser`` 对 ``cmd`` 进行等效变形（如： ``cat /flag`` 变为 ``cat$IFS$9/flag``）。因此，
+        ``Typhon`` 会通过内置的 ``BashBypasser`` 对 ``cmd`` 进行等效变形（如： ``cat /flag`` 变为 ``cat$IFS$9/flag``）。因此，
         请使用原始的命令，而非等效变形后的命令。
 
         例如： 使用 ``cmd = "cat /flag"`` 而不是 ``cmd = "cat$IFS$9/flag"``。
@@ -28,31 +28,33 @@ USAGE 用户指南
         假如，当前的执行环境为 ``exec(code, {'__builtins__': None'})``,
         则该变量应被设置为 ``{'__builtins__': None}``。
 
-        若没有指定命名空间，则 ``Typhon`` 会通过栈帧获取 ``import Typhon`` 这一行的全局变量空间。 *因此，在这种情况下，请将导入语句放在要执行的命令的上一行。*
+        .. caution::
 
-        要做：
+            若没有指定命名空间，则 ``Typhon`` 会通过栈帧获取 ``import Typhon`` 这一行的全局变量空间。 *因此，在这种情况下，请将导入语句放在要执行的命令的上一行。*
 
-        .. code-block:: python
+            要做：
 
-            def safe_run(cmd):
+            .. code-block:: python
+
+                def safe_run(cmd):
+                    import Typhon
+                    Typhon.bypassRCE(cmd,
+                    banned_chr=['builtins', 'os', 'exec', 'import'])
+
+                safe_run('cat /f*')
+
+
+            不要做：
+
+            .. code-block:: python
+
                 import Typhon
-                Typhon.bypassRCE(cmd,
-                banned_chr=['builtins', 'os', 'exec', 'import'])
 
-            safe_run('cat /f*')
+                def safe_run(cmd):
+                    Typhon.bypassRCE(cmd,
+                    banned_chr=['builtins', 'os', 'exec', 'import'])
 
-
-        不要做：
-
-        .. code-block:: python
-
-            import Typhon
-
-            def safe_run(cmd):
-                Typhon.bypassRCE(cmd,
-                banned_chr=['builtins', 'os', 'exec', 'import'])
-
-            safe_run('cat /f*')
+                safe_run('cat /f*')
 
 
         大多数沙箱不会设置执行函数的 ``locals`` 属性（即 ``exec`` 和 ``eval`` 函数的第三个变量）。
@@ -76,31 +78,38 @@ USAGE 用户指南
 
         例如： ``allowed_chr = "abc"`` 等价于 ``allowed_chr = ["a", "b", "c"]``。
 
-        请勿将本参数与 :attr:`banned_chr` 参数同时使用。
+        .. warning::
+
+            请勿将本参数与 :attr:`banned_chr` 参数同时使用。
 
     .. attribute:: banned_ast
 
         禁止使用的语法树节点列表。
 
         例如： ``banned_ast = [ast.Attribute]`` 表示禁止使用 `ast.Attribute <https://docs.python.org/3/library/ast.html#ast.Attribute>`_ 节点。
+    
     .. attribute:: banned_re
 
         禁止使用的正则表达式列表。
 
         如果只有单个禁止的正则表达式，可以直接传入该正则表达式的字符串。
+
     .. attribute:: max_length
 
         最大长度限制。
+
     .. attribute:: allow_unicode_bypass
 
         是否允许使用 Unicode 绕过。若为 ``True``，则 ``Typhon`` 会尝试使用 Unicode 字符来绕过沙箱（如： ``__𝓲𝓶𝓹𝓸𝓻𝓽__``）。
 
         本参数默认为 ``False``。
+
     .. attribute:: print_all_payload
 
         是否打印所有有效载荷。若为 ``True``，则 ``Typhon`` 会打印所有有效载荷，而非仅打印第一个有效载荷。
 
         本参数默认为 ``False``。
+
     .. attribute:: interactive
 
         沙箱环境是否为交互式模式。换句话说，是否允许 ``stdin``，或是否允许用户再执行完命令后再次输入。
@@ -109,12 +118,23 @@ USAGE 用户指南
         这个参数在面对一些 web 沙箱题目时非常有用。
 
         本参数默认为 ``True``。
+
     .. attribute:: depth
 
-        最大递归深度。当 ``Typhon`` 无法绕过一个沙箱时，可以尝试增大此值。
+        最大递归深度。
+        
+        .. tip::
+
+            当 ``Typhon`` 无法绕过一个沙箱时，可以尝试增大此值。
+
     .. attribute:: recursion_limit
 
-        最大递归次数限制。当 ``Typhon`` 无法绕过一个沙箱时，可以尝试增大此值。
+        最大递归次数限制。
+
+        .. tip::
+
+            当 ``Typhon`` 无法绕过一个沙箱时，可以尝试增大此值。
+
     .. attribute:: log_level
 
         日志级别。
@@ -123,7 +143,7 @@ USAGE 用户指南
 
         ``"DEBUG"`` 日志级别会打印出沙箱的详细信息，包括每个步骤的执行时间、返回值、异常信息等。
         ``"INFO"`` 日志级别会打印出沙箱的简要信息，包括每个步骤的执行时间、返回值等。
-        ``QUIET`` 日志级别会关闭所有日志输出。
+        ``"QUIET"`` 日志级别会关闭所有日志输出。
 
 .. function:: bypassREAD(filepath,mode: str = "eval",local_scope: dict = None,banned_chr: list = [],allowed_chr: list = [],banned_ast: list = [],banned_re: list = [],max_length: int = None,allow_unicode_bypass: bool = False,print_all_payload: bool = False,interactive: bool = True,depth: int = 5,recursion_limit: int = 200,log_level: str = "INFO",)
 
