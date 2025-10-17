@@ -29,4 +29,4 @@ FAQ 常见问题
     > <python-input-1>(1)<module>()
     (Pdb) __import__('os').system('') # 你要输入的命令
 
-进行RCE。 ``pdb.set_trace()`` 同理。
+这样就可以进行RCE（当然你也可以替换成其他命令）。 ``pdb.set_trace()`` 同理。

@@ -57,7 +57,7 @@ flag位于 ``/flag.txt`` 文件中。
 
 .. code-block:: python
     :linenos:
-    :emphasize-lines: 25
+    :emphasize-lines: 12,13
 
     def main():
 
