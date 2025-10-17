@@ -126,7 +126,7 @@ Typhon-Sample Pyjail 1
 
 .. code-block:: python
     :linenos:
-    :emphasize-lines: 1,23,36
+    :emphasize-lines: 1,24,37
 
         # flag in env
         WELCOME = '''
@@ -180,7 +180,6 @@ Typhon-Sample Pyjail 1
 
 .. code-block:: python
     :linenos:
-    :emphasize-lines: 23,36
 
         import Typhon
         Typhon.bypassRCE(
@@ -202,6 +201,7 @@ Typhon-Sample Pyjail 1
     对于复杂度较高的题目，可能需要等候较长时间。
 
 .. code-block::
+    :emphasize-lines: 125
 
         .-')          _                 Typhon: a pyjail bypassing tool
        (`_^ (    .----`/
