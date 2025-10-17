@@ -180,7 +180,7 @@ Typhon-Sample Pyjail 1
 
 - 命名空间为 ``{'__builtins__':None, 'st':str}`` 函数。
 
-我们可以利用 ``Typhon`` 库中的 ``bypassRCE()`` 函数绕过限制。由于flag在环境中，我们执行 ``env`` 即可得到flag。
+我们可以利用 ``Typhon`` 库中的 :func:`bypassRCE` 函数绕过限制。由于flag在环境中，我们执行 ``env`` 即可得到flag。
 
 .. code-block:: python
     :linenos:
