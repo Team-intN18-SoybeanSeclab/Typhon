@@ -14,6 +14,8 @@ Typhon: 最好的 CTF pyjail 沙箱逃逸自动化解题工具
 
 未来， ``Typhon`` 会逐步实现针对 ``AST`` （抽象语法树）， ``audithook`` （审计钩子）黑名单的绕过功能，并提供多行的绕过策略，为CTF选手提供强大的pyjail自动化解题工具。
 
+:download:`下载项目源码 <https://github.com/Team-intN18-SoybeanSeclab/Typhon/archive/refs/heads/main.zip>`
+
 .. code-block:: python
 
    import Typhon, ast

