@@ -173,8 +173,11 @@ Typhon-Sample Pyjail 1
                     pass
 
 可以看到该题目有如下限制：
+
 - 禁止使用 ``__loader__``、 ``__import__``、 ``os``、 ``\\x``、 ``+``、 ``join``、 ``"``、 ``'``、 ``2``、 ``3``、 ``4``、 ``5``、 ``6``、 ``7``、 ``8``、 ``9``、 ``subprocess``、 ``[``、 ``]``、 ``sys``、 ``pty``、 ``uuid``、 ``future``、 ``codecs``、 ``io``、 ``multi`` 等关键字。
+
 - 禁止使用除 ``printable`` 字符集以外的字符。
+
 - 命名空间为 ``{'__builtins__':None, 'st':str}`` 函数。
 
 我们可以利用 ``Typhon`` 库中的 ``bypassRCE()`` 函数绕过限制。由于flag在环境中，我们执行 ``env`` 即可得到flag。
