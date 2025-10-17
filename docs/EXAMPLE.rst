@@ -117,7 +117,7 @@ flag位于 ``/flag.txt`` 文件中。
 
     +++++++++++Jail broken+++++++++++
 
-此时，我们再远程环境中输入 ``help()`` 再利用 `相应的技术 <https://typhonbreaker.readthedocs.io/zh-cn/latest/FAQ.html#id1>`_ 进行绕过即可 。
+此时，我们再远程环境中输入 ``help()`` 再利用 `相应的技术 <https://typhonbreaker.readthedocs.io/zh-cn/latest/FAQ.html#help-rce>`_ 进行绕过即可 。
 
 Typhon-Sample Pyjail 1 
 ----------------------
