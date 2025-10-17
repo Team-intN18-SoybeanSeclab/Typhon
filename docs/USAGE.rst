@@ -11,7 +11,7 @@ USAGE 用户指南
 
 ``Typhon`` 安装完成后，您可以使用如下终点函数进行绕过：
 
-.. function:: bypass_RCE(cmd, local_scope: dict = None, banned_chr: list = [], allowed_chr: list = [], banned_ast: list = [], banned_re: list = [],max_length: int = None,allow_unicode_bypass: bool = False,print_all_payload: bool = False,interactive: bool = True,depth: int = 5,recursion_limit: int = 200,log_level: str = "INFO",)
+.. function:: bypassRCE(cmd, local_scope: dict = None, banned_chr: list = [], allowed_chr: list = [], banned_ast: list = [], banned_re: list = [],max_length: int = None,allow_unicode_bypass: bool = False,print_all_payload: bool = False,interactive: bool = True,depth: int = 5,recursion_limit: int = 200,log_level: str = "INFO",)
 
     .. attribute:: cmd
 

