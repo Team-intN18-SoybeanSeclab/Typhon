@@ -22,4 +22,4 @@ sphinx:
 #    - requirements: docs/requirements.txt
 python:
    install:
-   - requirements: requirements-dev.txt
+   - requirements: docs/doc_requirments.txt
