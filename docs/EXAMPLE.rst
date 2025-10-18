@@ -4,7 +4,7 @@ EXAMPLE 示例
 此页用于提供关于 ``Typhon`` 的一些实战例题。
 
 PwnyCTF 2025-Pyjail 2
--------------------
+---------------------------------------------------
 
 题目链接： https://ctf.sigpwny.com/challenges#Vault/Pyjail%202-633
 
@@ -329,7 +329,7 @@ Typhon-Sample Pyjail 1
 
 .. note:: 
 
-    对于复杂度较高的题目，可能需要等候较长时间。（ `想提升性能？<https://typhonbreaker.readthedocs.io/zh-cn/latest/FAQ.html#id3>`_ ）
+    对于复杂度较高的题目，可能需要等候较长时间。（ `想提升性能？ <https://typhonbreaker.readthedocs.io/zh-cn/latest/FAQ.html#id3>`_ ）
 
 .. code-block::
     :emphasize-lines: 35
