@@ -75,7 +75,7 @@ flag位于 ``/flag.txt`` 文件中。
         except:
             print('Sorry, not good enough. Go back to jail.')
 
-运行，随意输入使得控制流进入 ``Typhon.bypassRCE()`` 函数，即可得到flag（在 ``input()`` 时直接回车即可）。
+运行，随意输入使得控制流进入 :func:`bypassRCE`` 函数，即可得到flag（在 ``input()`` 时直接回车即可）。
 
 .. code-block::
     :emphasize-lines: 34
