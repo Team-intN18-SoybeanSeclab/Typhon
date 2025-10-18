@@ -50,7 +50,7 @@ Pyjail中存在一些通过索引寻找对应object的gadgets（如继承链）�
 
 假设题目没有限制命名空间，则不必填写 :attr:`~bypassRCE.local_scope` 参数。Typhon会自动使用 ``import Typhon`` 时的当前命名空间进行绕过。
 
--这个payload我用不了能不能换一个
+这个payload我用不了能不能换一个
 -------------------------------------------------------------------------------------------------------
 
 你可以在参数中将 :attr:`~ bypassRCE.print_all_payload` 设置为 ``True`` ， ``Typhon`` 就会打印其生成的所有payload。
@@ -67,3 +67,13 @@ Pyjail中存在一些通过索引寻找对应object的gadgets（如继承链）�
 
 对于 :func: `bypassRCE` ，我们认为： **只要命令得到了执行，就是RCE成功。** 至于回显问题，你可以选择反弹shell，时间盲注，或者：添加 ``print_all_payload=True`` 参数，查看所有payload，其中可能含有能够成功回显的payload。
 
+跑得好慢怎么办
+---------------------
+
+对于复杂度高的题目，由于采用了局部最优的递归策略， ``Typhon`` 可能要用时 5 分钟左右，请耐心等待。
+
+如果你想提升性能，可以尝试：
+
+- 设置较低的 :attr:`~bypassRCE.recursion_limit` 值，如设置为100。
+
+- 设置较低的 :attr:`~bypassRCE.depth` 值，如设置为3。

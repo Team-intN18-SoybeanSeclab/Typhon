@@ -75,7 +75,7 @@ flag位于 ``/flag.txt`` 文件中。
         except:
             print('Sorry, not good enough. Go back to jail.')
 
-运行，随意输入使得控制流进入 ``Typhon.bypassRCE()`` 函数，即可得到flag（在 ``input()`` 时直接回车即可）。
+运行，随意输入使得控制流进入 :func:`bypassRCE` 函数，即可得到flag（在 ``input()`` 时直接回车即可）。
 
 .. code-block::
     :emphasize-lines: 34
@@ -159,7 +159,7 @@ HNCTF 2022-calc_jail_beginner_level1
 
 同上题，我们将 ``eval`` 所包含的行改为对应的绕过函数。将黑名单 ``"'`ib`` 作为 :attr:`~bypassRCE.banned_chr` 参数传入即可。（我们假设flag在 ``/flag`` ）
 
-此题中，为了追求更好的演示效果，我们假设这个程序不支持后续的输入（否则 ``help`` 直接可以解出，可以查看 `此题 <https://typhonbreaker.readthedocs.io/zh-cn/latest/EXAMPLE.html#pwnyctf-pyjail-2>`_ 的说明）。此处我们将 :attr:`~bypassRCE.interactive` 设置为 ``False``
+此题中，为了追求更好的演示效果，我们假设这个程序不支持后续的输入（否则 ``help`` 直接可以解出，可以查看 :ref:`此题 <pwnyctf-pyjail-2>`_ 的说明）。此处我们将 :attr:`~bypassRCE.interactive` 设置为 ``False``
 
 .. code-block:: python
     :linenos:
@@ -329,7 +329,7 @@ Typhon-Sample Pyjail 1
 
 .. note:: 
 
-    对于复杂度较高的题目，可能需要等候较长时间。
+    对于复杂度较高的题目，可能需要等候较长时间。（ `想提升性能？<https://typhonbreaker.readthedocs.io/zh-cn/latest/FAQ.html#id3>`_ ）
 
 .. code-block::
     :emphasize-lines: 35
