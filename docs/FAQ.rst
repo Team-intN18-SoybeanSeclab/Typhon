@@ -14,7 +14,7 @@ FAQ 常见问题
 
 .. warning::
     
-    由于实现方式不同，此方法只对linux环境有效。如果你想用其他的函数，如 ``breakpoint()``，请将对应绕过函数的 :attr:`bypassRCE.print_all_payload` 变量设置为 ``True``。
+    由于实现方式不同，此方法只对linux环境有效。如果你想用其他的函数，如 ``breakpoint()``，请将对应绕过函数的 :py:attr:`~bypassRCE.print_all_payload` 变量设置为 ``True``。
 
 如何使用 ``breakpoint()`` RCE
 -----------------------------
@@ -48,24 +48,24 @@ Pyjail中存在一些通过索引寻找对应object的gadgets（如继承链）�
 如果题目的 ``exec`` 和 ``eval`` 没有限制命名空间怎么办
 ---------------------------------------------------------------------------------------------------
 
-假设题目没有限制命名空间，则不必填写 :attr:`~bypassRCE.local_scope` 参数。Typhon会自动使用 ``import Typhon`` 时的当前命名空间进行绕过。
+假设题目没有限制命名空间，则不必填写 :py:attr:`~bypassRCE.local_scope` 参数。Typhon会自动使用 ``import Typhon`` 时的当前命名空间进行绕过。
 
 这个payload我用不了能不能换一个
 -------------------------------------------------------------------------------------------------------
 
-你可以在参数中将 :attr:`~ bypassRCE.print_all_payload` 设置为 ``True`` ， ``Typhon`` 就会打印其生成的所有payload。
+你可以在参数中将 :py:attr:`~ bypassRCE.print_all_payload` 设置为 ``True`` ， ``Typhon`` 就会打印其生成的所有payload。
 
 同时，请注意输出中的 ``reminder`` ，它会提示你该题目需要的环境。请确保题目中的环境符合 ``reminder`` 所描述的情况。
 
 这个WEB题好像没开放stdin，我 ``exec(input())`` 没用怎么办？
 --------------------------------------------------------------------------------------------------------
 
-你可以在参数中将 :attr:`~bypassRCE.interactive` 设置为 ``False`` ，Typhon就会禁止使用所有涉及 ``stdin`` 的payload。
+你可以在参数中将 :py:attr:`~bypassRCE.interactive` 设置为 ``False`` ，Typhon就会禁止使用所有涉及 ``stdin`` 的payload。
 
 最后输出的payload没回显怎么办
 -------------------------------------------------------------------------------------------
 
-对于 :func: `bypassRCE` ，我们认为： **只要命令得到了执行，就是RCE成功。** 至于回显问题，你可以选择反弹shell，时间盲注，或者：添加 ``print_all_payload=True`` 参数，查看所有payload，其中可能含有能够成功回显的payload。
+对于 :py:func:`bypassRCE` ，我们认为： **只要命令得到了执行，就是RCE成功。** 至于回显问题，你可以选择反弹shell，时间盲注，或者：添加 ``print_all_payload=True`` 参数，查看所有payload，其中可能含有能够成功回显的payload。
 
 跑得好慢怎么办
 ---------------------
@@ -74,6 +74,6 @@ Pyjail中存在一些通过索引寻找对应object的gadgets（如继承链）�
 
 如果你想提升性能，可以尝试：
 
-- 设置较低的 :attr:`~bypassRCE.recursion_limit` 值，如设置为100。
+- 设置较低的 :py:attr:`~bypassRCE.recursion_limit` 值，如设置为100。
 
-- 设置较低的 :attr:`~bypassRCE.depth` 值，如设置为3。
+- 设置较低的 :py:attr:`~bypassRCE.depth` 值，如设置为3。

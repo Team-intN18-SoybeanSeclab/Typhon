@@ -80,7 +80,7 @@ USAGE 用户指南
 
         .. warning::
 
-            请勿将本参数与 :attr:`banned_chr` 参数同时使用。
+            请勿将本参数与 :py:attr:`banned_chr` 参数同时使用。
 
     .. attribute:: banned_ast
 
