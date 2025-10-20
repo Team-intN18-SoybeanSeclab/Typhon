@@ -159,7 +159,7 @@ HNCTF 2022-calc_jail_beginner_level1
 
 同上题，我们将 ``eval`` 所包含的行改为对应的绕过函数。将黑名单 ``"'`ib`` 作为 :attr:`~bypassRCE.banned_chr` 参数传入即可。（我们假设flag在 ``/flag`` ）
 
-此题中，为了追求更好的演示效果，我们假设这个程序不支持后续的输入（否则 ``help`` 直接可以解出，可以查看 :ref:`此题 <pwnyctf-pyjail-2>`_ 的说明）。此处我们将 :attr:`~bypassRCE.interactive` 设置为 ``False``
+此题中，为了追求更好的演示效果，我们假设这个程序不支持后续的输入（否则 ``help`` 直接可以解出，可以查看 `此题 <https://typhonbreaker.readthedocs.io/zh-cn/latest/EXAMPLE.html#pwnyctf-2025-pyjail-2>`_ 的说明）。此处我们将 :attr:`~bypassRCE.interactive` 设置为 ``False``
 
 .. code-block:: python
     :linenos:
