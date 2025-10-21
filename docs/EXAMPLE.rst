@@ -196,7 +196,7 @@ HNCTF 2022-calc_jail_beginner_level1
     import Typhon
     Typhon.bypassRCE('cat /flag', banned_chr = '"\'`ib', interactive = False)
 
-运行，是程序进行到 :func:`bypassRCE` 函数即可：
+运行，使程序进行到 :func:`bypassRCE` 函数即可：
 
 .. code-block::
     :emphasize-lines: 41
