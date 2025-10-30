@@ -442,7 +442,7 @@ Typhon-Sample Pyjail 1
     if __name__ == '__main__':
         app.run(host='0.0.0.0',port=9000)
 
-这是一个由 `Flask <https://flask.org.cn/en/stable/>`_ 框架构建的含有 pyjail 挑战的 web 服务器。我们不难注意到，此题目唯一的 waf 是其对命名空间的限制：
+这是一个由 `Flask <https://flask.org.cn/en/stable/>`_ 框架构建的 pyjail web 挑战。我们不难注意到，此题目唯一的 waf 是其对命名空间的限制：
 
 .. code-block:: python
     :linenos:
@@ -456,7 +456,7 @@ Typhon-Sample Pyjail 1
 
         safe_globals = {"__builtins__": whitelist}
 
-由于这是一道web题目，我们不能控制程序的 stdin （即，类似于 ``input()`` , ``help()`` 的函数）。因此，我们将 :attr:`~bypassRCE.interactive` 设置为 ``False``
+由于这是一道web题目，我们不能控制程序的 stdin （即，类似于 ``input()`` , ``help()`` 的函数在此不适用）。因此，我们将 :attr:`~bypassRCE.interactive` 设置为 ``False``
 
 .. code-block:: python
     :linenos:
