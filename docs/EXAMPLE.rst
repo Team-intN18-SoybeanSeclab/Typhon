@@ -386,7 +386,7 @@ Typhon-Sample Pyjail 1
 题目源码：
 
 .. code-block:: python
-    :lineno:
+    :linenos:
 
     from flask import Flask, request, Response
     import sys
