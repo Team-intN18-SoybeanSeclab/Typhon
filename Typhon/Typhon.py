@@ -818,7 +818,7 @@ def bypassRCE(
     :param banned_chr: is a list of blacklisted characters.
     :param allowed_chr: is a list of allowed characters.
     :param banned_ast: is a list of banned AST.
-    :param banned_re: is a banned regex.
+    :param banned_re: is a list of banned regex.
     :param allow_unicode_bypass: if unicode bypasses are allowed.
     :param depth: is the depth that combined bypassing being generarted.
     :param recursion_limit: is the maximum recursion depth for bypassers.
@@ -864,6 +864,7 @@ def bypassRCE(
 def bypassREAD(
     filepath,
     mode: str = "eval",
+    stderr_leaked = True,
     local_scope: dict = None,
     banned_chr: list = [],
     allowed_chr: list = [],
@@ -881,7 +882,8 @@ def bypassREAD(
     The main function to try to RCE in sandbox.
 
     :param filepath: path to target file (e.g. /etc/passwd).
-    :param mode: eval & exec. Based on the execution function used by the targeted sandbox.
+    :param mode: 'eval' or 'exec'. Based on the execution function used by the targeted sandbox.
+    :param stderr_leaked: if the sandbox leaks error messages.
     :param local_scope: is a list of local variables in the sandbox environment.
     :param banned_chr: is a list of blacklisted characters.
     :param allowed_chr: is a list of allowed characters.
