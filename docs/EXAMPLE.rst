@@ -386,7 +386,7 @@ Typhon-Sample Pyjail 1
 题目源码：
 
 .. code-block:: python
-    :lineno:
+    :linenos:
 
     from flask import Flask, request, Response
     import sys
@@ -442,7 +442,7 @@ Typhon-Sample Pyjail 1
     if __name__ == '__main__':
         app.run(host='0.0.0.0',port=9000)
 
-这是一个由 `Flask <https://flask.org.cn/en/stable/>`_ 框架构建的含有 pyjail 挑战的 web 服务器。我们不难注意，此题目唯一的 waf 是其对命名空间的限制：
+这是一个由 `Flask <https://flask.org.cn/en/stable/>`_ 框架构建的含有 pyjail 挑战的 web 服务器。我们不难注意到，此题目唯一的 waf 是其对命名空间的限制：
 
 .. code-block:: python
     :linenos:
