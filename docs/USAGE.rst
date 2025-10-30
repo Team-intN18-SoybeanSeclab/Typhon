@@ -115,7 +115,7 @@ USAGE 用户指南
         沙箱环境是否为交互式模式。换句话说，是否允许 ``stdin``，或是否允许用户再执行完命令后再次输入。
         当 ``interactive`` 为 ``True`` 时，``Typhon`` 会尝试使用 ``help()``， ``breakpoint`` 攻击沙箱。
 
-        这个参数在面对一些 web 沙箱题目时非常有用。
+        这个参数在面对一些 web 沙箱题目时非常有用。具体可见例题： `0xgame 2025 week3 <https://typhon.lamentxu.top/zh-cn/latest/EXAMPLE.html#xgame-2025-1-2>`_
 
         本参数默认为 ``True``。
 

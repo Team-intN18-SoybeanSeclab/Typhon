@@ -128,6 +128,8 @@ Typhon.bypassREAD(filepath: str,
 
 ## Step by Step Tutorial
 
+你可以通过[示例文档](https://typhon.lamentxu.top/zh-cn/latest/EXAMPLE.html)中的例题来学习 Typhon 的实战用法。以下仅仅提供一个示例。
+
 假设有如下题目：
 
 ```python
