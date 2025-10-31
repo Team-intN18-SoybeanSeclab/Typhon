@@ -19,9 +19,9 @@ Typhon: 最好的 CTF pyjail 沙箱逃逸自动化解题工具
    import Typhon, ast
 
    def main():
-      Typhon.bypass_RCE(
+      Typhon.bypassRCE(
          'pwn_the_world',
-         local_scope = {'__builtins__' : {'hack_for': fun()}}
+         local_scope = {'__builtins__' : {'hack_for': fun()}},
          banned_chr = 'welcome',
          banned_re = '*.to*.',
          banned_ast = [ast.Typhon],

