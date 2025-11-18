@@ -31,7 +31,7 @@ from .utils import *
 # The RCE data including RCE functions and their parameters.
 from .RCE_data import *
 
-VERSION = "1.0.10"
+VERSION = "1.0.11"
 BANNER = (
     r"""
     .-')          _                 Typhon: a pyjail bypassing tool
