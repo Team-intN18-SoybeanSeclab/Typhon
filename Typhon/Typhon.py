@@ -31,7 +31,7 @@ from .utils import *
 # The RCE data including RCE functions and their parameters.
 from .RCE_data import *
 
-VERSION = "1.0.10"
+VERSION = "1.0.11"
 BANNER = (
     r"""
     .-')          _                 Typhon: a pyjail bypassing tool
@@ -864,7 +864,7 @@ def bypassRCE(
 def bypassREAD(
     filepath,
     mode: str = "eval",
-    stderr_leaked = True,
+    stderr_leaked=True,
     local_scope: dict = None,
     banned_chr: list = [],
     allowed_chr: list = [],
