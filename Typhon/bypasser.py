@@ -1332,7 +1332,8 @@ class BypassGenerator:
         """
         a() -> a.__call__()
 
-        only if less than five functions is called should this bypasser work.
+        only if less than three functions is called and have a 
+        length less than 30 characters should this bypasser work.
         """
 
         class CallCounter(ast.NodeVisitor):
@@ -1355,7 +1356,10 @@ class BypassGenerator:
                 )
                 return ast.copy_location(new_node, node)
 
-        def transform_expr_if_many_calls(expr_src: str, threshold: int = 5) -> str:
+        def transform_expr_if_many_calls(expr_src: str, threshold: int = 3) -> str:
+            if len(expr_src) > 30:
+                return expr_src
+
             tree = ast.parse(expr_src, mode="eval")
 
             counter = CallCounter()
