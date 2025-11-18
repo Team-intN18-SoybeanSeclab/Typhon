@@ -1327,50 +1327,6 @@ class BypassGenerator:
         ast.fix_missing_locations(transformed_tree)
         return ast.unparse(transformed_tree)
 
-    @general_bypasser
-    def func_add_call(self, payload: str):
-        """
-        a() -> a.__call__()
-
-        only if less than five functions is called should this bypasser work.
-        """
-
-        class CallCounter(ast.NodeVisitor):
-            def __init__(self):
-                self.count = 0
-
-            def visit_Call(self, node):
-                self.count += 1
-                self.generic_visit(node)
-
-        class CallToDunderCallTransformer(ast.NodeTransformer):
-            def visit_Call(self, node):
-                self.generic_visit(node)
-
-                new_func = ast.Attribute(
-                    value=node.func, attr="__call__", ctx=ast.Load()
-                )
-                new_node = ast.Call(
-                    func=new_func, args=node.args, keywords=node.keywords
-                )
-                return ast.copy_location(new_node, node)
-
-        def transform_expr_if_many_calls(expr_src: str, threshold: int = 5) -> str:
-            tree = ast.parse(expr_src, mode="eval")
-
-            counter = CallCounter()
-            counter.visit(tree)
-
-            if counter.count >= threshold:
-                return ast.unparse(tree)
-
-            transformer = CallToDunderCallTransformer()
-            new_tree = transformer.visit(tree)
-            ast.fix_missing_locations(new_tree)
-            return ast.unparse(new_tree)
-
-        return transform_expr_if_many_calls(payload)
-
 
 class BashBypassGenerator:
     """
