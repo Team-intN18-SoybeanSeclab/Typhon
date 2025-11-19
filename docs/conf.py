@@ -15,7 +15,8 @@ sys.path.insert(0, os.path.abspath('..'))
 project = 'Typhon'
 copyright = '2025, Weilin Du'
 author = 'Weilin Du'
-release = '1.0.10'
+import Typhon
+release = Typhon.__version__
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
