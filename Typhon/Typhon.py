@@ -22,9 +22,15 @@ logger = logging.getLogger(__name__)
 
 # get current global scope
 current_frame = currentframe()
-while current_frame.f_globals["__name__"] != "__main__":
-    current_frame = current_frame.f_back
-current_global_scope = current_frame.f_globals
+try:
+    while current_frame.f_globals["__name__"] != "__main__":
+        current_frame = current_frame.f_back
+except KeyError:
+    # This is for readthedocs build. See https://github.com/LamentXU123/Typhon/pull/1/
+    # You would not use this in a real environment.
+    current_global_scope = currentframe().f_back.f_back.f_back.f_back.f_back.f_back.f_globals
+finally:
+    current_global_scope = current_frame.f_globals
 
 from .utils import *
 
