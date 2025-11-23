@@ -1,4 +1,4 @@
-# This code is the main file of the Typhon package.
+# This file is the main file of the Typhon package.
 # It is emphasized again that the code is only for educational purposes
 # (like in CTFs) and should not be used for any malicious purposes.
 # The code is maintained on github. If any bugs found or you have any
