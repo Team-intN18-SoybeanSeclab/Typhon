@@ -380,6 +380,11 @@ Copyright (c) 2024 ProbiusOfficial.
 
 Copyright (c) 2025 Weilin Du.
 
+## 404星链计划
+<img src="https://github.com/knownsec/404StarLink/raw/master/Images/logo.png" width="30%">
+
+Typhon 现已加入 [404星链计划](https://github.com/knownsec/404StarLink)
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Team-intN18-SoybeanSeclab/Typhon&type=Date&theme=dark" />
   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Team-intN18-SoybeanSeclab/Typhon&type=Date" />
