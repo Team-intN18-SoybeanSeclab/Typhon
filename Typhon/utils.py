@@ -225,8 +225,11 @@ def parse_payload_list(
         tags = path[1]
         payload = path[0]
         if cmd:
-            if "COMMAND" in payload and bash_cmd:
-                payload = payload.replace("COMMAND", f"'{bash_cmd}'")
+            if "COMMAND" in payload:
+                if bash_cmd:
+                    payload = payload.replace("COMMAND", f"'{bash_cmd}'")
+                else:
+                    payload = payload.replace("COMMAND", f"'{cmd}'")
             if "CMD_FILE" in payload:
                 payload = payload.replace(
                     "CMD_FILE", "'/bin/" + cmd.split(" ")[0] + "'"

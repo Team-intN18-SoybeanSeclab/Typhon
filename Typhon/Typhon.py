@@ -37,7 +37,7 @@ from .utils import *
 # The RCE data including RCE functions and their parameters.
 from .RCE_data import *
 
-VERSION = "1.0.11"
+VERSION = "1.0.12-alpha"
 BANNER = (
     r"""
     .-')          _                 Typhon: a pyjail bypassing tool
@@ -237,7 +237,8 @@ Try to bypass blacklist with them. Please be paitent.",
             if _:
                 success = False
                 for i in _:
-                    # If end of program, no need to exec to check in case of stucking by RCE function like help()
+                    # If end of program, no need to exec to check in case of being stuck
+                    # by RCE function like help()
                     if end_of_prog:
                         exec_with_returns_ = lambda _, __: True
                     else:
@@ -869,8 +870,6 @@ def bypassRCE(
 
 def bypassREAD(
     filepath,
-    mode: str = "eval",
-    stderr_leaked=True,
     local_scope: dict = None,
     banned_chr: list = [],
     allowed_chr: list = [],
@@ -888,8 +887,6 @@ def bypassREAD(
     The main function to try to RCE in sandbox.
 
     :param filepath: path to target file (e.g. /etc/passwd).
-    :param mode: 'eval' or 'exec'. Based on the execution function used by the targeted sandbox.
-    :param stderr_leaked: if the sandbox leaks error messages.
     :param local_scope: is a list of local variables in the sandbox environment.
     :param banned_chr: is a list of blacklisted characters.
     :param allowed_chr: is a list of allowed characters.
@@ -921,15 +918,7 @@ def bypassREAD(
         print_all_payload=print_all_payload,
         log_level=log_level,
     )
-    mode = mode.lower()
-    if mode not in ["eval", "exec"]:
-        logger.critical('[!] mode must be either "eval" or "exec".')
-        quit(1)
+
     try_to_restore("filecontentsio", cmd=filepath)
-    try_to_restore("filecontentstring", cmd=filepath)
-    if mode == "eval":
-        try_to_restore("filecontentstring", cmd=filepath, end_of_prog=True)
-    elif mode == "exec":
-        try_to_restore("filecontentstring", cmd=filepath)
-        try_to_restore("print_filecontent", cmd=filepath, end_of_prog=True)
+    try_to_restore("filecontentstring", cmd=filepath, end_of_prog=True)
     return bypasses_output(generated_path=generated_path)

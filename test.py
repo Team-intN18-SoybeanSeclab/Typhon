@@ -183,7 +183,6 @@ class TestTyphonREAD(unittest.TestCase):
 
                     Typhon.bypassREAD(
                         filepath="/flag",
-                        mode="exec",
                         banned_chr=[
                             "__loader__",
                             "__import__",
